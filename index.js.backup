@@ -1,0 +1,253 @@
+process.stderr.write('--- Top of src/index.ts ---\n');
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
+import logger from './logger.js'; // Import the configured logger
+import { customGreetingPrefix } from './config.js'; // Import custom prefix
+import { ToolExecutionError, AppError } from './errors.js'; // Import custom error and AppError
+// --- Temporarily Comment Out RAG Imports ---
+// import { ChromaClient, Collection, IncludeEnum } from 'chromadb';
+// import { pipeline, type Pipeline } from '@xenova/transformers';
+// --- Temporarily Comment Out RAG Constants ---
+// const CHROMA_SERVER_URL = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
+// const COLLECTION_NAME = 'fabric_ux_docs';
+// const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
+// const RAG_RESULTS_COUNT = 5;
+// --- Temporarily Comment Out RAG Initialization ---
+// let ragInitialized = false;
+// let embedder: any | null = null;
+// let chromaClient: ChromaClient | null = null;
+// let collection: Collection | null = null;
+// async function initializeRagComponents() { ... }
+/**
+ * MCP Server Template
+ *
+ * This is a minimal but complete MCP server implementation meant to serve as a
+ * starting point for building your own MCP servers.
+ *
+ * It demonstrates:
+ * - Basic server setup
+ * - Tool implementation
+ * - Resource handling
+ * - Prompt creation
+ * - Error handling
+ *
+ * IMPORTANT NOTES:
+ * 1. All debugging logs MUST be written to stderr, not stdout
+ * 2. In stdio mode, stdout is strictly reserved for JSON-RPC messages
+ * 3. Tool names are automatically prefixed by Cursor (e.g., 'add' becomes 'mcp_mcp_minimal_add')
+ * 4. The AI assistant can call tools directly using the prefixed name format
+ */
+// Create the server with basic configuration
+const server = new McpServer({
+    name: 'MCP Template Server',
+    version: '1.0.0',
+    capabilities: {
+        tools: true, // Keep capabilities declared, even if no tools registered TEMPORARILY
+        resources: true,
+        prompts: true,
+    },
+});
+// Use the central logger configured in logger.ts
+const log = logger;
+// Safe logging function that writes to stderr to avoid interfering with stdio protocol
+// CRITICAL: Never use console.log() as it writes to stdout and breaks the JSON-RPC protocol
+// const log = {
+//   info: (message: string) => process.stderr.write(`[INFO] ${message}\n`),
+//   error: (message: string, error?: unknown) => {
+//     process.stderr.write(`[ERROR] ${message}\n`);
+//     if (error instanceof Error) {
+//       process.stderr.write(`[ERROR] ${error.message}\n${error.stack}\n`);
+//     }
+//   }
+// };
+// ==== TOOLS ====
+// 1. Add Tool Definition (Keep definition)
+const AddToolArgsSchema = z.object({
+    number1: z.number().describe('The first number to add.'),
+    number2: z.number().describe('The second number to add.'),
+});
+async function handleAddTool({ number1, number2, }) {
+    const toolName = 'add';
+    try {
+        log.info(`Executing ${toolName} tool with ${number1} and ${number2}`);
+        const sum = number1 + number2;
+        // Simulate a potential error for demonstration (e.g., if numbers are too large)
+        if (Math.abs(number1) > 1e15 || Math.abs(number2) > 1e15) {
+            throw new Error('Input numbers are too large for precise calculation.');
+        }
+        return {
+            content: [
+                {
+                    type: 'text',
+                    text: `The sum of ${number1} and ${number2} is ${sum}.`,
+                },
+            ],
+        };
+    }
+    catch (error) {
+        // Log and re-throw as a specific error
+        const toolError = new ToolExecutionError(toolName, 'Failed to calculate sum', error instanceof Error ? error : undefined, { number1, number2 });
+        log.error({ err: toolError }, toolError.message);
+        throw toolError;
+    }
+}
+// --- Temporarily Comment Out Registration ---
+// server.tool(
+//   'add',
+//   'Adds two numbers together and returns the sum',
+//   {
+//     number1: AddToolArgsSchema.shape.number1,
+//     number2: AddToolArgsSchema.shape.number2,
+//   },
+//   handleAddTool
+// );
+// 2. Greet Tool Definition (Keep definition)
+const GreetToolArgsSchema = z.object({
+    name: z.string().describe('The name of the person to greet.'),
+    greeting: z.string().optional().default('Hello').describe('The greeting phrase to use (optional).'),
+});
+export async function handleGreetTool({ name, greeting, }) {
+    const toolName = 'greet';
+    try {
+        log.info(`Executing ${toolName} tool for ${name}`);
+        // Apply the custom prefix if it exists
+        const actualGreeting = customGreetingPrefix
+            ? `${customGreetingPrefix}${greeting}`
+            : greeting;
+        const message = `${actualGreeting}, ${name}!`;
+        return {
+            content: [
+                {
+                    type: 'text',
+                    text: message,
+                },
+            ],
+        };
+    }
+    catch (error) {
+        // Log and re-throw as a specific error
+        const toolError = new ToolExecutionError(toolName, 'Failed to generate greeting', error instanceof Error ? error : undefined, { name, greeting });
+        log.error({ err: toolError }, toolError.message);
+        throw toolError;
+    }
+}
+// --- Temporarily Comment Out Registration ---
+// server.tool(
+//   'greet',
+//   'Greets the specified person',
+//   {
+//     name: GreetToolArgsSchema.shape.name,
+//     greeting: GreetToolArgsSchema.shape.greeting,
+//   },
+//   handleGreetTool
+// );
+// 3. AskFabricDocs Tool Definition (Keep definition, requires imports uncommented later)
+const AskFabricDocsArgsSchema = z.object({
+    query: z.string().describe('The natural language query about Fabric UX documentation.'),
+});
+async function handleAskFabricDocs({ query }) {
+    const toolName = 'askFabricDocs';
+    // ... (Ensure RAG imports/init are uncommented when enabling this tool)
+    // For now, return a placeholder or throw an error if called unexpectedly
+    log.warn(`${toolName} called while registration is commented out.`);
+    return { content: [{ type: 'text', text: 'Tool registration is currently disabled.' }] };
+}
+// --- Temporarily Comment Out Registration ---
+// server.tool(
+//     'askFabricDocs',
+//     'Queries the Fabric UX documentation knowledge base to find relevant snippets.',
+//     {
+//         query: AskFabricDocsArgsSchema.shape.query,
+//     },
+//     handleAskFabricDocs
+// );
+// ==== RESOURCES ====
+// Welcome Resource Definition (Keep definition)
+async function handleWelcomeResource(uri) {
+    const resourceName = 'welcome';
+    try {
+        log.info(`Accessing welcome resource at ${uri.href}`);
+        return {
+            contents: [
+                {
+                    uri: uri.href,
+                    text: 'Welcome to the MCP Template Server! This is a static resource example.',
+                },
+            ],
+        };
+    }
+    catch (error) {
+        const resourceError = new AppError(`Error accessing resource "${resourceName}"`, { uri: uri.href, cause: error });
+        log.error({ err: resourceError }, resourceError.message);
+        throw resourceError;
+    }
+}
+// --- Temporarily Comment Out Registration ---
+// server.resource(
+//   'welcome',
+//   'system://welcome',
+//   {
+//     description: 'A welcome message resource',
+//   },
+//   handleWelcomeResource
+// );
+// ==== PROMPTS ====
+// Summarize Prompt Definition (Keep definition)
+const SummaryPromptArgsSchema = z.object({
+    topic: z.string().describe('The topic to summarize'),
+});
+// --- Temporarily Comment Out Registration ---
+// server.prompt(
+//   'summarize',
+//   {
+//     topic: SummaryPromptArgsSchema.shape.topic,
+//   },
+//   ({ topic }) => { // Keep handler logic defined
+//      // ... handler body ...
+//   }
+// );
+// Start the server
+async function startServer() {
+    process.stderr.write('--- Entered startServer() ---\n');
+    // Check process.argv for --stdio flag (matching backup config)
+    if (process.argv.includes('--stdio')) {
+        process.stderr.write('--- --stdio flag found, entering try block ---\n');
+        try {
+            process.stderr.write('--- Initializing StdioServerTransport ---\n');
+            const transport = new StdioServerTransport();
+            process.stderr.write('--- Connecting server to transport ---\n');
+            await server.connect(transport);
+            process.stderr.write('--- Server connected successfully to stdio transport ---\n');
+            // Error handling
+            process.on('uncaughtException', (error) => {
+                // Check if error has stack before accessing
+                const stack = error instanceof Error ? error.stack : 'No stack available';
+                process.stderr.write(`--- UNCAUGHT EXCEPTION: ${error} \n${stack} ---\n`);
+                process.exit(1);
+            });
+            process.on('unhandledRejection', (reason) => {
+                // Check if reason is an Error and has stack
+                const reasonStr = reason instanceof Error ? `${reason.message}\n${reason.stack}` : String(reason);
+                process.stderr.write(`--- UNHANDLED REJECTION: ${reasonStr} ---\n`);
+                process.exit(1);
+            });
+        }
+        catch (error) {
+            // Check if error has stack before accessing
+            const stack = error instanceof Error ? error.stack : 'No stack available';
+            process.stderr.write(`--- ERROR in startServer try block: ${error} \n${stack} ---\n`);
+            process.exit(1);
+        }
+    }
+    else {
+        process.stderr.write(`--- ERROR: --stdio flag not found in process.argv: [${process.argv.join(', ')}] ---\n`);
+        process.exit(1);
+    }
+}
+// Start the server
+// Only start the server automatically if not in a test environment
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
+if (!isTestEnv) {
+    startServer();
+}
