@@ -48,4 +48,8 @@ temp/
 .env.production.local
 
 # Cursor-specific files
-.cursor/runtime/ 
+.cursor/runtime/
+
+# Backups
+_docs_fabric_ux.backup/
+mcp.backup.json 
