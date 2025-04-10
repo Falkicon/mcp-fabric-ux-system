@@ -1,18 +1,18 @@
-# MCP server boilerplate specification and work plan
+# Fabric UX System MCP Server Specification and Work Plan
 
 ## 1. Introduction
 
 ### 1.1. Goal
 
-To create a well-structured, maintainable, and extensible boilerplate project for building Model Context Protocol (MCP) servers using TypeScript. This boilerplate aims to accelerate development, promote consistency, and incorporate best practices identified in the research phase.
+To create a dedicated Model Context Protocol (MCP) server that acts as an expert source for the Fabric UX System. This server will provide developers using MCP-enabled AI clients with up-to-date information, guidance, and potentially interactive tools related to Fabric UX design, development, components, and content standards, by indexing a curated set of RAG-optimized documentation files located in the `_docs_fabric_ux` directory.
 
 ### 1.2. Background
 
-The `mcp-server.research.md` document highlights the increasing importance of MCP for integrating AI with external tools and data. It outlines best practices regarding security, configuration, deployment (especially using containers), and the utility of SDKs (like the TypeScript SDK) for simplifying development. This boilerplate will provide a practical starting point based on those findings.
+This project adapts the MCP server boilerplate to specifically serve information about the Fabric UX System by indexing the curated documentation in `_docs_fabric_ux` using a Retrieval-Augmented Generation (RAG) approach. This enables AI agents to provide more accurate and context-aware assistance to developers working within this ecosystem.
 
 ### 1.3. Target audience
 
-Developers (initially internal, potentially broader) needing to create new MCP servers. Assumes familiarity with TypeScript and basic server concepts.
+Developers using AI clients with MCP support (e.g., Cursor) who are building or maintaining user interfaces and experiences based on the Fabric UX System.
 
 ## 2. Specification
 
@@ -20,36 +20,37 @@ Developers (initially internal, potentially broader) needing to create new MCP s
 
 - **Language:** TypeScript
 - **Framework/SDK:** Utilize the official Anthropic TypeScript MCP SDK.
-- **Transport:** Support both standard input/output (`stdio`) and HTTP with Server-Sent Events (SSE) transport mechanisms, configurable at runtime.
-- **Primitives:** Include basic, extensible examples for:
-  - One `Tool`
-  - One `Resource`
-  - One `Prompt`
+- **Transport:** Primarily support standard input/output (`stdio`) for local client integration (e.g., Cursor).
+- **Architecture:** Retrieval-Augmented Generation (RAG).
+  - Indexing: Parse, chunk, and create vector embeddings for local documentation files.
+  - Retrieval: Use vector similarity search to find relevant document chunks based on user queries.
+  - Generation: Rely on the MCP client's AI agent to synthesize answers based on retrieved chunks.
+- **Primitives:** Develop MCP primitives focused on RAG:
+  - Core Tool: `askFabricDocs(query: string)` - Takes a natural language query, retrieves relevant documentation chunks using vector search, and returns them as context.
+  - *Potential Future Primitives: More specific tools leveraging metadata search (e.g., `getComponentAccessibility(componentName: string)`), or Resource/Prompt primitives if supported by clients.* 
+- **Data Source:** Local, RAG-optimized documentation files (primarily Markdown) located within the `_docs_fabric_ux` directory. This content will be synthesized and restructured from original sources (like those previously in `_references`).
+- **Indexing Engine:** Utilize a local vector database (e.g., ChromaDB, LanceDB) populated by an indexing script.
+- **Embedding Model:** Use a suitable sentence transformer model (local or API-based) for creating text embeddings.
 - **Configuration:**
-  - Primarily via environment variables (following 12-factor app principles).
-  - Optionally load configuration from a JSON or YAML file.
-  - Document all configuration options clearly.
-- **Validation:** Implement basic input validation for tool arguments using `zod`.
-- **Error handling:** Establish a consistent error handling strategy (e.g., custom error classes, potentially a Result pattern).
-- **Logging:** Integrate a simple, structured logging mechanism (e.g., `pino` or similar).
-- **Containerization:** Provide a `Dockerfile` for building a production-ready container image. Include a `.dockerignore` file.
-- **Documentation:** A comprehensive `README.md` covering:
-  - Project overview and purpose.
-  - Setup and installation instructions.
-  - Configuration details (environment variables, config files).
-  - How to run the server (stdio, HTTP/SSE, Docker).
-  - How to extend the boilerplate (adding new tools, resources, prompts).
-  - Basic security considerations.
-- **Testing:** Include a basic test setup (e.g., using `jest` or `vitest`) with example tests for the core functionality.
-- **Linting/Formatting:** Integrate ESLint and Prettier for code quality and consistency.
+  - Primarily via environment variables.
+  - Document relevant configuration options (e.g., `DOCS_PATH`, `VECTOR_DB_PATH`, `EMBEDDING_MODEL_NAME`). Example: `DOCS_PATH=_docs_fabric_ux`.
+- **Validation:** Implement input validation for tool arguments using `zod`.
+- **Error handling:** Maintain a consistent error handling strategy.
+- **Logging:** Utilize the existing structured logging mechanism (`pino`).
+- **Containerization:** Maintain the `Dockerfile` (potential V2 distribution method, may need adaptation for indexing).
+- **Documentation:** Update the `README.md` comprehensively covering the RAG architecture, the indexing process (`npm run index-docs`), setup, usage (`askFabricDocs` tool), and local deployment model.
+- **Testing:** Develop tests for the indexing process and the `askFabricDocs` tool.
+- **Linting/Formatting:** Maintain ESLint and Prettier integration.
 
 ### 2.2. Non-goals (Initial version)
 
-- Advanced authentication/authorization mechanisms (e.g., OAuth).
-- Specific cloud deployment templates (e.g., Terraform, CloudFormation, Cloudflare Workers setup).
+- Hosted deployment (server runs locally).
+- Real-time synchronization (indexing is manual/scripted).
+- Advanced authentication/authorization.
+- Specific cloud deployment templates.
 - Complex CI/CD pipeline definitions.
 - GUI management tools.
-- Database integrations.
+- Database integrations beyond what's needed for caching/indexing the documentation.
 
 ### 2.3. Common Issues and Solutions
 
@@ -66,28 +67,30 @@ Developers (initially internal, potentially broader) needing to create new MCP s
 
 ## 3. Work plan
 
-| Task ID | Description                                       | Estimated Effort | Status | Notes                                                                                |
-| :------ | :------------------------------------------------ | :--------------- | :----- | :----------------------------------------------------------------------------------- |
-| **P0**  | **Foundation setup**                              |                  |        | _Completed: npm init, TS, ESLint/Prettier, Vitest, core deps_                        |
-| **P1**  | **Core server implementation**                    |                  |        | _Completed: SDK setup, stdio/http transports, example primitives_                    |
-| **P2**  | **Supporting components**                         |                  |        | _Completed: Config (.env), Logger (pino), Errors (custom class)_                     |
-| **P3**  | **Containerization & Documentation**              |                  |        | _Completed: Multi-stage Dockerfile, initial README.md_                               |
-| **P4**  | **Testing & Refinement**                          |                  |        | _Completed: Basic tests (config, greet), lint/format fixes_                          |
-| **P5**  | **Template Validation**                           |                  |        | _Verify template usability & functionality (Note: AI tool usage is model-dependent)_ |
-| V01     | Test dev mode run (stdio & http)                  | S                | Done   | Use `npm run dev`, check logs (Installed `pino-pretty`)                              |
-| V02     | Test prod mode run (stdio & http)                 | S                | Done   | Use `npm run build` + `npm start`, check logs                                        |
-| V03     | Test Docker run (stdio & http)                    | M                | Done   | Use `docker build` + `docker run` (Note: `logs` needs review for detached)           |
-| V04     | Test `greet` tool functionality                   | S                | Done   | Verified via AI prompt (Model Dependent)                                             |
-| V05     | Test `welcome-message` resource                   | S                | Done   | Verified via AI prompt (Model Dependent)                                             |
-| V06     | Test `summarize-topic` prompt                     | S                | Done   | Verified via AI prompt (Model Dependent)                                             |
-| V07     | Test adding a new simple tool                     | M                | Done   | Added `add` tool, verified via AI prompt (Model Dependent)                           |
-| V08     | Test adding a new simple resource                 | S                | Done   | Added `goodbye-message`, verified via AI prompt (Model Dependent)                    |
-| V09     | Test adding a new config variable                 | S                | Done   | Added `CUSTOM_GREETING_PREFIX`, verified with emoji prefix in greet output           |
-| V10     | Run unit tests (`npm test`)                        | S                | Done        | All tests pass after aligning function signatures           |
-| V11     | Run linting/formatting checks                      | S                | Done        | All files now meet linting and formatting standards          |
-| V12     | Review and update README.md                         | M                | Done   | Updated the README to reflect the current implementation, added a Common Issues section, removed references to HTTP/SSE transport, updated example configurations, fixed typos and clarified explanations |
-| V13     | Fix tool duplication and naming issues              | S                | Done   | Removed redundant tool registrations, improved comments                              |
-| V14     | Consolidate server logic and cleanup unused files   | M                | Done   | Merged minimal-server into index.ts, removed adapters/debug code                     |
+*(Refined based on RAG architecture with local files)*
+
+| Task ID | Description                                           | Estimated Effort | Status    | Notes                                                                                                              |
+| :------ | :---------------------------------------------------- | :--------------- | :-------- | :----------------------------------------------------------------------------------------------------------------- |
+| **SETUP** | **Environment & Dependencies**                        |                  |           |                                                                                                                    |
+| SETUP-01| Choose & Add Dependencies (Vector DB, Embeddings Lib) | S                | Done      | `chromadb`, `@xenova/transformers`, `unified`, `remark-parse`, `remark-frontmatter` installed.                       |
+| **DATA**  | **Documentation Rebuild (RAG Optimization)**          |                  |           |                                                                                                                    |
+| DATA-REBUILD-DEFINE | Define Target Structure & Format for `_docs_fabric_ux` | M                | Done      | Defined in `_docs_fabric_ux/DOCUMENTATION_GUIDE.md`.                                |
+| DATA-REBUILD-GUIDE | Create Documentation Standards Guide                  | S                | Done      | Created `_docs_fabric_ux/DOCUMENTATION_GUIDE.md`.                                                  |
+| DATA-REBUILD-EXECUTE| Rebuild/Synthesize Docs into `_docs_fabric_ux`    | XL               | Done     | Created new `.md` files based on defined structure/format, using `_references` as source. Depends on DEFINE task. |
+| **IMPL**  | **Core Implementation (RAG)**                         |                  |           | *Depends on DATA-REBUILD-EXECUTE*                                                                                  |
+| IMPL-01 | Implement Indexing Script (`scripts/indexDocs.ts`)    | L                | Done      | Target `_docs_fabric_ux`. Indexes content into ChromaDB via HTTP. Requires ChromaDB server (e.g., Docker). `npm run index-docs`. |
+| IMPL-02 | Implement `askFabricDocs` MCP Tool                  | M                | Done      | Connect to Vector DB (ChromaDB Server), embed query, search, return chunks. Implemented in `src/index.ts`.           |
+| IMPL-03 | Integrate Tool into MCP Server (`src/index.ts`)       | S                | Done      | Registered tool via `server.tool()` in `src/index.ts`.                                                            |
+| **TEST**  | **Testing**                                           |                  |           | *Depends on IMPL tasks*                                                                                            |
+| TEST-01 | Add Unit/Integration Tests for Indexing             | M                | To Do     | Test parsing, chunking, embedding calls, ChromaDB add via server.                                                 |
+| TEST-02 | Add Unit/Integration Tests for `askFabricDocs` Tool | M                | To Do     | Test query processing, vector search results via server.                                                           |
+| **DOCS**  | **Documentation**                                     |                  |           | *Depends on IMPL tasks*                                                                                            |
+| DOCS-01 | Update `README.md` with Setup & Usage Instructions    | M                | To Do     | Cover RAG, `_docs_fabric_ux`, ChromaDB server requirement (Docker), indexing script, `askFabricDocs` tool.        |
+| DOCS-02 | Update `mcp-server.plan.md` (Self-updating)           | XS               | Done      | Updated for RAG rebuild plan & ChromaDB server dependency.                                                         |
+| **REFACTOR**| **Refactoring & Quality Improvements**                |                  |           |                                                                                                                    |
+| REFACTOR-01 | Evaluate & Implement Biome for Linting/Formatting     | M                | To Do     | Consider replacing ESLint/Prettier with Biome for potential speed/simplicity gains.                                |
+| **DEPLOY**| **Future Considerations**                             |                  |           |                                                                                                                    |
+| DEPLOY-01 | Implement Hosted Server & Connector (SSE)             | XL               | Future    | Support for Copilot Studio etc.                                                                                    |
 
 ### 3.1. Effort estimation key
 
@@ -98,10 +101,10 @@ Developers (initially internal, potentially broader) needing to create new MCP s
 
 ## 4. Future considerations
 
+- Real-time or more frequent documentation updates.
 - Integration with specific CI/CD platforms.
-- Adding more sophisticated AuthN/AuthZ examples.
+- Adding more sophisticated AuthN/AuthZ examples if access needs control.
 - Providing IaC templates (Terraform, etc.).
-- Developing more complex example tools/resources.
-- Exploring support for Streamable HTTP transport when SDK support matures.
+- Developing more complex interactive tools (e.g., code snippet generation based on Fabric UX).
 
-This plan provides a starting point. We can adjust the scope, priorities, and details as needed. Let me know what you think!
+This plan provides a starting point. We can adjust the scope, priorities, and details as needed.

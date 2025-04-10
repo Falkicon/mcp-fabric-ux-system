@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: General coding standards and language-specific guidelines.
 globs: 
 alwaysApply: false
@@ -45,6 +50,7 @@ alwaysApply: false
 - Document significant dependency changes.
 
 ## Code Formatting & Cleanup
+- When creating files to debug issues, be sure to comment that they are temporary at the top of the file and delete them when the debugging is complete.
 - Apply configured code formatters (e.g., Black, Prettier) consistently.
 - Utilize linters (e.g., Ruff, Flake8, ESLint) to identify potential issues.
 - When requested, assist in generating commands or performing actions to remove unused code, imports, or files (requires human verification before execution).
