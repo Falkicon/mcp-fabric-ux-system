@@ -15,7 +15,9 @@ contributors:
 
 # Drawer (`<fabric-drawer>`)
 
+<!-- BEGIN-SECTION: Drawer Overview -->
 Displays content in a panel that slides in from the edge of the screen, typically used for navigation or supplemental content.
+<!-- END-SECTION: Drawer Overview -->
 
 ## Usage
 
@@ -121,8 +123,11 @@ if (drawer) {
 }
 ```
 
+<!-- END-SECTION: Drawer Usage -->
+
 ## API Reference (`<fabric-drawer>`)
 
+<!-- BEGIN-SECTION: Drawer API -->
 Based on `Drawer` class.
 
 ### Attributes & Properties
@@ -167,8 +172,11 @@ fabric-drawer[modal-type="modal"]::part(overlay) {
 }
 ```
 
+<!-- END-SECTION: Drawer API -->
+
 ## Styling
 
+<!-- BEGIN-SECTION: Drawer Styling -->
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
@@ -178,16 +186,21 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
 *   Width/Height are typically controlled via CSS on the `control` part or host.
 *   Transition/animation properties control the slide-in/out effect.
 *   Refer to `drawer.styles.ts` for detailed token usage.
+<!-- END-SECTION: Drawer Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Drawer Accessibility -->
 *   Sets `role="dialog"`.
 *   Manages `aria-modal="true"` for modal drawers.
 *   Requires an accessible name via `aria-label` or `aria-labelledby` (often linking to the `title` slot in the `drawer-body`).
 *   Focus is managed: trapped within modal drawers, and typically returned to the trigger element on close.
 *   Dismissible via the `Esc` key (if modal).
+<!-- END-SECTION: Drawer Accessibility -->
 
 ## Dependencies
 
+<!-- BEGIN-SECTION: Drawer Dependencies -->
 *   Relies on the HTML Popover API (`[popover]`) or its polyfill for displaying the drawer layer.
 *   Ensure the Popover polyfill is loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)).
+<!-- END-SECTION: Drawer Dependencies -->

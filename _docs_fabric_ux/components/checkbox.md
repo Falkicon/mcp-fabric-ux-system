@@ -15,9 +15,12 @@ contributors:
 
 # Checkbox (`<fabric-checkbox>`)
 
+<!-- BEGIN-SECTION: Checkbox Overview -->
 Displays a checkbox input allowing users to select one or more options.
+<!-- END-SECTION: Checkbox Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Checkbox Usage -->
+## Checkbox Usage (fabric-checkbox)
 
 **Importing:**
 
@@ -80,8 +83,10 @@ if (basicCheckbox) {
   });
 }
 ```
+<!-- END-SECTION: Checkbox Usage -->
 
-## API Reference (`<fabric-checkbox>`)
+<!-- BEGIN-SECTION: Checkbox API -->
+## Checkbox API Reference (fabric-checkbox)
 
 Based on `Checkbox` class extending `CheckboxBase`.
 
@@ -131,8 +136,10 @@ fabric-checkbox::part(label) {
   margin-left: var(--spacingHorizontalS);
 }
 ```
+<!-- END-SECTION: Checkbox API -->
 
-## Styling
+<!-- BEGIN-SECTION: Checkbox Styling -->
+## Checkbox Styling (fabric-checkbox)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -144,11 +151,14 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--borderRadiusSmall`, `--borderRadiusMedium`: Used for control shape.
     *   `--strokeWidthThin`, `--strokeWidthThick`: Border widths.
 *   Refer to `checkbox.styles.ts` for detailed token usage and state variations (hover, pressed, disabled, indeterminate).
+<!-- END-SECTION: Checkbox Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Checkbox Accessibility -->
+## Checkbox Accessibility (fabric-checkbox)
 
 *   Renders with `role="checkbox"`.
 *   Manages `aria-checked` state (`"true"`, `"false"`, `"mixed"` for indeterminate).
 *   Manages `aria-disabled`, `aria-required`, `aria-readonly` based on attributes.
 *   When not used within a `<fabric-field>`, ensure the label content provided in the default slot is correctly associated (often implicitly, but `<fabric-field>` is more robust).
-*   Keyboard interaction includes Spacebar to toggle checked state. 
+*   Keyboard interaction includes Spacebar to toggle checked state.
+<!-- END-SECTION: Checkbox Accessibility -->

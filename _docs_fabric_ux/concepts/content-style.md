@@ -8,10 +8,13 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Content Style Guide
 
+<!-- BEGIN-SECTION: Overview -->
 Content design is about delivering timely, relevant information to users so they can accomplish their tasks efficiently. It involves creating and organizing written content, considering placement and appearance in relation to visual elements, and ensuring consistency across the Microsoft Fabric ecosystem.
+<!-- END-SECTION: Overview -->
 
 ## Content Design Fundamentals
 
+<!-- BEGIN-SECTION: Content Design Fundamentals -->
 Good content design is guided by these key principles:
 
 ### User-centered Approach
@@ -44,9 +47,11 @@ Content should be:
 - Consistent across workloads within Fabric
 - Easily understood by users
 - Following established patterns and guidelines
+<!-- END-SECTION: Content Design Fundamentals -->
 
 ## Writing Style and Voice
 
+<!-- BEGIN-SECTION: Writing Style and Voice -->
 The Fabric UX System uses a consistent writing style and voice across all content.
 
 ### Voice
@@ -77,9 +82,11 @@ Examples:
 | "We have found that users prefer..." | "You can easily..." |
 | "In the future, you will be able to..." | "You can..." |
 | "It is recommended that you save your work." | "Save your work." |
+<!-- END-SECTION: Writing Style and Voice -->
 
-## Terminology 
+## Terminology
 
+<!-- BEGIN-SECTION: Terminology -->
 Microsoft Fabric uses dedicated terminology to describe its functionality and surfaces. When developing applications for Fabric, it's important to use consistent terminology.
 
 ### Key Terms
@@ -98,9 +105,11 @@ Microsoft Fabric uses dedicated terminology to describe its functionality and su
 | Task flow | A template guiding users on how to create, organize, and manage their solution and items within it. |
 | Workload | A collection of related capabilities packaged together under a single name and logo, targeting a specific persona. |
 | Workspace | A user interface area designed for collaboration with assigned compute capabilities, capacity, and license where users develop end-to-end data solutions. |
+<!-- END-SECTION: Terminology -->
 
 ## Content Guidelines for UI Elements
 
+<!-- BEGIN-SECTION: Content Guidelines for UI Elements -->
 Different UI elements require specific content approaches:
 
 ### Buttons
@@ -193,9 +202,11 @@ Different UI elements require specific content approaches:
 **Not:**
 - "Success!"
 - "Your action has been completed successfully and the system has processed your request."
+<!-- END-SECTION: Content Guidelines for UI Elements -->
 
 ## Writing Best Practices
 
+<!-- BEGIN-SECTION: Writing Best Practices -->
 Follow these best practices for all Fabric UX content:
 
 ### Know Your Audience
@@ -268,9 +279,11 @@ Fabric audiences vary from business decision makers to developers, business cons
 - Omit periods from button labels, headings, and short labels
 - Use periods for complete sentences in descriptions and help text
 - Use serial commas (Oxford commas) in lists
+<!-- END-SECTION: Writing Best Practices -->
 
 ## Examples of Good Content Design
 
+<!-- BEGIN-SECTION: Examples of Good Content Design -->
 ### Before and After Examples
 
 **Dialog Title - Before:**
@@ -302,9 +315,11 @@ Fabric audiences vary from business decision makers to developers, business cons
 
 **Empty State - After:**
 "No reports yet. Create your first report to start analyzing your data."
+<!-- END-SECTION: Examples of Good Content Design -->
 
 ## Resources and References
 
+<!-- BEGIN-SECTION: Resources and References -->
 ### Style Guide
 
 The Fabric UX System follows the [Microsoft Writing Style Guide](https://learn.microsoft.com/en-us/style-guide/welcome/) for all content creation. Refer to this guide for detailed guidance on:
@@ -328,9 +343,12 @@ When creating content that will be translated:
 - Avoid ambiguous pronouns
 - Allow for text expansion in translations (text can expand 30% or more in some languages)
 - Use consistent terminology to improve translation quality
+<!-- END-SECTION: Resources and References -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 - [Accessibility Guidelines](/concepts/accessibility)
 - [Design Tokens](/concepts/design-tokens)
 - [Component Documentation](/components/overview)
+<!-- END-SECTION: Learn More -->

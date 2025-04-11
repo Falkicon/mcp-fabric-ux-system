@@ -15,7 +15,9 @@ contributors:
 
 # Message Bar (`<fabric-message-bar>`)
 
+<!-- BEGIN-SECTION: Message Bar Overview -->
 Displays an inline message to communicate information to the user, often related to status or feedback.
+<!-- END-SECTION: Message Bar Overview -->
 
 ## Usage
 
@@ -99,8 +101,11 @@ if (dismissButton && connectionMessageBar) {
 }
 ```
 
+<!-- END-SECTION: Message Bar Usage -->
+
 ## API Reference (`<fabric-message-bar>`)
 
+<!-- BEGIN-SECTION: Message Bar API -->
 Based on `MessageBar` class.
 
 ### Attributes & Properties
@@ -137,9 +142,11 @@ fabric-message-bar::part(actions) {
   margin-left: auto; /* Push actions to the end in singleline layout */
 }
 ```
+<!-- END-SECTION: Message Bar API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Message Bar Styling -->
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
@@ -148,9 +155,12 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   Padding tokens (`--spacingVertical...`, `--spacingHorizontal...`).
     *   Font tokens (`--fontSizeBase...`, `--lineHeightBase...`).
 *   Refer to `message-bar.styles.ts` for detailed token mapping based on `intent` and `layout`.
+<!-- END-SECTION: Message Bar Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Message Bar Accessibility -->
 *   Sets `role="status"` by default. For important error messages requiring immediate attention, consider manually adding `role="alert"` or using `aria-live="assertive"` on the message bar or a container.
 *   The default intent icons provide visual cues but may not have specific `alt` text; ensure the message text itself is clear.
-*   Actionable elements within the `actions` slot must be keyboard accessible. 
+*   Actionable elements within the `actions` slot must be keyboard accessible.
+<!-- END-SECTION: Message Bar Accessibility --> 

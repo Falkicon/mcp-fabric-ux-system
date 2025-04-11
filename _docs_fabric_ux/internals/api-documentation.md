@@ -8,19 +8,11 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Generating API Documentation
 
+<!-- BEGIN-SECTION: Overview -->
 This document explains the process for generating and updating the API reference documentation for Fabric UX System components.
+<!-- END-SECTION: Overview -->
 
-## Overview
-
-The API documentation, typically found alongside component usage guides, is automatically generated from TSDoc comments within the TypeScript source code (`.ts` files).
-
-This process uses two primary tools from the [Rush Stack](https://rushstack.io/) ecosystem:
-
-1.  **`@microsoft/api-extractor`**: Analyzes the exported API surface of a package (e.g., `@fabric-msft/web-components`), validates TSDoc comments according to the [TSDoc standard](https://tsdoc.org/), and generates:
-    *   An API report file (`.api.md`) to track public API changes.
-    *   An intermediate API model file (`.api.json`) for documentation generation.
-2.  **`@microsoft/api-documenter`**: Takes the `.api.json` model file and produces user-friendly markdown documentation files.
-
+<!-- BEGIN-SECTION: 1. Writing TSDoc Comments -->
 ## 1. Writing TSDoc Comments
 
 API documentation originates from specially formatted comment blocks (`/** ... */`) placed directly above exported items (classes, interfaces, methods, properties, etc.).
@@ -69,7 +61,9 @@ export class FabricButton extends FASTElement { // Example: Renamed to FabricBut
 - Use TSDoc tags like `@public`, `@internal`, `@param`, `@returns`, `@remarks`, `@defaultValue`, `@example` to structure the documentation.
 - Only items marked `@public` (or implicitly public if no tag is present on an exported item) will be included in the generated documentation.
 - Ensure comments clearly explain the purpose, usage, and behavior of the API member.
+<!-- END-SECTION: 1. Writing TSDoc Comments -->
 
+<!-- BEGIN-SECTION: 2. Configuration (`api-extractor.json`) -->
 ## 2. Configuration (`api-extractor.json`)
 
 The behavior of `api-extractor` is controlled by an `api-extractor.json` file, typically located in the root of the package being analyzed (e.g., `/packages/web-components/` within the Fabric UX repository).
@@ -84,7 +78,9 @@ Key configuration sections include:
 - `messages`: Allows customizing logging levels for TSDoc or API errors/warnings (e.g., suppressing certain warnings).
 
 *(Placeholder: Link to the actual `api-extractor.json` in the Fabric UX repository when available)*
+<!-- END-SECTION: 2. Configuration (`api-extractor.json`) -->
 
+<!-- BEGIN-SECTION: 3. Generating the Documentation -->
 ## 3. Generating the Documentation
 
 The process typically involves npm/yarn/pnpm scripts defined in the relevant `package.json`:
@@ -106,7 +102,9 @@ The process typically involves npm/yarn/pnpm scripts defined in the relevant `pa
     ```
 
 **Note:** The exact script names and output folder paths depend on the Fabric UX repository setup. **Always refer to the relevant `package.json`**.
+<!-- END-SECTION: 3. Generating the Documentation -->
 
+<!-- BEGIN-SECTION: 4. API Report (`.api.md`) -->
 ## 4. API Report (`.api.md`)
 
 The `.api.md` file (e.g., `packages/web-components/etc/fabric-web-components.api.md`) acts as a contract for the package's public API. `api-extractor` compares the current code against this baseline.
@@ -115,7 +113,9 @@ The `.api.md` file (e.g., `packages/web-components/etc/fabric-web-components.api
 - To accept these changes, **update the report file** by running `api-extractor run --local` (or the equivalent update script) and overwrite the existing `.api.md` file with the newly generated one from the `temp` directory.
 - The updated `.api.md` file **must be committed to version control** alongside the corresponding code changes.
 - This workflow helps prevent accidental breaking changes.
+<!-- END-SECTION: 4. API Report (`.api.md`) -->
 
+<!-- BEGIN-SECTION: Summary Workflow -->
 ## Summary Workflow
 
 1.  Write clear and accurate TSDoc comments for all exported API members.
@@ -124,3 +124,4 @@ The `.api.md` file (e.g., `packages/web-components/etc/fabric-web-components.api
 4.  If changes are intentional, update the `.api.md` file (e.g., `yarn api-extractor run --local` or copy from `temp`).
 5.  Commit the code changes and the updated `.api.md` file.
 6.  Run the `api-documenter` script (e.g., `yarn docs:generate:api`) to generate/update the final markdown documentation files.
+<!-- END-SECTION: Summary Workflow -->

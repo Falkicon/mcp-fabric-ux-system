@@ -15,9 +15,11 @@ contributors:
 
 # Listbox (`<fabric-listbox>`)
 
+<!-- BEGIN-SECTION: Listbox Overview -->
 The underlying container component that holds and manages `<fabric-option>` elements, typically used internally by components like `<fabric-dropdown>` and `<fabric-combobox>`.
+<!-- END-SECTION: Listbox Overview -->
 
-## Usage
+## Listbox Usage (fabric-listbox)
 
 While `<fabric-listbox>` can be used directly, it's most often rendered implicitly within the popup templates of components like `<fabric-dropdown>`.
 
@@ -78,7 +80,7 @@ if (directListbox) {
 }
 ```
 
-## API Reference (`<fabric-listbox>`)
+## Listbox API Reference (fabric-listbox)
 
 Based on `Listbox` class.
 
@@ -112,14 +114,14 @@ fabric-listbox::part(listbox) {
 }
 ```
 
-## Styling
+## Listbox Styling (fabric-listbox)
 
 Provides the container for listbox options.
 
 *   **Key Design Tokens Used:** Primarily consumes tokens set by the parent component (Dropdown, Combobox) for background, border, padding, etc., based on the `appearance` attribute.
 *   Refer to `listbox.styles.ts` and potentially parent component styles (`dropdown.styles.ts`).
 
-## Accessibility
+## Listbox Accessibility (fabric-listbox)
 
 *   Sets `role="listbox"`.
 *   Manages focus navigation between child options.

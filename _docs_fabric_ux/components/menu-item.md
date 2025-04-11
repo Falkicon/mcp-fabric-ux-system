@@ -15,7 +15,9 @@ contributors:
 
 # Menu Item (`<fabric-menu-item>`)
 
+<!-- BEGIN-SECTION: Menu Item Overview -->
 Represents a single command or option within a `<fabric-menu>`.
+<!-- END-SECTION: Menu Item Overview -->
 
 ## Usage
 
@@ -109,6 +111,7 @@ if (menu) {
 
 ## API Reference (`<fabric-menu-item>`)
 
+<!-- BEGIN-SECTION: Menu Item API -->
 Based on `MenuItem` class.
 
 ### Attributes & Properties
@@ -155,9 +158,11 @@ fabric-menu-item[role="menuitemcheckbox"]::part(checkbox-indicator) {
   color: green;
 }
 ```
+<!-- END-SECTION: Menu Item API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Menu Item Styling -->
 Customize appearance using CSS targeting the host element (`fabric-menu-item`) or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
@@ -168,11 +173,14 @@ Customize appearance using CSS targeting the host element (`fabric-menu-item`) o
     *   `--fontSizeBase300`, `--lineHeightBase300`: Text size.
     *   Padding tokens (`--spacingVertical...`, `--spacingHorizontal...`).
 *   Refer to `menu-item.styles.ts` for detailed token usage.
+<!-- END-SECTION: Menu Item Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Menu Item Accessibility -->
 *   Assigns `role` based on the attribute (`menuitem`, `menuitemcheckbox`, `menuitemradio`).
 *   Manages `aria-checked` for checkbox/radio roles based on the `checked` attribute. Consider managing this state via `aria-checked` attribute directly based on application logic.
 *   Manages `aria-disabled` based on the `disabled` attribute.
 *   Manages `aria-expanded` and `aria-haspopup` for items with submenus.
-*   Relies on the parent `<fabric-menu>` for overall menu context and keyboard navigation between items. 
+*   Relies on the parent `<fabric-menu>` for overall menu context and keyboard navigation between items.
+<!-- END-SECTION: Menu Item Accessibility --> 

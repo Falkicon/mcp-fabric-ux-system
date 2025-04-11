@@ -15,7 +15,9 @@ contributors:
 
 # Tree (`<fabric-tree>`)
 
+<!-- BEGIN-SECTION: Tree Overview -->
 A container component for hierarchical lists of `<fabric-tree-item>` elements, managing nested structures and interactions.
+<!-- END-SECTION: Tree Overview -->
 
 ## Usage
 
@@ -95,6 +97,9 @@ if (fileTree) {
 
 ## API Reference (`<fabric-tree>`)
 
+<!-- BEGIN-SECTION: Tree API -->
+## Tree API Reference (fabric-tree)
+
 Based on `Tree` class extending `TreeBase`.
 
 ### Attributes & Properties
@@ -122,15 +127,23 @@ fabric-tree::part(tree) {
   list-style: none;
 }
 ```
+<!-- END-SECTION: Tree API -->
 
 ## Styling
+
+<!-- BEGIN-SECTION: Tree Styling -->
+## Tree Styling (fabric-tree)
 
 The `<fabric-tree>` container itself has minimal styling.
 
 *   **Key Design Tokens Used:** None directly applied to the container. Spacing and appearance are primarily handled by `<fabric-tree-item>`.
 *   Customize appearance by styling the nested `<fabric-tree-item>` components.
+<!-- END-SECTION: Tree Styling -->
 
 ## Accessibility
+
+<!-- BEGIN-SECTION: Tree Accessibility -->
+## Tree Accessibility (fabric-tree)
 
 *   Sets `role="tree"`.
 *   Requires an accessible label via `aria-label` or `aria-labelledby`.
@@ -138,4 +151,5 @@ The `<fabric-tree>` container itself has minimal styling.
 *   Handles expand/collapse state communication.
 *   Supports single selection via `aria-selected` managed on the items.
 
-See `<fabric-tree-item>` documentation for details on item-specific roles and attributes. 
+See `<fabric-tree-item>` documentation for details on item-specific roles and attributes.
+<!-- END-SECTION: Tree Accessibility --> 

@@ -15,9 +15,12 @@ contributors:
 
 # Text Input (`<fabric-text-input>`)
 
+<!-- BEGIN-SECTION: Text Input Overview -->
 Displays a single-line text input field.
+<!-- END-SECTION: Text Input Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Text Input Usage -->
+## Text Input Usage (fabric-text-input)
 
 **Importing:**
 
@@ -86,8 +89,10 @@ if (basicInput) {
   });
 }
 ```
+<!-- END-SECTION: Text Input Usage -->
 
-## API Reference (`<fabric-text-input>`)
+<!-- BEGIN-SECTION: Text Input API -->
+## Text Input API Reference (fabric-text-input)
 
 Based on `TextInput` class extending `TextInputBase`.
 
@@ -144,8 +149,10 @@ fabric-text-input::part(control) {
   font-family: monospace;
 }
 ```
+<!-- END-SECTION: Text Input API -->
 
-## Styling
+<!-- BEGIN-SECTION: Text Input Styling -->
+## Text Input Styling (fabric-text-input)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -159,10 +166,13 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--fontSizeBase300`, `--lineHeightBase300`: Text size and line height.
     *   Spacing tokens (`--spacingHorizontal...`) for padding and gaps between content/start/end slots.
 *   Refer to `text-input.styles.ts` for detailed token mapping and state variations.
+<!-- END-SECTION: Text Input Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Text Input Accessibility -->
+## Text Input Accessibility (fabric-text-input)
 
 *   Renders a native `<input>` element, inheriting its baseline accessibility.
 *   Crucially relies on being wrapped by `<fabric-field>` to associate the visible `<label>` correctly for screen readers.
 *   Manages `aria-disabled`, `aria-required`, `aria-readonly` based on attributes.
-*   Ensure `placeholder` text is supplemental and not a replacement for a visible label. 
+*   Ensure `placeholder` text is supplemental and not a replacement for a visible label.
+<!-- END-SECTION: Text Input Accessibility -->

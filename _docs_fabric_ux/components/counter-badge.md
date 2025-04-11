@@ -15,9 +15,12 @@ contributors:
 
 # Counter Badge (`<fabric-counter-badge>`)
 
+<!-- BEGIN-SECTION: Counter Badge Overview -->
 A badge variant specifically designed to display numerical counts, often used for notifications.
+<!-- END-SECTION: Counter Badge Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Counter Badge Usage -->
+## Counter Badge Usage (fabric-counter-badge)
 
 Use similarly to `<fabric-badge>`, but primarily driven by the `count` attribute.
 
@@ -79,8 +82,10 @@ function updateNotificationCount(newCount) {
 // Example: Update count after fetching new messages
 // updateNotificationCount(5);
 ```
+<!-- END-SECTION: Counter Badge Usage -->
 
-## API Reference (`<fabric-counter-badge>`)
+<!-- BEGIN-SECTION: Counter Badge API -->
+## Counter Badge API Reference (fabric-counter-badge)
 
 Based on `CounterBadge` class, likely extending `Badge` functionality.
 
@@ -118,18 +123,23 @@ None specific to this component.
 Inherits standard `<fabric-badge>` CSS Parts:
 
 *   **`icon`**: Container for the slotted icon.
+<!-- END-SECTION: Counter Badge API -->
 
-## Styling
+<!-- BEGIN-SECTION: Counter Badge Styling -->
+## Counter Badge Styling (fabric-counter-badge)
 
 Inherits styling from `<fabric-badge>`.
 
 *   **Key Design Tokens Used:** Uses standard badge tokens for color, size, shape, etc.
 *   Layout ensures the count number is centered.
 *   Refer to `counter-badge.styles.ts` and `badge.styles.ts` for detailed token usage.
+<!-- END-SECTION: Counter Badge Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Counter Badge Accessibility -->
+## Counter Badge Accessibility (fabric-counter-badge)
 
 *   Typically presentational (`role` is often omitted or might be `status` depending on context).
 *   The displayed `count` number provides the primary information.
 *   If used for critical notifications, ensure the count change is announced appropriately (e.g., via `aria-live` on a container).
-*   The `dot` variant provides only a visual cue; ensure information is conveyed through other means if necessary for accessibility. 
+*   The `dot` variant provides only a visual cue; ensure information is conveyed through other means if necessary for accessibility.
+<!-- END-SECTION: Counter Badge Accessibility -->

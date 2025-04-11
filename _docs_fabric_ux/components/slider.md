@@ -15,7 +15,9 @@ contributors:
 
 # Slider (`<fabric-slider>`)
 
+<!-- BEGIN-SECTION: Slider Overview -->
 Allows selecting a value from a specified range.
+<!-- END-SECTION: Slider Overview -->
 
 ## Usage
 
@@ -90,7 +92,8 @@ if (stepSlider && stepValSpan) {
 }
 ```
 
-## API Reference (`<fabric-slider>`)
+<!-- BEGIN-SECTION: Slider API -->
+## Slider API Reference (fabric-slider)
 
 Based on `Slider` class.
 
@@ -146,8 +149,10 @@ fabric-slider::part(thumb) {
   border: 1px solid navy;
 }
 ```
+<!-- END-SECTION: Slider API -->
 
-## Styling
+<!-- BEGIN-SECTION: Slider Styling -->
+## Slider Styling (fabric-slider)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -159,8 +164,10 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--borderRadiusCircular`: Rounding for track and thumb.
     *   Sizing tokens controlling track/thumb dimensions based on `size` and `orientation`.
 *   Refer to `slider.styles.ts` for detailed token usage and state variations.
+<!-- END-SECTION: Slider Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Slider Accessibility -->
+## Slider Accessibility (fabric-slider)
 
 *   Sets `role="slider"`.
 *   Manages `aria-orientation`, `aria-readonly`, `aria-disabled` based on attributes.

@@ -15,9 +15,12 @@ contributors:
 
 # Tab List (`<fabric-tablist>`)
 
+<!-- BEGIN-SECTION: Tab List Overview -->
 A container component that groups related `<fabric-tab>` elements, managing their selection and activation.
+<!-- END-SECTION: Tab List Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Tab List Usage -->
+## Tab List Usage (fabric-tablist)
 
 Use `<fabric-tablist>` to wrap `<fabric-tab>` elements. Corresponding tab panels should be associated using `aria-controls` on the tabs and unique IDs on the panels.
 
@@ -113,8 +116,10 @@ document.addEventListener('DOMContentLoaded', setInitialPanelVisibility);
 // customElements.whenDefined('fabric-tablist').then(setInitialPanelVisibility);
 
 ```
+<!-- END-SECTION: Tab List Usage -->
 
-## API Reference (`<fabric-tablist>`)
+<!-- BEGIN-SECTION: Tab List API -->
+## Tab List API Reference (fabric-tablist)
 
 Based on `TabList` class extending `TabListBase`.
 
@@ -152,8 +157,10 @@ fabric-tablist::part(tablist) {
   border-bottom: 2px solid lightgray;
 }
 ```
+<!-- END-SECTION: Tab List API -->
 
-## Styling
+<!-- BEGIN-SECTION: Tab List Styling -->
+## Tab List Styling (fabric-tablist)
 
 Provides layout for tabs and applies overall appearance styles.
 
@@ -164,11 +171,14 @@ Provides layout for tabs and applies overall appearance styles.
     *   `--spacingVertical...`: Controls gap between vertical tabs.
 *   Individual tab styling (text color, indicator color, padding) is primarily handled by `<fabric-tab>`.
 *   Refer to `tablist.styles.ts` for detailed token usage.
+<!-- END-SECTION: Tab List Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Tab List Accessibility -->
+## Tab List Accessibility (fabric-tablist)
 
 *   Sets `role="tablist"`.
 *   Sets `aria-orientation` based on the `orientation` attribute.
 *   Keyboard navigation (Arrow keys, Home, End) allows moving focus between enabled tabs.
 *   Activation (Enter/Space) selects the focused tab (firing the `change` event).
-*   Requires an accessible label for the tablist itself, usually via `aria-label` or `aria-labelledby`. 
+*   Requires an accessible label for the tablist itself, usually via `aria-label` or `aria-labelledby`.
+<!-- END-SECTION: Tab List Accessibility -->

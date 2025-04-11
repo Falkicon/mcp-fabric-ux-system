@@ -1,0 +1,7 @@
+[33meddbd0b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update Plan
+[33mdeda1d4[m Merge pull request #1 from Falkicon/documentation-rebuild
+[33m64f1a53[m[33m ([m[1;32mdocumentation-rebuild[m[33m)[m Finished core functionality for a first functional release.
+[33m13bbb5d[m Docs, Docker & Chroma added
+[33ma3b9bad[m Implementation of RAG-optimized Fabric UX documentation system
+[33mc742d2f[m feat: Implement RAG indexing with ChromaDB server & Biome
+[33m4a7cf4d[m Initial commit

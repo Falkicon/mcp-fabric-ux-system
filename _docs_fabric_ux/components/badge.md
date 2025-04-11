@@ -15,9 +15,12 @@ contributors:
 
 # Badge (`<fabric-badge>`)
 
+<!-- BEGIN-SECTION: Badge Overview -->
 Displays a small element for status, notifications, or short labels.
+<!-- END-SECTION: Badge Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Badge Usage -->
+## Badge Usage (fabric-badge)
 
 **Importing:**
 
@@ -64,8 +67,10 @@ import type { Badge } from '@fabric-msft/web-components/badge';
   <fabric-badge slot="badge" size="small" color="success"></fabric-badge> <!-- Status badge -->
 </fabric-avatar>
 ```
+<!-- END-SECTION: Badge Usage -->
 
-## API Reference (`<fabric-badge>`)
+<!-- BEGIN-SECTION: Badge API -->
+## Badge API Reference (fabric-badge)
 
 Based on `Badge` class.
 
@@ -95,8 +100,10 @@ fabric-badge::part(icon) {
   margin-right: var(--spacingHorizontalXS);
 }
 ```
+<!-- END-SECTION: Badge API -->
 
-## Styling
+<!-- BEGIN-SECTION: Badge Styling -->
+## Badge Styling (fabric-badge)
 
 Customize appearance using CSS targeting the host element or the `icon` part.
 
@@ -107,9 +114,12 @@ Customize appearance using CSS targeting the host element or the `icon` part.
     *   Height/min-width based on `size`.
     *   Padding tokens (`--spacingHorizontal...`) based on `size`.
 *   Refer to `badge.styles.ts` for detailed token mapping and logic.
+<!-- END-SECTION: Badge Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Badge Accessibility -->
+## Badge Accessibility (fabric-badge)
 
 *   The badge is typically presentational. By default, it doesn't have a specific ARIA `role`.
 *   If the badge conveys important status information not available otherwise, consider adding `role="status"` or using `aria-live` regions on a container, or providing alternative text descriptions.
-*   Ensure sufficient color contrast between the badge's text/icon and background, as determined by the chosen `color` and `appearance`. 
+*   Ensure sufficient color contrast between the badge's text/icon and background, as determined by the chosen `color` and `appearance`.
+<!-- END-SECTION: Badge Accessibility -->

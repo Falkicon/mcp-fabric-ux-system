@@ -15,10 +15,13 @@ contributors:
 
 # Accordion Item (`<fabric-accordion-item>`)
 
+<!-- BEGIN-SECTION: Accordion Item Overview -->
 Represents an individual expandable section within a `<fabric-accordion>`.
+<!-- END-SECTION: Accordion Item Overview -->
 
 ## Usage
 
+<!-- BEGIN-SECTION: Accordion Item Usage -->
 Place `<fabric-accordion-item>` elements inside a `<fabric-accordion>`.
 
 **Importing:**
@@ -78,9 +81,11 @@ if (accordionItem) {
 // const parentAccordion = accordionItem.closest('fabric-accordion');
 // parentAccordion.addEventListener('change', (event) => { ... });
 ```
+<!-- END-SECTION: Accordion Item Usage -->
 
 ## API Reference (`<fabric-accordion-item>`)
 
+<!-- BEGIN-SECTION: Accordion Item API -->
 Based on `AccordionItem` class, likely extending an `AccordionItemBase`.
 
 ### Attributes & Properties
@@ -133,9 +138,11 @@ fabric-accordion-item::part(icon) {
    display: none;
 }
 ```
+<!-- END-SECTION: Accordion Item API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Accordion Item Styling -->
 Customize the appearance using CSS targeting the host element (`fabric-accordion-item`) or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
@@ -146,11 +153,14 @@ Customize the appearance using CSS targeting the host element (`fabric-accordion
     *   `--fontSizeBase300`, `--fontWeightRegular`, `--fontFamilyBase`: Used for text styling.
     *   `--borderRadiusMedium`: Used for potential rounding on the item itself.
 *   Refer to `accordion-item.styles.ts` for detailed token usage.
+<!-- END-SECTION: Accordion Item Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Accordion Item Accessibility -->
 *   The header functions as a `button` with `aria-expanded` indicating the state.
 *   The content panel has `role="region"` and `aria-labelledby` linking it to the header button.
 *   `aria-disabled` is applied based on the `disabled` attribute.
 *   The `heading-level` attribute controls the semantic heading level (`aria-level`).
-*   Keyboard interaction (Enter/Space to toggle, arrow keys within accordion) is handled by the parent `<fabric-accordion>` and the item. 
+*   Keyboard interaction (Enter/Space to toggle, arrow keys within accordion) is handled by the parent `<fabric-accordion>` and the item.
+<!-- END-SECTION: Accordion Item Accessibility --> 

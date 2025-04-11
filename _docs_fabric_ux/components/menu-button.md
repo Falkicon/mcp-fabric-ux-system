@@ -15,9 +15,12 @@ contributors:
 
 # Menu Button (`<fabric-menu-button>`)
 
+<!-- BEGIN-SECTION: Menu Button Overview -->
 A button specifically styled and often used as the trigger element for a `<fabric-menu>`, especially in the `trigger` slot of a split button menu.
+<!-- END-SECTION: Menu Button Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Menu Button Usage -->
+## Menu Button Usage (fabric-menu-button)
 
 Use as a standalone button to trigger a menu, or within the `trigger` slot of a `<fabric-menu split>`.
 
@@ -74,8 +77,10 @@ if (splitTriggerIcon) {
   });
 }
 ```
+<!-- END-SECTION: Menu Button Usage -->
 
-## API Reference (`<fabric-menu-button>`)
+<!-- BEGIN-SECTION: Menu Button API -->
+## Menu Button API Reference (fabric-menu-button)
 
 Inherits most functionality and attributes from `<fabric-button>`.
 
@@ -117,18 +122,23 @@ fabric-menu-button::part(indicator) {
   display: none;
 }
 ```
+<!-- END-SECTION: Menu Button API -->
 
-## Styling
+<!-- BEGIN-SECTION: Menu Button Styling -->
+## Menu Button Styling (fabric-menu-button)
 
 Inherits styling from `<fabric-button>`.
 
 *   **Key Design Tokens Used:** Uses standard button tokens. The main difference is the potential presence and styling of the `indicator` part.
 *   Refer to `button.styles.ts` for primary token usage.
+<!-- END-SECTION: Menu Button Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Menu Button Accessibility -->
+## Menu Button Accessibility (fabric-menu-button)
 
 *   Sets `role="button"`.
 *   Requires an accessible label via text content or `aria-label`, especially when `icon-only`.
 *   Manages `aria-haspopup="menu"` to indicate it controls a menu.
 *   Manages `aria-expanded` based on the state of the associated menu.
-*   Manages `aria-disabled`. 
+*   Manages `aria-disabled`.
+<!-- END-SECTION: Menu Button Accessibility -->

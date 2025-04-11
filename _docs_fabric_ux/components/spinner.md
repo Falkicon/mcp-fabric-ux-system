@@ -15,9 +15,12 @@ contributors:
 
 # Spinner (`<fabric-spinner>`)
 
+<!-- BEGIN-SECTION: Spinner Overview -->
 Indicates an ongoing operation where the wait time is unknown (indeterminate progress).
+<!-- END-SECTION: Spinner Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Spinner Usage -->
+## Spinner Usage (fabric-spinner)
 
 **Importing:**
 
@@ -63,8 +66,10 @@ import type { Spinner } from '@fabric-msft/web-components/spinner';
 ### Handling Events (JavaScript)
 
 Spinners are visual indicators and do not emit specific events.
+<!-- END-SECTION: Spinner Usage -->
 
-## API Reference (`<fabric-spinner>`)
+<!-- BEGIN-SECTION: Spinner API -->
+## Spinner API Reference (fabric-spinner)
 
 Based on `Spinner` class extending `SpinnerBase`.
 
@@ -101,8 +106,10 @@ fabric-spinner::part(label) {
   font-weight: bold;
 }
 ```
+<!-- END-SECTION: Spinner API -->
 
-## Styling
+<!-- BEGIN-SECTION: Spinner Styling -->
+## Spinner Styling (fabric-spinner)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -112,9 +119,12 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   Sizing tokens (`--strokeWidth...`) for the spinner thickness.
     *   Dimensions (height/width) based on the `size` attribute mapping to specific pixel values.
 *   Refer to `spinner.styles.ts` for detailed token usage.
+<!-- END-SECTION: Spinner Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Spinner Accessibility -->
+## Spinner Accessibility (fabric-spinner)
 
 *   Sets `role="progressbar"` by default, indicating indeterminate progress.
 *   If the spinner represents general busy state rather than specific progress, consider setting `role="status"` for a less verbose screen reader announcement.
-*   **Requires an accessible label** provided either via the default slot content or an `aria-label` attribute to describe what is loading/processing. 
+*   **Requires an accessible label** provided either via the default slot content or an `aria-label` attribute to describe what is loading/processing.
+<!-- END-SECTION: Spinner Accessibility -->

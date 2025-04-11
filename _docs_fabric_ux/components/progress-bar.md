@@ -15,9 +15,12 @@ contributors:
 
 # Progress Bar (`<fabric-progress-bar>`)
 
+<!-- BEGIN-SECTION: Progress Bar Overview -->
 Displays progress indication, either determinate (percentage complete) or indeterminate (ongoing activity).
+<!-- END-SECTION: Progress Bar Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Progress Bar Usage -->
+## Progress Bar Usage (fabric-progress-bar)
 
 **Importing:**
 
@@ -79,8 +82,10 @@ function updateProgress(newValue) {
 // Simulate progress update
 // setTimeout(() => updateProgress(90), 1000);
 ```
+<!-- END-SECTION: Progress Bar Usage -->
 
-## API Reference (`<fabric-progress-bar>`)
+<!-- BEGIN-SECTION: Progress Bar API -->
+## Progress Bar API Reference (fabric-progress-bar)
 
 Based on `ProgressBar` class extending `ProgressBarBase`.
 
@@ -123,8 +128,10 @@ fabric-progress-bar::part(indicator) {
   transition: width 0.3s ease-out;
 }
 ```
+<!-- END-SECTION: Progress Bar API -->
 
-## Styling
+<!-- BEGIN-SECTION: Progress Bar Styling -->
+## Progress Bar Styling (fabric-progress-bar)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -134,10 +141,13 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--borderRadiusMedium`, `--borderRadiusNone`: Used for `shape`.
     *   Height is controlled by `thickness` attribute mapping to specific pixel values.
 *   Refer to `progress-bar.styles.ts` for detailed token usage.
+<!-- END-SECTION: Progress Bar Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Progress Bar Accessibility -->
+## Progress Bar Accessibility (fabric-progress-bar)
 
 *   Sets `role="progressbar"`.
 *   Manages `aria-valuenow`, `aria-valuemin`, `aria-valuemax` for determinate progress.
 *   Omits `aria-valuenow` for indeterminate progress.
-*   Requires an accessible label provided via `aria-label` or `aria-labelledby` to describe what process the progress bar represents. 
+*   Requires an accessible label provided via `aria-label` or `aria-labelledby` to describe what process the progress bar represents.
+<!-- END-SECTION: Progress Bar Accessibility -->

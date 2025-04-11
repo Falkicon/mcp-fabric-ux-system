@@ -15,9 +15,12 @@ contributors:
 
 # Switch (`<fabric-switch>`)
 
+<!-- BEGIN-SECTION: Switch Overview -->
 Displays a toggle switch allowing users to turn an option on or off.
+<!-- END-SECTION: Switch Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Switch Usage -->
+## Switch Usage (fabric-switch)
 
 **Importing:**
 
@@ -78,8 +81,10 @@ if (basicSwitch) {
   });
 }
 ```
+<!-- END-SECTION: Switch Usage -->
 
-## API Reference (`<fabric-switch>`)
+<!-- BEGIN-SECTION: Switch API -->
+## Switch API Reference (fabric-switch)
 
 Based on `Switch` class.
 
@@ -128,8 +133,10 @@ fabric-switch([aria-checked="true"])::part(thumb) {
   background-color: green;
 }
 ```
+<!-- END-SECTION: Switch API -->
 
-## Styling
+<!-- BEGIN-SECTION: Switch Styling -->
+## Switch Styling (fabric-switch)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -142,11 +149,14 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--borderRadiusCircular`: Used for track and thumb shape.
     *   Sizing/padding tokens for track height, width, thumb size.
 *   Refer to `switch.styles.ts` for detailed token usage and state variations.
+<!-- END-SECTION: Switch Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Switch Accessibility -->
+## Switch Accessibility (fabric-switch)
 
 *   Renders with `role="switch"`.
 *   Manages `aria-checked` state (`"true"`, `"false"`).
 *   Manages `aria-disabled`, `aria-required`, `aria-readonly` based on attributes.
 *   When not used within a `<fabric-field>`, ensure the label content provided in the default slot is correctly associated (often implicitly, but `<fabric-field>` is more robust).
-*   Keyboard interaction includes Spacebar or Enter to toggle checked state. 
+*   Keyboard interaction includes Spacebar or Enter to toggle checked state.
+<!-- END-SECTION: Switch Accessibility -->

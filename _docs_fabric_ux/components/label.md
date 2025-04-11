@@ -15,10 +15,13 @@ contributors:
 
 # Label (`<fabric-label>`)
 
+<!-- BEGIN-SECTION: Label Overview -->
 Displays text used to label form elements or other UI components.
+<!-- END-SECTION: Label Overview -->
 
 ## Usage
 
+<!-- BEGIN-SECTION: Label Usage -->
 Most often used within the `label` slot of a `<fabric-field>` to associate it with an input.
 
 **Importing:**
@@ -55,9 +58,11 @@ import type { TextInput } from '@fabric-msft/web-components/text-input'; // Exam
 ### Handling Events (JavaScript)
 
 Labels are static text elements and do not typically emit specific events. You might listen for standard DOM events like `click` if needed, but this is uncommon.
+<!-- END-SECTION: Label Usage -->
 
 ## API Reference (`<fabric-label>`)
 
+<!-- BEGIN-SECTION: Label API -->
 Based on `Label` class.
 
 ### Attributes & Properties
@@ -96,9 +101,11 @@ fabric-label::part(required-indicator) {
   margin-left: 2px;
 }
 ```
+<!-- END-SECTION: Label API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Label Styling -->
 Controls the visual presentation of label text.
 
 *   **Key Design Tokens Used (Examples):**
@@ -107,9 +114,12 @@ Controls the visual presentation of label text.
     *   Font tokens (`--fontSizeBase...`, `--lineHeightBase...`) corresponding to the `size` attribute.
     *   Font weight tokens (`--fontWeightRegular`, `--fontWeightSemibold`) corresponding to the `weight` attribute.
 *   Refer to `label.styles.ts` for detailed token usage.
+<!-- END-SECTION: Label Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Label Accessibility -->
 *   Renders a native `<label>` element (or provides equivalent semantics).
 *   The `for` attribute is crucial for programmatically associating the label with its corresponding form control, enabling screen readers to announce the label when the control receives focus.
-*   Using `<fabric-label>` within the `label` slot of `<fabric-field>` automatically handles this association correctly. 
+*   Using `<fabric-label>` within the `label` slot of `<fabric-field>` automatically handles this association correctly.
+<!-- END-SECTION: Label Accessibility --> 

@@ -8,8 +8,11 @@ lastUpdated: 2025-04-10 # Placeholder date - Update as needed
 
 # Fabric UX Component Library
 
+<!-- BEGIN-SECTION: Overview -->
 The Fabric UX System provides a comprehensive set of UI components that enable developers to create consistent, accessible, and high-performance experiences. The library is organized into two main categories:
+<!-- END-SECTION: Overview -->
 
+<!-- BEGIN-SECTION: Fluent UI Core Components -->
 ## Fluent UI Core Components
 
 These foundational components are derived from or aligned with the core Fluent UI design system:
@@ -37,7 +40,9 @@ These foundational components are derived from or aligned with the core Fluent U
 *   **Toggle Button**: Buttons that can be toggled between two states (e.g., on/off).
 *   **Tooltip**: Contextual popups providing brief information about an element.
 *   **Tree / Tree Item**: Hierarchical navigation or display structures.
+<!-- END-SECTION: Fluent UI Core Components -->
 
+<!-- BEGIN-SECTION: Fabric UX Specific Components -->
 ## Fabric UX Specific Components
 
 These specialized components extend the core library to meet needs specific to the Microsoft Fabric environment:
@@ -48,6 +53,7 @@ These specialized components extend the core library to meet needs specific to t
 *   **SVG Icon**: Components for rendering SVG icons for visual representation.
 *   **Teaching Bubble**: Callouts providing contextual information, guidance, or feature introductions.
 *   **Wizard**: Step-by-step controls guiding users through multi-stage processes.
+<!-- END-SECTION: Fabric UX Specific Components -->
 
 ---
 

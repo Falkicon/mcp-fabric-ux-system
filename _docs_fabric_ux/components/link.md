@@ -15,9 +15,11 @@ contributors:
 
 # Link (`<fabric-link>`)
 
+<!-- BEGIN-SECTION: Link Overview -->
 Displays a standard inline hyperlink, rendered as an HTML anchor (`<a>`) tag.
+<!-- END-SECTION: Link Overview -->
 
-## Usage
+## Link Usage (fabric-link)
 
 Use for navigation within text content.
 
@@ -75,14 +77,15 @@ if (standardLink) {
   });
 }
 ```
+<!-- END-SECTION: Link Usage -->
 
-## When to Use
+## When to Use (fabric-link)
 
 *   Use `<fabric-link>` for standard **inline text links** used for navigation.
 *   Use `<fabric-anchor-button>` when you need the **appearance of a button** but the **functionality of a link**.
 *   Use `<fabric-button>` for actions **within the application** that do not navigate.
 
-## API Reference (`<fabric-link>`)
+## Link API Reference (fabric-link)
 
 Based on `Link` class.
 
@@ -126,8 +129,9 @@ fabric-link::part(control) {
   text-decoration-style: dotted;
 }
 ```
+<!-- END-SECTION: Link API -->
 
-## Styling
+## Link Styling (fabric-link)
 
 Customize appearance using CSS targeting the host element or the `control` part.
 
@@ -138,8 +142,9 @@ Customize appearance using CSS targeting the host element or the `control` part.
     *   `--fontWeightSemibold`: Font weight.
 *   Text decoration (underline) is also managed via styles.
 *   Refer to `link.styles.ts` for detailed token usage.
+<!-- END-SECTION: Link Styling -->
 
-## Accessibility
+## Link Accessibility (fabric-link)
 
 *   Renders as an `<a>` tag, inheriting standard link accessibility behavior.
 *   Manages `aria-disabled="true"` when `disabled` is set.

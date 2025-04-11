@@ -15,9 +15,12 @@ contributors:
 
 # Rating Display (`<fabric-rating-display>`)
 
+<!-- BEGIN-SECTION: Rating Display Overview -->
 Displays a non-interactive visual representation of a rating value, typically using icons like stars.
+<!-- END-SECTION: Rating Display Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Rating Display Usage -->
+## Rating Display Usage (fabric-rating-display)
 
 **Importing:**
 
@@ -48,8 +51,10 @@ import type { RatingDisplay } from '@fabric-msft/web-components/rating-display';
 ### Handling Events (JavaScript)
 
 Rating display is a non-interactive component and does not emit specific events.
+<!-- END-SECTION: Rating Display Usage -->
 
-## API Reference (`<fabric-rating-display>`)
+<!-- BEGIN-SECTION: Rating Display API -->
+## Rating Display API Reference (fabric-rating-display)
 
 Based on `RatingDisplay` class extending `RatingDisplayBase`.
 
@@ -93,8 +98,10 @@ fabric-rating-display::part(icon-filled) {
   filter: drop-shadow(1px 1px 1px black);
 }
 ```
+<!-- END-SECTION: Rating Display API -->
 
-## Styling
+<!-- BEGIN-SECTION: Rating Display Styling -->
+## Rating Display Styling (fabric-rating-display)
 
 Displays a sequence of icons, partially or fully filled based on the `value`.
 
@@ -103,8 +110,11 @@ Displays a sequence of icons, partially or fully filled based on the `value`.
     *   `--colorNeutralBackground1`: Background/empty portion color.
 *   Icon size is often controlled by `width`/`height` attributes or CSS on the icons.
 *   Refer to `rating-display.styles.ts` for detailed token usage.
+<!-- END-SECTION: Rating Display Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Rating Display Accessibility -->
+## Rating Display Accessibility (fabric-rating-display)
 
 *   Primarily a visual presentation; does not have an interactive role like `slider`.
-*   **Crucially requires an accessible label** via `aria-label` or `aria-labelledby` to convey the rating information (e.g., "Rating: 3.5 out of 5 stars"). The visual display alone is not sufficient for screen reader users. 
+*   **Crucially requires an accessible label** via `aria-label` or `aria-labelledby` to convey the rating information (e.g., "Rating: 3.5 out of 5 stars"). The visual display alone is not sufficient for screen reader users.
+<!-- END-SECTION: Rating Display Accessibility -->

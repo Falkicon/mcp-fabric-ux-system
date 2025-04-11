@@ -57,7 +57,15 @@ lastUpdated: YYYY-MM-DD # Date of the last significant content update
 To ensure the documentation works effectively with the RAG system:
 
 - **Structure:** Use semantic headings (`##`, `###`, etc.) to break down content logically.
-- **Chunking:** Keep paragraphs focused on a single topic. This helps the indexing process create meaningful chunks.
+- **Explicit Chunking (Crucial):** To prevent the RAG indexer from splitting logical content blocks inappropriately, **wrap major sections** (like Overview, Usage, API Reference, Styling, Accessibility in component docs) with HTML comment markers:
+  ```html
+  <!-- BEGIN-SECTION: Descriptive Section Name -->
+  ... content for this section ...
+  <!-- END-SECTION: Descriptive Section Name -->
+  ```
+  The section name should be descriptive (e.g., `Button Usage`, `Component API`). This ensures the entire block is treated as a single chunk.
+- **Contextual Headers:** When using headings (`##`, `###`) within component documentation, include the component name **and its tag name in parentheses** for maximum clarity and context (e.g., `## Button Usage (fabric-button)`, `### Button Attributes (fabric-button)` instead of just `## Usage`, `### Attributes`).
+- **Focused Paragraphs:** Keep paragraphs focused on a single topic. This complements explicit chunking.
 - **Keywords:** Naturally incorporate relevant keywords (especially those likely to be used in search queries) in headings and text.
 - **Explicitness:** Be explicit. Define acronyms or system-specific terms on first use.
 - **Atomicity:** While linking is encouraged, try to make sections reasonably self-contained where possible.

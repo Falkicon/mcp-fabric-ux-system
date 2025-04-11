@@ -15,9 +15,12 @@ contributors:
 
 # Toggle Button (`<fabric-toggle-button>`)
 
+<!-- BEGIN-SECTION: Toggle Button Overview -->
 Displays a button that maintains an on/off (checked/unchecked) state.
+<!-- END-SECTION: Toggle Button Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Toggle Button Usage -->
+## Toggle Button Usage (fabric-toggle-button)
 
 Use like a standard button, but its state persists across clicks.
 
@@ -79,14 +82,18 @@ if (simpleToggle) {
   });
 }
 ```
+<!-- END-SECTION: Toggle Button Usage -->
 
-## When to Use
+<!-- BEGIN-SECTION: Toggle Button When to Use -->
+## When to Use (fabric-toggle-button)
 
 *   Use `<fabric-toggle-button>` for actions that have a distinct on/off or selected/unselected state that should be visually represented by the button itself (e.g., Bold/Italic formatting, Show/Hide panel).
 *   Use `<fabric-switch>` for settings or options that represent an on/off state, typically with a clear visual switch metaphor.
 *   Use `<fabric-button>` for standard actions that trigger an operation without maintaining a persistent visual state on the button itself.
+<!-- END-SECTION: Toggle Button When to Use -->
 
-## API Reference (`<fabric-toggle-button>`)
+<!-- BEGIN-SECTION: Toggle Button API -->
+## Toggle Button API Reference (fabric-toggle-button)
 
 Likely based on `ToggleButton` class, extending `ButtonBase` or similar.
 
@@ -130,8 +137,10 @@ fabric-toggle-button([aria-pressed="true"])::part(control) {
   border-color: var(--colorBrandStroke1);
 }
 ```
+<!-- END-SECTION: Toggle Button API -->
 
-## Styling
+<!-- BEGIN-SECTION: Toggle Button Styling -->
+## Toggle Button Styling (fabric-toggle-button)
 
 Inherits styling from `<fabric-button>` and adds specific styles for the checked state.
 
@@ -139,10 +148,13 @@ Inherits styling from `<fabric-button>` and adds specific styles for the checked
     *   Uses standard button tokens for unchecked state.
     *   Adds tokens for checked state background, border, and text color (e.g., `--colorNeutralBackground1Selected`, `--colorNeutralForeground1Selected`, `--colorNeutralStroke1Selected` for default appearance; `--colorBrandBackgroundSelected`, etc. for primary appearance).
 *   Refer to `toggle-button.styles.ts` and `button.styles.ts` for detailed token usage.
+<!-- END-SECTION: Toggle Button Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Toggle Button Accessibility -->
+## Toggle Button Accessibility (fabric-toggle-button)
 
 *   Sets `role="button"`.
 *   Manages `aria-pressed` state (`"true"` or `"false"`) based on the `checked` attribute.
 *   Manages `aria-disabled` based on the `disabled` attribute.
 *   Ensure accessible label via text content, `aria-label`, or `aria-labelledby`.
+<!-- END-SECTION: Toggle Button Accessibility -->

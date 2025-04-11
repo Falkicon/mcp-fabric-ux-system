@@ -15,9 +15,12 @@ contributors:
 
 # Button (`<fabric-button>`)
 
+<!-- BEGIN-SECTION: Button Overview -->
 Displays a clickable button element.
+<!-- END-SECTION: Button Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Button Usage -->
+## Button Usage (fabric-button)
 
 **Importing:**
 
@@ -109,8 +112,10 @@ Use the `start` and `end` slots for icons.
     <svg width="16" height="16" viewBox="0 0 16 16" slot="end" aria-hidden="true"><path d="..." /></svg>
 </fabric-button>
 ```
+<!-- END-SECTION: Button Usage -->
 
-## API Reference
+<!-- BEGIN-SECTION: Button API -->
+## Button API Reference (fabric-button)
 
 The `<fabric-button>` component's logic resides in the `Button` class, which extends a shared `ButtonBase` class. This pattern promotes consistency and allows for easier extension when creating custom button-like components.
 
@@ -159,15 +164,20 @@ fabric-button::part(control) {
   border-radius: 0; /* Override default rounding */
 }
 ```
+<!-- END-SECTION: Button API -->
 
-## Styling
+<!-- BEGIN-SECTION: Button Styling -->
+## Button Styling (fabric-button)
 
 Button styling is primarily controlled by Design Tokens. Use standard CSS to override styles via the host element or the `control` part.
 
 *   Refer to component style files (e.g., `button.styles.ts`) for specific token usage and structure.
+<!-- END-SECTION: Button Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Button Accessibility -->
+## Button Accessibility (fabric-button)
 
 *   Automatically applies `role="button"`.
 *   Manages `aria-disabled` based on the `disabled` attribute.
 *   When using `icon-only`, provide an `aria-label` for screen readers.
+<!-- END-SECTION: Button Accessibility -->

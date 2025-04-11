@@ -15,9 +15,11 @@ contributors:
 
 # Dropdown (`<fabric-dropdown>`)
 
+<!-- BEGIN-SECTION: Dropdown Overview -->
 Displays a listbox where users can select a single option, or a combobox allowing freeform input and selection.
+<!-- END-SECTION: Dropdown Overview -->
 
-## Usage
+## Dropdown Usage (fabric-dropdown)
 
 **Importing:**
 
@@ -128,7 +130,7 @@ Setting `type="combobox"` enables freeform text input in the control element. Th
 *   **Filtering:** The component itself does **not** automatically filter the options based on input. You typically need to listen to the `input` event on the combobox and dynamically update the slotted `<fabric-option>` elements based on the current input value.
 *   **Freeform Input:** Allows users to enter values not in the list. The `value` property will reflect the typed text if no matching option is selected.
 
-## API Reference (`<fabric-dropdown>`)
+## Dropdown API Reference (fabric-dropdown)
 
 Based on `Dropdown` class extending `DropdownBase`.
 
@@ -187,7 +189,7 @@ fabric-dropdown::part(listbox) {
 }
 ```
 
-## Styling
+## Dropdown Styling (fabric-dropdown)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -200,7 +202,7 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   Spacing tokens (`--spacingHorizontal...`) for padding in control and listbox.
 *   Refer to `dropdown.styles.ts` and potentially `option.styles.ts` for detailed token usage.
 
-## Accessibility
+## Dropdown Accessibility (fabric-dropdown)
 
 *   Renders the trigger element with `role="combobox"` (regardless of `type`).
 *   Manages `aria-haspopup="listbox"` and `aria-expanded`.
@@ -211,7 +213,7 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
 *   Requires association with a visible `<label>` via `<fabric-field>` for proper context.
 *   Supports keyboard navigation (Arrow keys, Home, End, Enter, Space, Escape) to open, close, and select options.
 
-## Dependencies
+## Dropdown Dependencies (fabric-dropdown)
 
 *   Relies on the HTML Popover API (`[popover]`) or its polyfill for the listbox popup behavior.
 *   May use CSS Anchor Positioning API or its polyfill for positioning the popup.

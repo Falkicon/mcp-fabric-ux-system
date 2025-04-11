@@ -8,10 +8,13 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Design Language and Tokens
 
+<!-- BEGIN-SECTION: Overview -->
 The Fabric UX System's design language and tokens form the foundation of a cohesive visual identity across Microsoft Fabric experiences. These design fundamentals allow teams to create experiences that align with Microsoft's broader design ecosystem while addressing the specific needs of data-intensive applications within Microsoft Fabric.
+<!-- END-SECTION: Overview -->
 
 ## Introduction
 
+<!-- BEGIN-SECTION: Introduction -->
 The Fabric UX System builds on [Fluent 2](https://fluent2.microsoft.design/)'s design language and leverages design tokens to achieve consistency and alignment across the user experience. This shared visual language makes experiences cohesive, easy to use, and accessible.
 
 A consistent design language provides several key benefits:
@@ -20,9 +23,11 @@ A consistent design language provides several key benefits:
 - **Efficiency**: Increases productivity by enabling reuse and scalability of design components
 - **Recognition**: Creates a familiar experience that users can quickly recognize
 - **Cohesion**: Ensures that different parts of the product feel like they belong together
+<!-- END-SECTION: Introduction -->
 
 ## Design Tokens
 
+<!-- BEGIN-SECTION: Design Tokens -->
 Design tokens abstract design decisions like color, typography, and spacing into a reusable system. They serve as the foundation for maintaining visual consistency while enabling flexibility for different themes and contexts.
 
 ```
@@ -119,9 +124,11 @@ The same alias token references different global tokens in different themes:
 ```
 
 This approach allows the entire UI to adapt to different themes by changing the mapping of alias tokens to global tokens, without updating individual components.
+<!-- END-SECTION: Design Tokens -->
 
 ## Color System
 
+<!-- BEGIN-SECTION: Color System -->
 Color is essential to Fabric's visual identity, creating consistent hierarchy and brand recognition. The colors in the framework fall into these categories:
 
 ```
@@ -177,9 +184,11 @@ The Fabric UX System ensures color accessibility through:
 - **Contrast ratios**: Meeting WCAG 2.1 AA standards for text and background colors
 - **Color independence**: Not relying on color alone to convey information
 - **Color blindness considerations**: Testing combinations for various types of color blindness
+<!-- END-SECTION: Color System -->
 
 ## Typography
 
+<!-- BEGIN-SECTION: Typography -->
 The typography system uses the Segoe UI typeface and is designed for readability, usability, and accessibility. Each text style has specific font size, weight, and line height values.
 
 ### Type Ramp
@@ -198,9 +207,11 @@ Key considerations include:
 - **Line height**: Providing sufficient spacing between lines
 - **Font weight**: Using appropriate weights for different text styles
 - **Text contrast**: Ensuring sufficient contrast between text and background
+<!-- END-SECTION: Typography -->
 
 ## Spacing
 
+<!-- BEGIN-SECTION: Spacing -->
 Spacing creates balance, rhythm, and harmony in UI layouts. Elements in close proximity appear meaningfully related, while adding space weakens their perceived relationship.
 
 The Fabric UX System's spacing is built on a fundamental unit of 4 pixels, with predefined tokens for:
@@ -225,15 +236,19 @@ The system defines breakpoints for responsive layouts:
 Different page types have specific layout considerations:
 - **Hub pages**: Overviews with fixed grids above 1920px
 - **List pages**: Scannable content with no maximum width
+<!-- END-SECTION: Spacing -->
 
 ## Elevation
 
+<!-- BEGIN-SECTION: Elevation -->
 Elevation communicates hierarchy and focus through shadows. Surfaces requiring focus have larger shadows to bring them closer on the z-axis.
 
 The system includes elevation levels from 0 (flat surfaces) to 4 (critical UI elements), each with specific shadow properties.
+<!-- END-SECTION: Elevation -->
 
 ## Iconography
 
+<!-- BEGIN-SECTION: Iconography -->
 The Fabric UX System includes two primary icon styles:
 
 ### Fluent System Icons
@@ -243,9 +258,11 @@ Single-color icons for UI components, available in regular and filled versions. 
 Multi-color icons for representing Fabric items that can be opened, created, or edited.
 
 Implementation options include React components, direct SVG imports, SVG sprites, and web component integration.
+<!-- END-SECTION: Iconography -->
 
 ## Illustration
 
+<!-- BEGIN-SECTION: Illustration -->
 Illustrations help tell stories and guide users. The system includes:
 
 ### Illcons
@@ -259,9 +276,11 @@ Larger illustrations (up to 512x256px) for complex ideas.
 
 ### Empty State Illustrations
 Grayscale illustrations designed specifically for empty state components, available in multiple sizes.
+<!-- END-SECTION: Illustration -->
 
 ## Implementation
 
+<!-- BEGIN-SECTION: Implementation -->
 ### In Code
 Design tokens are implemented as CSS custom properties:
 
@@ -298,18 +317,23 @@ The Fabric UX System maintains precise alignment between Figma designs and code 
 - **Streamlined QA**: Clear reference points for comparing UI against design
 
 This alignment reduces friction in the design-to-development handoff, allowing teams to focus on solving user problems rather than debating implementation details.
+<!-- END-SECTION: Implementation -->
 
 ## Best Practices
 
+<!-- BEGIN-SECTION: Best Practices -->
 - **Use alias tokens, not raw values**: Always reference appropriate alias tokens rather than direct color values
 - **Maintain theme support**: Ensure components work across light, dark, and high contrast themes
 - **Leverage spacing tokens**: Use the spacing scale for consistent layout and rhythm
 - **Follow typography guidelines**: Stick to the defined type ramp for readability and hierarchy
 - **Consider mixed design systems**: When working with multiple design systems, use tokens strategically to create visual harmony
+<!-- END-SECTION: Best Practices -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 Explore related topics to better understand how to apply design tokens:
 - [Component Library](/components/overview)
 - [Getting Started with Fabric UX](/guides/getting-started)
 - [Accessibility Guidelines](/concepts/accessibility)
+<!-- END-SECTION: Learn More -->

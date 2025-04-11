@@ -15,9 +15,12 @@ contributors:
 
 # Menu (`<fabric-menu>`)
 
+<!-- BEGIN-SECTION: Menu Overview -->
 Displays a list of commands or options (`<fabric-menu-item>`) in a temporary popup surface. Can also be configured as a Split Button.
+<!-- END-SECTION: Menu Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Menu Usage -->
+## Menu Usage (fabric-menu)
 
 **Importing:**
 
@@ -103,7 +106,9 @@ if (standardMenu) {
   });
 }
 ```
+<!-- END-SECTION: Menu Usage -->
 
+<!-- BEGIN-SECTION: Menu Split Button Behavior -->
 ### Split Button Behavior
 
 Adding the `split` attribute transforms the menu into a split button. This requires:
@@ -112,8 +117,10 @@ Adding the `split` attribute transforms the menu into a split button. This requi
 *   A trigger element (usually `<fabric-menu-button>`) in the `trigger` slot.
 
 The component visually groups these two elements. Clicking the primary action performs its default behavior. Clicking the trigger opens the menu popup containing the standard menu items.
+<!-- END-SECTION: Menu Split Button Behavior -->
 
-## API Reference (`<fabric-menu>`)
+<!-- BEGIN-SECTION: Menu API -->
+## Menu API Reference (fabric-menu)
 
 Based on `Menu` class.
 
@@ -152,8 +159,10 @@ fabric-menu::part(listbox) {
   padding: var(--spacingVerticalXS) 0;
 }
 ```
+<!-- END-SECTION: Menu API -->
 
-## Styling
+<!-- BEGIN-SECTION: Menu Styling -->
+## Menu Styling (fabric-menu)
 
 Customize appearance using CSS targeting the host element (`fabric-menu` - usually hidden) or the `listbox` part.
 
@@ -165,8 +174,10 @@ Customize appearance using CSS targeting the host element (`fabric-menu` - usual
     *   Padding tokens (`--spacingVertical...`) for internal spacing.
 *   Refer to `menu.styles.ts` and `menu-item.styles.ts` for detailed token usage.
 *   When `split` is true, specific styles are applied to group the `primary-action` and `trigger` slots visually.
+<!-- END-SECTION: Menu Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Menu Accessibility -->
+## Menu Accessibility (fabric-menu)
 
 *   The popup list typically has `role="menu"` or `role="menubar"`.
 *   **Split Button:**
@@ -175,9 +186,12 @@ Customize appearance using CSS targeting the host element (`fabric-menu` - usual
 *   Child items (`<fabric-menu-item>`) handle roles like `menuitem`, `menuitemcheckbox`, `menuitemradio`.
 *   Manages focus movement within the menu.
 *   Supports keyboard navigation (Arrow keys, Home, End, Enter, Space, Escape, Tab/Shift+Tab for menubar).
+<!-- END-SECTION: Menu Accessibility -->
 
-## Dependencies
+<!-- BEGIN-SECTION: Menu Dependencies -->
+## Menu Dependencies (fabric-menu)
 
 *   Relies on the HTML Popover API (`[popover]`) or its polyfill for the popup behavior.
 *   Uses CSS Anchor Positioning API or its polyfill for positioning the menu relative to its trigger.
-*   Ensure appropriate polyfills are loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)). 
+*   Ensure appropriate polyfills are loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)).
+<!-- END-SECTION: Menu Dependencies -->

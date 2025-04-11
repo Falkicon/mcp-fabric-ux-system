@@ -8,12 +8,15 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Polyfilling for Browser Compatibility
 
+<!-- BEGIN-SECTION: Overview -->
 The Fabric UX System components leverage modern browser APIs for optimal performance and functionality. To ensure broader compatibility with browsers that haven't yet fully implemented these APIs, polyfills may be required.
 
 The system takes a "bring your own polyfill" approach. This means your application is responsible for including necessary polyfills if you need to support browsers lacking native implementations of features used by Fabric UX components.
+<!-- END-SECTION: Overview -->
 
 ## Features Requiring Polyfills
 
+<!-- BEGIN-SECTION: Features Requiring Polyfills -->
 Key features currently used by Fabric UX components that may require polyfilling in certain browsers include:
 
 ### HTML Popover (`[popover]`) API
@@ -107,3 +110,4 @@ Key features currently used by Fabric UX components that may require polyfilling
     ```
 
 *Note: Some Fabric UX components might include basic fallback positioning scripts, but using the dedicated polyfill is recommended for robust and consistent anchor positioning behavior across all relevant components.*
+<!-- END-SECTION: Features Requiring Polyfills -->

@@ -8,6 +8,7 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Getting Started with Fabric UX System
 
+<!-- BEGIN-SECTION: Overview -->
 This guide provides practical steps for both designers and developers to begin using the Fabric UX System in their workflows.
 
 Fabric UX System components help build web applications using standards-based Web Components styled with the Microsoft Fabric design language. They are built on W3C standards and `@microsoft/fast-element`, ensuring interoperability with native HTML and modern JavaScript frameworks.
@@ -19,7 +20,9 @@ Fabric UX System components help build web applications using standards-based We
 - **Small Bundle Size:** Individual component exports allow fine-grained dependency management.
 - **Accessible:** Designed for [WCAG 2.2 AA compliance](/concepts/accessibility).
 - **Interoperable:** Framework-agnostic (React, Angular, Vanilla JS, etc.).
+<!-- END-SECTION: Overview -->
 
+<!-- BEGIN-SECTION: For Designers -->
 ## For Designers
 
 Designers use the Fabric UX System to create consistent, accessible, and cohesive user experiences that align with Microsoft Fabric.
@@ -50,7 +53,9 @@ Designers use the Fabric UX System to create consistent, accessible, and cohesiv
 - Keep designs simple and user-focused.
 - Use provided components/patterns first.
 - Document decisions and token usage.
+<!-- END-SECTION: For Designers -->
 
+<!-- BEGIN-SECTION: For Developers -->
 ## For Developers
 
 Developers use Fabric UX System component libraries to implement designs efficiently.
@@ -65,23 +70,19 @@ Developers use Fabric UX System component libraries to implement designs efficie
 
 Install the necessary packages for your framework and for theming:
 
-1.  **Component Package**: Choose the package matching your framework.
-    *   **React**: `@fabric-msft/react`
-    *   **Angular**: `@fabric-msft/angular`
-    *   **Other/No Framework**: `@fabric-msft/web-components`
+1.  **Component Package**: Choose the package based on your framework/version.
+    *   **React <=18**: `@fabric-msft/react` (Provides wrappers)
+    *   **React 19+ / Angular / Other / No Framework**: `@fabric-msft/web-components` (Use directly)
 2.  **Tokens Package**: Needed for applying themes.
     *   `@fabric-msft/tokens`
 
 **Example Installation (using npm):**
 
 ```bash
-# For React applications
+# For React <=18 applications
 npm install @fabric-msft/react @fabric-msft/tokens
 
-# For Angular applications
-npm install @fabric-msft/angular @fabric-msft/tokens
-
-# For other frameworks or vanilla JS
+# For React 19+, Angular, other frameworks, or vanilla JS
 npm install @fabric-msft/web-components @fabric-msft/tokens
 ```
 
@@ -141,12 +142,13 @@ FabricButtonDefinition.define(FabricDesignSystem.registry);
 <fabric-button appearance="primary">Save</fabric-button>
 ```
 
-**3. Framework Wrappers (React / Angular)**
+**3. Framework Wrappers (React <=18) & Direct Web Component Usage**
 
-If using the React or Angular packages (`@fabric-msft/react` or `@fabric-msft/angular`), import components directly from the package. The wrappers handle registration and provide framework-specific bindings.
+*   **React <=18:** If using the React package (`@fabric-msft/react`), import components directly from the package. The wrappers handle registration and provide better integration for older React versions.
+*   **React 19+ / Angular & Others:** If using React 19+, Angular, or other frameworks, import the desired component definitions directly from `@fabric-msft/web-components` (e.g., `import '@fabric-msft/web-components/button/define.js';`) within your relevant modules or components. You will use the standard web component tag (e.g., `<fabric-button>`) in your templates.
 
 ```jsx
-// React Example
+// React Example (<=18 using wrapper)
 import { FabricButton, FabricTextField } from '@fabric-msft/react';
 
 function MyForm() {
@@ -157,22 +159,41 @@ function MyForm() {
     </form>
   );
 }
+
+// React 19+ Example (using direct web component import)
+// Ensure button/text-input define.js files are imported somewhere
+function MyFormReact19() {
+    // JSX types for custom elements might require configuration or casting
+    return (
+      <form>
+        <fabric-text-input label="Username" required></fabric-text-input>
+        <fabric-button appearance="primary" type="submit">Login</fabric-button>
+      </form>
+    );
+}
 ```
 
 ```typescript
-// Angular Example (Module Import)
-import { FabricButtonModule, FabricTextFieldModule } from '@fabric-msft/angular';
+// Angular Example (Module Import - Needs CUSTOM_ELEMENTS_SCHEMA)
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+// Import component definitions (side-effect imports register the components)
+import '@fabric-msft/web-components/button/define.js';
+import '@fabric-msft/web-components/text-input/define.js';
 
 @NgModule({
-  imports: [ FabricButtonModule, FabricTextFieldModule ],
-  // ...
+  imports: [ CommonModule ],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ] // Important: Allows custom element tags
+  // ... declarations, exports etc.
 })
 export class MyFeatureModule { }
 ```
 ```html
 <!-- Angular Example (Template Usage) -->
 <form>
-  <fabric-text-field label="Username" required></fabric-text-field>
+  <!-- Use standard web component tags -->
+  <fabric-text-input label="Username" required></fabric-text-input>
   <fabric-button appearance="primary" type="submit">Login</fabric-button>
 </form>
 ```
@@ -210,7 +231,9 @@ For quick prototyping, components and themes can be loaded via CDN (like unpkg).
 - Optimize performance (e.g., use side-effect imports for only needed components).
 - Test across browsers and devices.
 - Stay updated with package versions.
+<!-- END-SECTION: For Developers -->
 
+<!-- BEGIN-SECTION: Next Steps -->
 ## Next Steps
 
 - Explore the [Component Library Overview](/components/overview).
@@ -219,3 +242,4 @@ For quick prototyping, components and themes can be loaded via CDN (like unpkg).
 - Understand [Styling Components](/guides/styling-components).
 - Review the [Architecture Overview](/internals/architecture).
 - Browse specific [Component Documentation](/components/) (when available).
+<!-- END-SECTION: Next Steps -->

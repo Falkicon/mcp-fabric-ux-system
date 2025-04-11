@@ -8,8 +8,11 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Frequently Asked Questions (FAQ)
 
+<!-- BEGIN-SECTION: Overview -->
 This guide addresses common questions about implementing and working with the Fabric UX System.
+<!-- END-SECTION: Overview -->
 
+<!-- BEGIN-SECTION: Engineering & Build -->
 ## Engineering & Build
 
 ### Bundle Size and Performance
@@ -18,9 +21,9 @@ This guide addresses common questions about implementing and working with the Fa
 
 **A:** Bundle size impact varies based on the application's architecture, but generally, it is minimal due to leveraging web platform efficiencies and techniques like tree-shaking. Components can be individually loaded as needed, so you don't need to load the entire library upfront.
 
-**Q: Are there performance concerns regarding the framework wrappers (React/Angular), particularly for smaller components like buttons?**
+**Q: Are there performance concerns regarding the framework wrappers (React), particularly for smaller components like buttons?**
 
-**A:** The performance of wrappers, especially frequently used ones, is actively evaluated. The goal is to balance performance and ease of use. These wrappers are thin layers over native Web Components, differing significantly from traditional framework-to-framework wrappers.
+**A:** The performance of the React wrapper (`@fabric-msft/react`), especially for frequently used components, is actively evaluated. The goal is to balance performance and ease of use for React versions <=18. These wrappers are thin layers over native Web Components. React 19+ and Angular developers use the Web Components directly, avoiding any wrapper overhead.
 
 ### Integration with Existing Systems
 
@@ -38,18 +41,20 @@ This guide addresses common questions about implementing and working with the Fa
 
 ### Framework Compatibility
 
-**Q: Does the Angular wrapper support features like content projection, templating, dynamic/lazy component creation, and directives?**
+**Q: How do Fabric UX components integrate with Angular?**
 
-**A:** Yes. The `@fabric-msft/angular` wrapper is designed to be compatible with these core Angular features. Documentation and examples are available.
+**A:** Angular applications use the standard `@fabric-msft/web-components` package directly. Angular has built-in support for Custom Elements (the technology behind Web Components). You typically need to import the component definitions (e.g., `import '@fabric-msft/web-components/button/define.js';`) in your Angular module or standalone component and add `CUSTOM_ELEMENTS_SCHEMA` to the module's schemas to allow the custom tags (e.g., `<fabric-button>`) in your templates. This approach allows you to use standard Angular features like property and event binding with the web components.
 
-**Q: How does Angular versioning affect the Fabric UX Angular wrappers?**
+**Q: How does Angular versioning affect Fabric UX components?**
 
-**A:** The wrappers are tested with recent Angular versions (e.g., 16, 17). Future Angular versions are expected to remain compatible unless there are breaking changes specifically affecting wrapper features. The core Web Component functionality inside the wrapper is unaffected by Angular version changes, providing stability.
+**A:** Because Fabric UX components are standard Web Components, they are generally unaffected by Angular version changes. As long as Angular continues to support the Custom Elements standard, the components will work. Compatibility issues are much less likely compared to libraries built specifically for a single Angular version.
 
 **Q: How does using Fabric UX System components benefit framework upgrades (e.g., React 18 to 19, Angular 16 to 17)?**
 
-**A:** It significantly eases upgrades. Because the core component logic resides in framework-agnostic Web Components, they are largely immune to breaking changes in framework updates. Only the thin wrapper layer might need updates, which is a much smaller task than refactoring entire component libraries built solely for a specific framework version. This reduces risk, effort, and technical debt associated with framework migrations.
+**A:** It significantly eases upgrades. Because the core component logic resides in framework-agnostic Web Components, they are largely immune to breaking changes in framework updates. For React <=18, only the thin wrapper layer might need updates. For React 19+ and Angular, no specific Fabric UX package updates are typically needed relative to the framework version change itself. This reduces risk, effort, and technical debt associated with framework migrations.
+<!-- END-SECTION: Engineering & Build -->
 
+<!-- BEGIN-SECTION: Accessibility -->
 ## Accessibility
 
 **Q: How are accessibility requirements addressed?**
@@ -59,7 +64,9 @@ This guide addresses common questions about implementing and working with the Fa
 **Q: Is high-contrast mode supported?**
 
 **A:** Yes, comprehensive high-contrast mode support is included, with ongoing improvements and fixes implemented as needed.
+<!-- END-SECTION: Accessibility -->
 
+<!-- BEGIN-SECTION: Onboarding & Contribution -->
 ## Onboarding & Contribution
 
 ### Adoption Guidance
@@ -99,7 +106,9 @@ This guide addresses common questions about implementing and working with the Fa
 **Q: Will the library implement reusable behavioral patterns (e.g., drag & drop, virtualization)?**
 
 **A:** Reusable behavior pattern libraries are planned. They will be evaluated based on leveraging existing open-source solutions versus custom development, and prioritized by necessity.
+<!-- END-SECTION: Onboarding & Contribution -->
 
+<!-- BEGIN-SECTION: Design and Development Workflow -->
 ## Design and Development Workflow
 
 **Q: How closely do the Fabric UX code components match their Figma design counterparts?**
@@ -113,7 +122,9 @@ This guide addresses common questions about implementing and working with the Fa
 **Q: How does this alignment affect the design-to-development workflow?**
 
 **A:** It significantly reduces friction. Designers design with confidence, developers implement with fewer questions, and both can focus more on user needs. The shared language improves cross-functional collaboration.
+<!-- END-SECTION: Design and Development Workflow -->
 
+<!-- BEGIN-SECTION: Versioning -->
 ## Versioning
 
 **Q: How will breaking changes be managed, especially during the beta phase and after 1.0?**
@@ -131,7 +142,9 @@ This guide addresses common questions about implementing and working with the Fa
 **Q: Is synchronization needed between different extensions or apps if they use different versions of Fabric UX components?**
 
 **A:** No. Because Web Components are fully encapsulated using shadow DOM, different versions can coexist in different parts of an application or across different extensions loaded on the same page without conflicts.
+<!-- END-SECTION: Versioning -->
 
+<!-- BEGIN-SECTION: Long-Term Strategy and Maintenance -->
 ## Long-Term Strategy and Maintenance
 
 **Q: What is the expected lifespan of the Fabric UX System? Will it be deprecated?**
@@ -158,9 +171,12 @@ This guide addresses common questions about implementing and working with the Fa
 **Q: How should we approach styling if our designs don't perfectly match Fluent 2?**
 
 **A:** Use Fabric UX components and adjust [Design Tokens](/concepts/design-tokens) to match your design as closely as possible. **Avoid direct CSS overrides** of component internals. If significant deviations are needed, work with designers to potentially update the design or discuss custom component needs.
+<!-- END-SECTION: Long-Term Strategy and Maintenance -->
 
+<!-- BEGIN-SECTION: Styling (CSS) -->
 ## Styling (CSS)
 
 **Q: How does shadow DOM affect styling components?**
 
 **A:** Shadow DOM encapsulates internal styles. Customization is achieved through specific mechanisms like CSS Custom Properties (Design Tokens), inherited CSS properties, and explicitly exposed CSS Shadow Parts (`::part`). Direct styling of internal elements with global CSS is generally not possible or recommended. See the [Styling Components](/guides/styling-components) guide for details.
+<!-- END-SECTION: Styling (CSS) -->

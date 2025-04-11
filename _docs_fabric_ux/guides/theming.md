@@ -8,14 +8,17 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Theming Components
 
+<!-- BEGIN-SECTION: Overview -->
 Fabric UX System components are styled using [Design Tokens](/concepts/design-tokens), which are implemented as CSS Custom Properties (variables). Theming involves applying different sets of token values to change the overall look and feel (e.g., light mode, dark mode).
 
 The `@fabric-msft/tokens` package provides pre-defined themes for Fabric UX.
 
 *(Ensure you have installed the `@fabric-msft/tokens` package: `npm install @fabric-msft/tokens`)*
+<!-- END-SECTION: Overview -->
 
 ## How Themes are Applied
 
+<!-- BEGIN-SECTION: How Themes are Applied -->
 Design tokens are resolved to CSS variables (e.g., `colorBrandBackground` becomes `var(--colorBrandBackground)`). A `Theme` object from `@fabric-msft/tokens` contains key-value pairs mapping token names to their specific values for that theme (e.g., `{ colorBrandBackground: '#0078d4', ... }`).
 
 The `setTheme` utility (Placeholder: Confirm exact utility name and import path from Fabric UX package, e.g., `@fabric-msft/web-components/theming` or similar) is used to apply these token values as CSS variables in the DOM.
@@ -68,21 +71,27 @@ if (darkSectionElement) {
   setTheme(null, darkSectionElement);
 }
 ```
+<!-- END-SECTION: How Themes are Applied -->
 
 ## Available Themes
 
+<!-- BEGIN-SECTION: Available Themes -->
 Pre-defined themes available from `@fabric-msft/tokens` (Placeholder: Confirm exact theme names):
 
 - `fabricLightTheme` (Example name)
 - `fabricDarkTheme` (Example name)
 - *(Potentially others specific to Fabric contexts)*
+<!-- END-SECTION: Available Themes -->
 
 ## High Contrast Mode
 
+<!-- BEGIN-SECTION: High Contrast Mode -->
 Fabric UX components are designed to automatically adapt to Windows High Contrast mode (using the CSS `forced-colors` media query). Applying specific high-contrast theme objects via `setTheme` is generally **not** required or recommended for standard High Contrast Mode support.
+<!-- END-SECTION: High Contrast Mode -->
 
 ## Using Tokens in Custom Styles
 
+<!-- BEGIN-SECTION: Using Tokens in Custom Styles -->
 Within your application's CSS or component styles, you can access the applied theme's token values using their CSS Custom Property names.
 
 ```css
@@ -103,15 +112,20 @@ Within your application's CSS or component styles, you can access the applied th
 ```
 
 Refer to the [Common Design Tokens](/concepts/common-tokens) guide for a list of frequently used token names.
+<!-- END-SECTION: Using Tokens in Custom Styles -->
 
 ## Finding Available Tokens
 
+<!-- BEGIN-SECTION: Finding Available Tokens -->
 The complete list of available token names and the structure of the `Theme` object are defined within the `@fabric-msft/tokens` package.
 
 - **Token Definitions:** Explore the source code of the `@fabric-msft/tokens` package (Placeholder: Link to Fabric UX repository tokens package when available).
+<!-- END-SECTION: Finding Available Tokens -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 - [Design Tokens Overview](/concepts/design-tokens)
 - [Common Design Tokens](/concepts/common-tokens)
 - [Styling Components](/guides/styling-components)
+<!-- END-SECTION: Learn More -->

@@ -15,7 +15,9 @@ contributors:
 
 # Dialog (`<fabric-dialog>`)
 
+<!-- BEGIN-SECTION: Dialog Overview -->
 Displays content in a layer above the main page, typically requiring user interaction.
+<!-- END-SECTION: Dialog Overview -->
 
 ## Usage
 
@@ -110,7 +112,9 @@ if (dialog) {
 }
 ```
 
-## API Reference (`<fabric-dialog>`)
+<!-- END-SECTION: Dialog Usage -->
+
+## Dialog API Reference (fabric-dialog)
 
 Based on `Dialog` class.
 
@@ -172,7 +176,9 @@ fabric-dialog::part(overlay) {
 }
 ```
 
-## Styling
+<!-- END-SECTION: Dialog API -->
+
+## Dialog Styling (fabric-dialog)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -185,7 +191,7 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   `--colorNeutralBackgroundScrim`: Used for the modal overlay background.
 *   Refer to `dialog.styles.ts` for detailed token usage.
 
-## Accessibility
+## Dialog Accessibility (fabric-dialog)
 
 *   Sets `role="dialog"` or `role="alertdialog"` based on `modal-type`.
 *   Manages `aria-modal="true"` for modal dialogs.
@@ -193,7 +199,7 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
 *   Focus is managed: trapped within modal dialogs (`trap-focus`), and typically returned to the trigger element on close.
 *   Dismissible via the `Esc` key.
 
-## Dependencies
+## Dialog Dependencies (fabric-dialog)
 
 *   Relies on the HTML Popover API (`[popover]`) or its polyfill for displaying the dialog layer.
 *   Ensure the Popover polyfill is loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)).

@@ -8,6 +8,7 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Dependency Injection (Advanced)
 
+<!-- BEGIN-SECTION: Overview -->
 Dependency injection (DI) is a design pattern used to pass functionality (dependencies) to the parts of an application that need them, rather than having those parts create the dependencies themselves. The `@microsoft/fast-element` library, which underlies Fabric UX components, provides utilities for dependency injection.
 
 While not commonly required for typical component development within Fabric UX, understanding DI can be beneficial for advanced scenarios, such as:
@@ -15,9 +16,11 @@ While not commonly required for typical component development within Fabric UX, 
 - Creating reusable services shared across multiple components.
 - Managing complex component state or logic.
 - Improving testability by injecting mock dependencies during testing.
+<!-- END-SECTION: Overview -->
 
 ## Introduction to FAST DI
 
+<!-- BEGIN-SECTION: Introduction to FAST DI -->
 FAST's DI system revolves around containers and registrations.
 
 - **Container:** Holds the registered dependencies and resolves requests for them.
@@ -123,15 +126,19 @@ export class MyFabricComponent extends FASTElement {
 // Placeholder: Assume MyFabricComponent is defined elsewhere using
 // MyFabricComponent.define({ name: 'my-fabric-component', ... });
 ```
+<!-- END-SECTION: Introduction to FAST DI -->
 
 ## Important Considerations for Web Components
 
+<!-- BEGIN-SECTION: Important Considerations for Web Components -->
 1.  **Use `getOrCreateDOMContainer()`**: Always use this to create/get the container associated with the relevant part of the DOM tree where your components live.
 2.  **Register Before Definition**: Ensure dependencies are registered in the container *before* the web components that need them are defined (`CustomElementRegistry.define`). Otherwise, the components might initialize before the dependencies are available.
 3.  **Access After `connectedCallback`**: Injected dependencies are typically resolved and assigned to the component instance *during* the `connectedCallback` lifecycle phase (specifically, after `super.connectedCallback()` is called). Do not try to access them in the constructor.
+<!-- END-SECTION: Important Considerations for Web Components -->
 
 ## Use Cases in Fabric UX Context
 
+<!-- BEGIN-SECTION: Use Cases in Fabric UX Context -->
 While Fabric UX components aim for self-containment, DI could be useful for:
 
 - **Centralized Configuration:** Injecting system-wide configuration (e.g., API endpoints, feature flags) into multiple components.
@@ -139,3 +146,4 @@ While Fabric UX components aim for self-containment, DI could be useful for:
 - **Mocking for Tests:** Injecting mock services during unit or integration testing of components.
 
 Use DI judiciously where it genuinely simplifies architecture or improves testability, rather than for simple property passing.
+<!-- END-SECTION: Use Cases in Fabric UX Context -->

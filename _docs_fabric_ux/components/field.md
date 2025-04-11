@@ -15,12 +15,15 @@ contributors:
 
 # Field (`<fabric-field>`)
 
+<!-- BEGIN-SECTION: Field Overview -->
 Provides layout, labeling, and accessibility structure for form controls like `<fabric-text-input>`, `<fabric-checkbox>`, `<fabric-radio-group>`, etc.
+<!-- END-SECTION: Field Overview -->
 
 ## Usage
 
 Wrap your form input component along with its associated `<label>` and any helper/validation messages within a `<fabric-field>`.
 
+<!-- BEGIN-SECTION: Field Usage -->
 **Importing:**
 
 ```javascript
@@ -78,9 +81,11 @@ if (nameInput) {
   });
 }
 ```
+<!-- END-SECTION: Field Usage -->
 
 ## API Reference (`<fabric-field>`)
 
+<!-- BEGIN-SECTION: Field API -->
 Based on `Field` class extending `FieldBase`.
 
 ### Attributes & Properties
@@ -125,9 +130,11 @@ fabric-field[state="error"]::part(message) {
   font-weight: bold;
 }
 ```
+<!-- END-SECTION: Field API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Field Styling -->
 Provides structural layout and spacing. Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
@@ -136,9 +143,12 @@ Provides structural layout and spacing. Customize appearance using CSS targeting
     *   `--colorCompoundBrandForeground1`: Color for the required indicator (`*`).
     *   Tokens related to validation states (e.g., `--colorPaletteRedBorder1`, `--colorPaletteGreenForeground1`, `--colorPaletteYellowForeground1`) are applied to the message part based on the `state` attribute.
 *   Refer to `field.styles.ts` for detailed token mapping and logic.
+<!-- END-SECTION: Field Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Field Accessibility -->
 *   Crucially links the slotted `<label>` to the slotted `input` via the `for` attribute on the label, ensuring screen readers announce the label when the input receives focus.
 *   Provides a consistent structure for associating helper text or validation messages (`message` slot) with the input, often using `aria-describedby` implicitly or requiring manual setup depending on the input component.
-*   Visually indicates `required` and validation `state`. 
+*   Visually indicates `required` and validation `state`.
+<!-- END-SECTION: Field Accessibility --> 

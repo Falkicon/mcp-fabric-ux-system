@@ -15,9 +15,12 @@ contributors:
 
 # Text (`<fabric-text>`)
 
+<!-- BEGIN-SECTION: Text Overview -->
 Displays text content, applying standardized Fabric typography styles.
+<!-- END-SECTION: Text Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Text Usage -->
+## Text Usage (fabric-text)
 
 Wrap text content within the component and use attributes to control styling.
 
@@ -58,8 +61,10 @@ import type { Text } from '@fabric-msft/web-components/text';
 ### Handling Events (JavaScript)
 
 Text components are primarily for display and do not emit specific events.
+<!-- END-SECTION: Text Usage -->
 
-## API Reference (`<fabric-text>`)
+<!-- BEGIN-SECTION: Text API -->
+## Text API Reference (fabric-text)
 
 Based on `Text` class.
 
@@ -97,6 +102,10 @@ None specific to this component.
 None exposed.
 
 ## Styling
+<!-- END-SECTION: Text API -->
+
+<!-- BEGIN-SECTION: Text Styling -->
+## Text Styling (fabric-text)
 
 Applies typography styles based on attributes mapped to design tokens.
 
@@ -108,9 +117,12 @@ Applies typography styles based on attributes mapped to design tokens.
     *   `--colorNeutralForeground1` (default text color, can be overridden by CSS `color`)
 *   Text decoration and alignment are set via standard CSS properties based on attributes.
 *   Refer to `text.styles.ts` for detailed token mapping.
+<!-- END-SECTION: Text Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Text Accessibility -->
+## Text Accessibility (fabric-text)
 
 *   Renders text content within a `<span>` (if `block` is false) or `<div>` (if `block` is true) by default.
 *   Primarily presentational regarding its own semantics. The semantic meaning comes from the context where `<fabric-text>` is used (e.g., within a paragraph `<p>`, heading `<h1>`, button, etc.).
-*   Ensure sufficient color contrast if overriding the default text color. 
+*   Ensure sufficient color contrast if overriding the default text color.
+<!-- END-SECTION: Text Accessibility -->

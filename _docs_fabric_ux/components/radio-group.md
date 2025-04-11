@@ -15,10 +15,13 @@ contributors:
 
 # Radio Group (`<fabric-radio-group>`)
 
+<!-- BEGIN-SECTION: Radio Group Overview -->
 Groups multiple `<fabric-radio>` elements, ensuring only one can be selected at a time.
+<!-- END-SECTION: Radio Group Overview -->
 
 ## Usage
 
+<!-- BEGIN-SECTION: Radio Group Usage -->
 Wrap related `<fabric-radio>` elements within a `<fabric-radio-group>`.
 **Important:** Use `<fabric-field>` to provide an accessible group label.
 
@@ -87,33 +90,11 @@ import type { Field } from '@fabric-msft/web-components/field'; // Example
   </fabric-radio-group>
 </fabric-field>
 ```
-
-### Handling Events (JavaScript)
-
-Listen for the `change` event on the `<fabric-radio-group>` to detect when the selection changes.
-
-```javascript
-const radioGroup = document.getElementById('fruit-group');
-
-if (radioGroup) {
-  radioGroup.addEventListener('change', (event) => {
-    // event.target is the radio group
-    const selectedValue = event.target.value;
-    console.log(`Radio group value changed to: ${selectedValue}`);
-    
-    // Access the actual radio element that was checked:
-    const checkedRadio = event.target.selectedRadio;
-    if (checkedRadio) {
-        console.log(`Checked radio ID: ${checkedRadio.id}`);
-    }
-    
-    // Add logic based on the selected value
-  });
-}
-```
+<!-- END-SECTION: Radio Group Usage -->
 
 ## API Reference (`<fabric-radio-group>`)
 
+<!-- BEGIN-SECTION: Radio Group API -->
 Based on `RadioGroup` class.
 
 ### Attributes & Properties
@@ -154,20 +135,25 @@ fabric-radio-group::part(positioning-region) {
   gap: var(--spacingVerticalS);
 }
 ```
+<!-- END-SECTION: Radio Group API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Radio Group Styling -->
 Provides layout structure for radio buttons.
 
 *   **Key Design Tokens Used (Examples):**
     *   `--spacingVerticalS`, `--spacingHorizontalS`: Controls the gap between radio items based on `layout`.
 *   Most visual styling (colors, indicator appearance) is handled by the child `<fabric-radio>` elements.
 *   Refer to `radio-group.styles.ts` for detailed token usage.
+<!-- END-SECTION: Radio Group Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Radio Group Accessibility -->
 *   Sets `role="radiogroup"`.
 *   Requires an accessible label provided via `aria-label`, `aria-labelledby`, or ideally by using `<fabric-field>` with a slotted `<label>`.
 *   Manages `aria-disabled` and `aria-required` based on attributes.
 *   Sets `aria-orientation` based on the `orientation`/`layout` attribute.
-*   Keyboard navigation (Arrow keys, Tab) allows moving between and selecting radios within the group. 
+*   Keyboard navigation (Arrow keys, Tab) allows moving between and selecting radios within the group.
+<!-- END-SECTION: Radio Group Accessibility --> 

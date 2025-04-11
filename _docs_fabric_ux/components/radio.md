@@ -15,9 +15,12 @@ contributors:
 
 # Radio (`<fabric-radio>`)
 
+<!-- BEGIN-SECTION: Radio Overview -->
 Represents a single radio button within a `<fabric-radio-group>`.
+<!-- END-SECTION: Radio Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Radio Usage -->
+## Radio Usage (fabric-radio)
 
 Place `<fabric-radio>` elements inside a `<fabric-radio-group>`. Associate labels using `<fabric-field>` or `aria-labelledby`.
 
@@ -75,8 +78,10 @@ if (radioGroup) {
   });
 }
 ```
+<!-- END-SECTION: Radio Usage -->
 
-## API Reference (`<fabric-radio>`)
+<!-- BEGIN-SECTION: Radio API -->
+## Radio API Reference (fabric-radio)
 
 Based on `Radio` class.
 
@@ -85,10 +90,8 @@ Based on `Radio` class.
 *   **`checked`**: `boolean` (default: `false`)
     *   Gets or sets the checked state. Only one radio in a named group can be checked.
 *   **`disabled`**: `boolean` (default: `false`)
-    *   Disables the radio button. Can also be inherited from a disabled `<fabric-radio-group>` or `<fabric-field>`.
-*   **`required`**: `boolean` (default: `false`)
-    *   Indicates that selection is required within the group. Usually set on the `<fabric-radio-group>`.
-*   **`readonly`**: `boolean` (default: `false`)
+    *   Disables the radio button. Can also be inherited from a disabled `<fabric-radio-group>` or `<fabric-field>`.\*   **`required`**: `boolean` (default: `false`)
+    *   Indicates that selection is required within the group. Usually set on the `<fabric-radio-group>`.\*   **`readonly`**: `boolean` (default: `false`)
     *   If true, the checked state cannot be changed by user interaction.
 *   **`value`**: `string` (default: `"on"`)
     *   The value associated with this radio, submitted with form data if checked.
@@ -122,23 +125,27 @@ fabric-radio::part(indicator) {
   background-color: blue;
 }
 ```
+<!-- END-SECTION: Radio API -->
 
-## Styling
+<!-- BEGIN-SECTION: Radio Styling -->
+## Radio Styling (fabric-radio)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
 *   **Key Design Tokens Used (Examples):**
     *   `--colorNeutralForeground1`, `--colorNeutralForegroundDisabled`: Text color for label.
-    *   `--colorNeutralStrokeAccessible`, `--colorNeutralStrokeDisabled`: Border color for the `control`.
-    *   `--colorCompoundBrandStroke`, `--colorCompoundBrandStrokeHover`, `--colorCompoundBrandStrokePressed`: Colors for the `control` border and `indicator` when checked.
+    *   `--colorNeutralStrokeAccessible`, `--colorNeutralStrokeDisabled`: Border color for the `control`.\*   `--colorCompoundBrandStroke`, `--colorCompoundBrandStrokeHover`, `--colorCompoundBrandStrokePressed`: Colors for the `control` border and `indicator` when checked.
     *   `--borderRadiusCircular`: Used for control and indicator shape.
     *   `--strokeWidthThin`: Border thickness.
 *   Refer to `radio.styles.ts` for detailed token usage and state variations.
+<!-- END-SECTION: Radio Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Radio Accessibility -->
+## Radio Accessibility (fabric-radio)
 
 *   Renders with `role="radio"`.
 *   Manages `aria-checked` state (`"true"`, `"false"`).
 *   Manages `aria-disabled` and `aria-required` based on attributes (often inherited from group).
 *   Requires an associated label, typically provided via `<fabric-field>` or `aria-labelledby` on the group.
-*   Keyboard interaction (Spacebar to select, Arrow keys to navigate group) is primarily handled by the parent `<fabric-radio-group>`. 
+*   Keyboard interaction (Spacebar to select, Arrow keys to navigate group) is primarily handled by the parent `<fabric-radio-group>`.
+<!-- END-SECTION: Radio Accessibility -->

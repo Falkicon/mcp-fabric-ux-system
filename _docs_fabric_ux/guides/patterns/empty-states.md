@@ -8,18 +8,23 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Empty States Pattern
 
+<!-- BEGIN-SECTION: Overview -->
 Empty states occur when there's no information or data to display to the user. Rather than showing a blank screen or simply stating "No data," well-designed empty states help users understand what they're seeing and guide them toward appropriate next steps.
+<!-- END-SECTION: Overview -->
 
 ## When to Use Empty States
 
+<!-- BEGIN-SECTION: When to Use Empty States -->
 Implement the empty state pattern when:
 - A user first encounters a feature with no content yet (first-use)
 - A user has removed all content from a view (user-cleared)
 - Search or filter criteria return no results
 - An error prevents content from being displayed
+<!-- END-SECTION: When to Use Empty States -->
 
 ## Anatomy of Empty States
 
+<!-- BEGIN-SECTION: Anatomy of Empty States -->
 An effective empty state includes several key elements:
 
 1. **Illustration** (optional): Visual element that communicates the purpose of the empty state
@@ -42,9 +47,11 @@ An effective empty state includes several key elements:
 │                                           │
 └───────────────────────────────────────────┘
 ```
+<!-- END-SECTION: Anatomy of Empty States -->
 
 ## Types of Empty States
 
+<!-- BEGIN-SECTION: Types of Empty States -->
 ### First-use Empty States
 
 When a user first encounters a feature with no content yet, the empty state should:
@@ -116,9 +123,11 @@ Example:
   <fabric-button slot="action" appearance="primary">Retry</fabric-button>
 </fabric-empty-state>
 ```
+<!-- END-SECTION: Types of Empty States -->
 
 ## Empty State Variations
 
+<!-- BEGIN-SECTION: Empty State Variations -->
 The Fabric UX System provides four primary layout options for empty states, based on the surface where they appear:
 
 ### Page (200 x 200px)
@@ -147,9 +156,11 @@ The Fabric UX System provides four primary layout options for empty states, base
 - Used for smaller containers or surfaces with limited space
 - Text-only approach
 - Focused on essential information
+<!-- END-SECTION: Empty State Variations -->
 
 ## Implementation Guidelines
 
+<!-- BEGIN-SECTION: Implementation Guidelines -->
 ### Placement
 
 - Center empty states horizontally and vertically in the content area
@@ -176,17 +187,21 @@ The Fabric UX System provides four primary layout options for empty states, base
 - Use primary buttons for the main action
 - Use subtle buttons for secondary actions
 - For multiple empty states, use subtle buttons instead of primary buttons
+<!-- END-SECTION: Implementation Guidelines -->
 
 ## Accessibility Considerations
 
+<!-- BEGIN-SECTION: Accessibility Considerations -->
 - Ensure proper heading structure (title should be appropriately marked as a heading)
 - Provide alt text for illustrations
 - Maintain adequate color contrast for all text elements
 - Ensure interactive elements are keyboard accessible
 - Confirm screen readers can properly interpret the empty state content
+<!-- END-SECTION: Accessibility Considerations -->
 
 ## Code Example
 
+<!-- BEGIN-SECTION: Code Example -->
 Here's a more complete implementation example:
 
 ```tsx
@@ -222,9 +237,11 @@ function SearchResults({ results, searchTerm, onClearSearch }) {
   );
 }
 ```
+<!-- END-SECTION: Code Example -->
 
 ## Best Practices
 
+<!-- BEGIN-SECTION: Best Practices -->
 ### Do:
 - Use empty states consistently throughout your application
 - Keep content concise and focused on next steps
@@ -236,14 +253,19 @@ function SearchResults({ results, searchTerm, onClearSearch }) {
 - Overload empty states with too many actions or too much text
 - Use illustrations that don't clearly relate to the context
 - Skip empty states or leave blank areas without explanation
+<!-- END-SECTION: Best Practices -->
 
 ## Related Patterns
 
+<!-- BEGIN-SECTION: Related Patterns -->
 - [Progress Indicators](/guides/patterns/progress-indicators) - Often used before showing an empty state while loading data
 - [Notifications](/guides/patterns/notifications) - May be used alongside empty states to provide additional feedback
+<!-- END-SECTION: Related Patterns -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 - [Component Library Overview](/components/overview)
 - [UX Patterns Overview](/guides/patterns/overview)
 - [Illustration System](/concepts/illustrations)
+<!-- END-SECTION: Learn More -->

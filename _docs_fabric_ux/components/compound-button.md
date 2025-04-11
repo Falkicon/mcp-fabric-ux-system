@@ -15,9 +15,11 @@ contributors:
 
 # Compound Button (`<fabric-compound-button>`)
 
+<!-- BEGIN-SECTION: Compound Button Overview -->
 A button variant designed to display a primary line of text along with a secondary, descriptive line below it.
+<!-- END-SECTION: Compound Button Overview -->
 
-## Usage
+## Compound Button Usage (fabric-compound-button)
 
 Use like a standard button, but provide secondary content via the `secondary-content` slot.
 
@@ -66,8 +68,9 @@ if (myCompoundButton) {
   });
 }
 ```
+<!-- END-SECTION: Compound Button Usage -->
 
-## API Reference (`<fabric-compound-button>`)
+## Compound Button API Reference (fabric-compound-button)
 
 Inherits most functionality and attributes from `<fabric-button>`.
 
@@ -119,15 +122,17 @@ fabric-compound-button::part(secondary-content) {
   color: var(--colorNeutralForeground2);
 }
 ```
+<!-- END-SECTION: Compound Button API -->
 
-## Styling
+## Compound Button Styling (fabric-compound-button)
 
 Inherits styling from `<fabric-button>` and adds specific layout styles for the primary and secondary text.
 
 *   **Key Design Tokens Used:** Uses standard button tokens, plus potentially specific tokens for secondary content color (`--colorNeutralForeground2`) and line height/spacing adjustments.
 *   Refer to `compound-button.styles.ts` and `button.styles.ts` for detailed token usage.
+<!-- END-SECTION: Compound Button Styling -->
 
-## Accessibility
+## Compound Button Accessibility (fabric-compound-button)
 
 *   Sets `role="button"`.
 *   The accessible name is typically derived from the primary text content (default slot).

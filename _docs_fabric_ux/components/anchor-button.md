@@ -15,7 +15,9 @@ contributors:
 
 # Anchor Button (`<fabric-anchor-button>`)
 
+<!-- BEGIN-SECTION: Anchor Button Overview -->
 Displays a clickable element styled as a button, but rendered as an HTML anchor (`<a>`) tag, enabling navigation.
+<!-- END-SECTION: Anchor Button Overview -->
 
 ## Usage
 
@@ -84,7 +86,7 @@ Supports `icon-only` attribute and `start`/`end` slots identically to `<fabric-b
 </fabric-anchor-button>
 ```
 
-## When to Use
+## When to Use (fabric-anchor-button)
 
 *   Use `<fabric-anchor-button>` when you need the **appearance of a button** but the **functionality of a link** (navigation or downloading).
 *   Use `<fabric-button>` for actions within the application that **do not navigate** (e.g., submitting a form, opening a dialog, triggering an action).

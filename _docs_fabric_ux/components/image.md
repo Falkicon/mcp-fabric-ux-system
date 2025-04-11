@@ -15,10 +15,13 @@ contributors:
 
 # Image (`<fabric-image>`)
 
+<!-- BEGIN-SECTION: Image Overview -->
 Displays an image with optional Fabric styling like shape, fit, borders, and shadows.
+<!-- END-SECTION: Image Overview -->
 
 ## Usage
 
+<!-- BEGIN-SECTION: Image Usage -->
 Use like a standard `<img>` tag, but with additional styling attributes.
 
 **Importing:**
@@ -60,9 +63,11 @@ import type { Image } from '@fabric-msft/web-components/image';
 <!-- With Border and Shadow -->
 <fabric-image bordered shadow src="..." alt="..."></fabric-image>
 ```
+<!-- END-SECTION: Image Usage -->
 
 ## API Reference (`<fabric-image>`)
 
+<!-- BEGIN-SECTION: Image API -->
 Based on `Image` class.
 
 ### Attributes & Properties
@@ -112,6 +117,7 @@ fabric-image::part(image) {
 
 ## Styling
 
+<!-- BEGIN-SECTION: Image Styling -->
 Customize appearance using CSS targeting the host element or the `image` part. Styling attributes provide common adjustments.
 
 *   **Key Design Tokens Used (Examples):**
@@ -120,9 +126,12 @@ Customize appearance using CSS targeting the host element or the `image` part. S
     *   `--shadow4`: Used for the shadow when `shadow` is true.
 *   The `fit` attribute maps directly to CSS `object-fit`.
 *   Refer to `image.styles.ts` (or similar file in the component source) for detailed token usage.
+<!-- END-SECTION: Image Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Image Accessibility -->
 *   Renders a native `<img>` element.
 *   **Crucially requires meaningful `alt` text** via the `alt` attribute for screen reader users (**WCAG 1.1.1**).
-*   If the image is purely decorative and provides no information, use `alt=""`. 
+*   If the image is purely decorative and provides no information, use `alt=""`.
+<!-- END-SECTION: Image Accessibility --> 

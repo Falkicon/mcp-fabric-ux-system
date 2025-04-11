@@ -15,7 +15,9 @@ contributors:
 
 # Divider (`<fabric-divider>`)
 
+<!-- BEGIN-SECTION: Divider Overview -->
 Visually separates content or groups of items.
+<!-- END-SECTION: Divider Overview -->
 
 ## Usage
 
@@ -59,7 +61,8 @@ import type { Divider } from '@fabric-msft/web-components/divider';
 
 Dividers are purely presentational and do not emit specific events.
 
-## API Reference (`<fabric-divider>`)
+<!-- BEGIN-SECTION: Divider API -->
+## Divider API Reference (fabric-divider)
 
 Based on `Divider` class extending `DividerBase`.
 
@@ -91,9 +94,11 @@ fabric-divider::part(divider) {
   border-color: red;
 }
 ```
+<!-- END-SECTION: Divider API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Divider Styling -->
 Customize appearance using CSS targeting the host element or the `divider` part.
 
 *   **Key Design Tokens Used (Examples):**
@@ -101,9 +106,12 @@ Customize appearance using CSS targeting the host element or the `divider` part.
     *   `--strokeWidthThin`: Controls the thickness.
     *   `--spacingVertical...`, `--spacingHorizontal...`: Used for margins when `orientation` changes alignment.
 *   Refer to `divider.styles.ts` for detailed token usage.
+<!-- END-SECTION: Divider Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Divider Accessibility -->
 *   Sets `role` based on the attribute (`separator` or `presentation`).
 *   `aria-orientation` is automatically set based on the `orientation` attribute.
+<!-- END-SECTION: Divider Accessibility -->
  

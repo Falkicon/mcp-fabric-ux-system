@@ -8,19 +8,24 @@ lastUpdated: 2025-04-10 # Placeholder date - Update as needed
 
 # Fabric UX Shared Patterns
 
+<!-- BEGIN-SECTION: Overview -->
 Shared UX patterns in the Fabric UX System are standardized, repeatable solutions designed to address common user scenarios and workflows consistently across the platform. Unlike individual components (which are basic building blocks), patterns describe how multiple components work together to help users accomplish specific tasks effectively.
+<!-- END-SECTION: Overview -->
 
 ## Purpose and Benefits
 
+<!-- BEGIN-SECTION: Purpose and Benefits -->
 Using shared patterns provides several key advantages:
 
 *   **Consistency:** Creates a cohesive and predictable user experience across different features and workloads.
 *   **Efficiency:** Reduces design and development time by providing pre-defined solutions for common problems.
 *   **Usability:** Lowers cognitive load for users as they encounter familiar interactions for similar tasks.
 *   **User-Centered:** Patterns are based on user research and usability testing to ensure they meet real-world needs.
+<!-- END-SECTION: Purpose and Benefits -->
 
 ## Common Pattern Examples
 
+<!-- BEGIN-SECTION: Common Pattern Examples -->
 The Fabric UX System documents and provides guidance for several common patterns:
 
 ### 1. Empty States
@@ -59,6 +64,7 @@ The Fabric UX System documents and provides guidance for several common patterns
 **Goal:** Provide a consistent, intuitive, and efficient workflow for creating items.
 
 **Key Elements:** Often involves standardized dialogs, forms, input validation, button placement (Save/Cancel), and confirmation steps.
+<!-- END-SECTION: Common Pattern Examples -->
 
 ---
 

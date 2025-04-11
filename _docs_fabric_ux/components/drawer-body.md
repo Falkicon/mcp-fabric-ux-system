@@ -15,9 +15,14 @@ contributors:
 
 # Drawer Body (`<fabric-drawer-body>`)
 
+<!-- BEGIN-SECTION: Drawer Body Overview -->
 A required structural component used within `<fabric-drawer>` to organize its content.
+<!-- END-SECTION: Drawer Body Overview -->
 
 ## Usage
+
+<!-- BEGIN-SECTION: Drawer Body Usage -->
+## Drawer Body Usage (fabric-drawer-body)
 
 Place a single `<fabric-drawer-body>` as a direct child of a `<fabric-drawer>` element.
 
@@ -55,8 +60,12 @@ import type { DrawerBody } from '@fabric-msft/web-components/drawer-body';
 ### Handling Events (JavaScript)
 
 The drawer body is a structural element and does not emit specific events.
+<!-- END-SECTION: Drawer Body Usage -->
 
 ## API Reference (`<fabric-drawer-body>`)
+
+<!-- BEGIN-SECTION: Drawer Body API -->
+## Drawer Body API Reference (fabric-drawer-body)
 
 Based on `DrawerBody` class.
 
@@ -93,8 +102,12 @@ fabric-drawer-body::part(footer) {
   padding: var(--spacingVerticalM) var(--spacingHorizontalM);
 }
 ```
+<!-- END-SECTION: Drawer Body API -->
 
 ## Styling
+
+<!-- BEGIN-SECTION: Drawer Body Styling -->
+## Drawer Body Styling (fabric-drawer-body)
 
 Provides the main content structure and padding within the drawer.
 
@@ -103,9 +116,14 @@ Provides the main content structure and padding within the drawer.
     *   May inherit background/foreground colors from the parent `<fabric-drawer>`.
     *   `--colorNeutralStroke2`: Default border color for footer separator.
 *   Refer to `drawer-body.styles.ts` for detailed token usage.
+<!-- END-SECTION: Drawer Body Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Drawer Body Accessibility -->
+## Drawer Body Accessibility (fabric-drawer-body)
+
 *   Serves primarily as a structural container.
 *   Accessibility roles and properties (`dialog`, `aria-labelledby`, etc.) are typically managed by the parent `<fabric-drawer>`.
-*   Ensures a consistent structure for content, title, and footer within the drawer. 
+*   Ensures a consistent structure for content, title, and footer within the drawer.
+<!-- END-SECTION: Drawer Body Accessibility --> 

@@ -15,9 +15,12 @@ contributors:
 
 # Tree Item (`<fabric-tree-item>`)
 
+<!-- BEGIN-SECTION: Tree Item Overview -->
 Represents a single item within a `<fabric-tree>`, which can be a leaf node or contain a nested tree.
+<!-- END-SECTION: Tree Item Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Tree Item Usage -->
+## Tree Item Usage (fabric-tree-item)
 
 Place `<fabric-tree-item>` elements inside a `<fabric-tree>`. Nest further `<fabric-tree>` elements within the `item-nested` slot for hierarchical structures.
 
@@ -84,8 +87,10 @@ if (reportItem) {
 // const tree = document.querySelector('fabric-tree');
 // tree.addEventListener('selected-change', (event) => { ... }); // Check tree component API
 ```
+<!-- END-SECTION: Tree Item Usage -->
 
-## API Reference (`<fabric-tree-item>`)
+<!-- BEGIN-SECTION: Tree Item API -->
+## Tree Item API Reference (fabric-tree-item)
 
 Based on `TreeItem` class extending `TreeItemBase`.
 
@@ -130,8 +135,10 @@ fabric-tree-item[aria-selected="true"]::part(content) {
   font-weight: bold;
 }
 ```
+<!-- END-SECTION: Tree Item API -->
 
-## Styling
+<!-- BEGIN-SECTION: Tree Item Styling -->
+## Tree Item Styling (fabric-tree-item)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -144,8 +151,10 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   Padding/Spacing tokens (`--spacingVertical...`, `--spacingHorizontal...`).
     *   Indentation for nested levels is handled via CSS.
 *   Refer to `tree-item.styles.ts` for detailed token usage.
+<!-- END-SECTION: Tree Item Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Tree Item Accessibility -->
+## Tree Item Accessibility (fabric-tree-item)
 
 *   Sets `role="treeitem"`.
 *   Manages `aria-selected` based on selection state.
@@ -153,4 +162,5 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
 *   Manages `aria-disabled` based on the `disabled` attribute.
 *   Sets `aria-level` based on nesting depth.
 *   Sets `aria-posinset` and `aria-setsize` based on position within its parent tree/subtree.
-*   Relies on the parent `<fabric-tree>` for overall tree context and keyboard navigation. 
+*   Relies on the parent `<fabric-tree>` for overall tree context and keyboard navigation.
+<!-- END-SECTION: Tree Item Accessibility -->

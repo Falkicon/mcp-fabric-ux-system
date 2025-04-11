@@ -8,10 +8,13 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # UX Patterns Overview
 
+<!-- BEGIN-SECTION: Overview -->
 While [components](/components/overview) serve as the fundamental building blocks of the Fabric UX System, UX patterns are reusable solutions to common design problems. These patterns describe how components work together to help users accomplish specific tasks, ensuring consistency and usability across the Microsoft Fabric ecosystem.
+<!-- END-SECTION: Overview -->
 
 ## What Are UX Patterns?
 
+<!-- BEGIN-SECTION: What Are UX Patterns? -->
 UX patterns differ from basic components in that they address specific user scenarios rather than just providing UI elements. They establish standardized workflows and interaction models for common tasks, creating familiarity and reducing the learning curve for users.
 
 ```
@@ -39,9 +42,11 @@ UX patterns differ from basic components in that they address specific user scen
 │                                                     │
 └─────────────────────────────────────────────────────┘
 ```
+<!-- END-SECTION: What Are UX Patterns? -->
 
 ## Benefits of Using UX Patterns
 
+<!-- BEGIN-SECTION: Benefits of Using UX Patterns -->
 Implementing standardized UX patterns provides several key benefits:
 
 ### 1. Standardized Workflows
@@ -64,9 +69,11 @@ Patterns are developed and refined based on:
 ### 3. Consistency Across the Platform
 
 UX patterns promote consistency across the Microsoft Fabric platform, creating a unified experience regardless of which workload or feature a user is interacting with. This consistency helps users transfer knowledge between different parts of the platform and builds confidence in their ability to accomplish tasks.
+<!-- END-SECTION: Benefits of Using UX Patterns -->
 
 ## Core UX Patterns
 
+<!-- BEGIN-SECTION: Core UX Patterns -->
 The Fabric UX System includes several core UX patterns that address common user scenarios:
 
 ### [Empty States](/guides/patterns/empty-states)
@@ -95,9 +102,11 @@ Notifications are crucial for communicating with users and providing feedback. T
 ### [Item Creation](/guides/patterns/item-creation)
 
 The item creation pattern standardizes workflows for creating new items, ensuring consistency in dialogs, form layouts, validation, and action buttons.
+<!-- END-SECTION: Core UX Patterns -->
 
 ## Implementation Example
 
+<!-- BEGIN-SECTION: Implementation Example -->
 Here's a simplified example of implementing an empty state pattern:
 
 ```html
@@ -109,9 +118,11 @@ Here's a simplified example of implementing an empty state pattern:
   <fabric-button slot="action" appearance="primary">Clear filters</fabric-button>
 </fabric-empty-state>
 ```
+<!-- END-SECTION: Implementation Example -->
 
 ## Best Practices for Using Patterns
 
+<!-- BEGIN-SECTION: Best Practices for Using Patterns -->
 When implementing UX patterns in your application:
 
 1. **Follow established patterns**: Use the documented patterns for common scenarios rather than inventing new approaches.
@@ -119,9 +130,11 @@ When implementing UX patterns in your application:
 3. **Use patterns consistently**: Apply patterns consistently throughout your application.
 4. **Test with users**: Validate that the implemented patterns effectively meet user needs in your specific context.
 5. **Provide feedback**: If you identify gaps or improvements for existing patterns, share your insights with the Fabric UX team.
+<!-- END-SECTION: Best Practices for Using Patterns -->
 
 ## Pattern Documentation Structure
 
+<!-- BEGIN-SECTION: Pattern Documentation Structure -->
 Each pattern in the Fabric UX System is documented with:
 
 - **Overview**: What the pattern is and when to use it
@@ -131,12 +144,15 @@ Each pattern in the Fabric UX System is documented with:
 - **Implementation**: Code examples and technical guidance
 - **Accessibility**: Considerations for ensuring the pattern is accessible to all users
 - **Best practices**: Dos and don'ts for effective implementation
+<!-- END-SECTION: Pattern Documentation Structure -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 Explore detailed documentation for individual patterns:
 
 - [Empty States](/guides/patterns/empty-states)
 - [Progress Indicators](/guides/patterns/progress-indicators)
 - [Notifications](/guides/patterns/notifications)
 - [Item Creation](/guides/patterns/item-creation)
+<!-- END-SECTION: Learn More -->

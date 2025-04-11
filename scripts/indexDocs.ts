@@ -122,6 +122,7 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
         console.log(`[processFile: ${path.basename(filePath)}] Content parsed. Tree root type: ${tree.type}`);
 
         let frontmatter: Record<string, any> = {};
+        let yamlEndOffset = 0; // Variable to store the end offset
         // [LOG] Checking for frontmatter
         console.log(`[processFile: ${path.basename(filePath)}] Checking for YAML frontmatter node.`);
         if (tree.children.length > 0 && tree.children[0].type === 'yaml') {
@@ -130,6 +131,7 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
            console.log(`[processFile: ${path.basename(filePath)}] Found YAML node, attempting to parse.`);
             try {
                 frontmatter = yaml.load(yamlNode.value as string) as Record<string, any>;
+                yamlEndOffset = yamlNode.position?.end?.offset ?? 0; // Store the end offset
                 // [LOG] Successfully parsed YAML.
                 console.log(`[processFile: ${path.basename(filePath)}] Successfully parsed YAML frontmatter:`, Object.keys(frontmatter));
             } catch (e) {
@@ -161,38 +163,93 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
         // [LOG] Required fields present.
         console.log(`[processFile: ${path.basename(filePath)}] Required frontmatter fields found.`);
 
-        // [LOG] Stringifying remaining content.
-        console.log(`[processFile: ${path.basename(filePath)}] Stringifying remaining AST content.`);
-        const content = String(processor.stringify(tree)).trim();
-        // [LOG] Splitting content into chunks.
-        console.log(`[processFile: ${path.basename(filePath)}] Splitting content into chunks based on double newlines.`);
-        const chunks = content.split(/\n\s*\n+/).filter(chunk => chunk.trim().length > 0);
-        // [LOG] Found chunks.
-        console.log(`[processFile: ${path.basename(filePath)}] Found ${chunks.length} non-empty chunks.`);
-        if (chunks.length === 0) {
-             // [LOG] No content chunks warning.
-            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No content chunks found after parsing ${filePath}`);
-            // No need to return here, can proceed and add nothing
+        // [LOG] Processing content using SECTION markers.
+        console.log(`[processFile: ${path.basename(filePath)}] Extracting content based on section markers.`);
+
+        // Use raw file content for regex matching to preserve structure within markers
+        const rawContentWithoutFrontmatter = fileContent.substring(yamlEndOffset).trim();
+
+        const sectionRegex = /<!--\s*BEGIN-SECTION:\s*(.*?)\s*-->(.*?)<!--\s*END-SECTION:\s*\1\s*-->/gs;
+        let match;
+        let lastIndex = 0;
+        const sections: { name: string; text: string }[] = [];
+
+        while ((match = sectionRegex.exec(rawContentWithoutFrontmatter)) !== null) {
+            const sectionName = match[1].trim();
+            const sectionText = match[2].trim();
+            const precedingText = rawContentWithoutFrontmatter.substring(lastIndex, match.index).trim();
+
+            let combinedText = sectionText;
+            // Prepend preceding text to the current section's content
+            if (precedingText) {
+                combinedText = `${precedingText}\n\n${sectionText}`;
+                console.log(`[processFile: ${path.basename(filePath)}] Prepended ${precedingText.length} chars to section '${sectionName}'`);
+            }
+
+            if (combinedText) {
+                 sections.push({ name: sectionName, text: combinedText });
+                 console.log(`[processFile: ${path.basename(filePath)}] Found section: '${sectionName}', Length: ${combinedText.length}`);
+            }
+            lastIndex = sectionRegex.lastIndex;
         }
 
-        // [LOG] Starting chunk processing loop.
-        console.log(`[processFile: ${path.basename(filePath)}] Starting chunk processing loop for ${chunks.length} chunks.`);
-        for (let i = 0; i < chunks.length; i++) {
-            const chunkText = chunks[i];
-            const chunkId = `${frontmatter.id}-chunk-${i}`;
-             // [LOG] Processing chunk.
-            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${i} (ID: ${chunkId}). Length: ${chunkText.length}`);
+        // Handle any remaining content after the last marker
+        const remainingText = rawContentWithoutFrontmatter.substring(lastIndex).trim();
+        if (remainingText && sections.length > 0) {
+            sections[sections.length - 1].text += `\n\n${remainingText}`; // Append to the last section
+            console.log(`[processFile: ${path.basename(filePath)}] Appended ${remainingText.length} trailing chars to last section '${sections[sections.length - 1].name}'`);
+        } else if (remainingText && sections.length === 0) {
+             // If NO sections were found, treat the whole remaining content as one chunk
+             console.log(`[processFile: ${path.basename(filePath)}] No section markers found, treating entire content as one chunk.`);
+             sections.push({ name: 'default', text: remainingText });
+        }
+
+        if (sections.length === 0) {
+            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No content sections found or extracted in ${filePath}`);
+        }
+
+        // [LOG] Starting chunk processing loop based on sections.
+        console.log(`[processFile: ${path.basename(filePath)}] Starting chunk processing loop for ${sections.length} sections.`);
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
+            // Sanitize section name for use in ID
+            const sanitizedSectionName = section.name.toLowerCase().replace(/[^a-z0-9\-]+/g, '-').replace(/^-+|-+$/g, '');
+            const chunkId = `${frontmatter.id}-section-${sanitizedSectionName || 'content'}-${i}`;
+
+            // --- BEGIN: Prepend Header Logic ---
+            let textToEmbed = section.text;
+            let sectionHeaderText = section.name; // Default to name from marker
+
+            // Regex to find the first H2 header within the section text
+            const headerRegex = /^##\s+(.*?)(?:\s*\(.*\))?\s*$/m;
+            const headerMatch = section.text.match(headerRegex);
+
+            if (headerMatch && headerMatch[1]) {
+                sectionHeaderText = headerMatch[1].trim(); // Get clean header text
+                // Prepend the found header to the text for embedding
+                textToEmbed = `${sectionHeaderText}\n\n${section.text}`;
+                console.log(`[processFile: ${path.basename(filePath)}] Prepended header '${sectionHeaderText}' to chunk ${i}.`);
+            } else {
+                 console.log(`[processFile: ${path.basename(filePath)}] No H2 header found in section '${section.name}', using marker name.`);
+                 // Optionally prepend the marker name if no header found?
+                 // textToEmbed = `${section.name}\n\n${section.text}`;
+            }
+            // --- END: Prepend Header Logic ---
+
+            // [LOG] Processing chunk.
+            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${i} (ID: ${chunkId}, Section: '${section.name}'). Length: ${section.text.length} (Embedding length: ${textToEmbed.length})`);
 
             // [LOG] Before generating embedding.
             console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${i}.`);
-            const output = await embedderPipeline(chunkText, { pooling: 'mean', normalize: true });
+            // Use textToEmbed (Header + Content) for embedding
+            const output = await embedderPipeline(textToEmbed, { pooling: 'mean', normalize: true });
             const embedding: Embedding = Array.from(output.data as Float32Array);
             // [LOG] After generating embedding.
             console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${i}. Length: ${embedding.length}`);
 
             result.ids.push(chunkId);
             result.embeddings.push(embedding);
-            result.documents.push(chunkText);
+            result.documents.push(section.text); // Store the ORIGINAL section text (without prepended header)
             const metadataItem: Metadata = {
                 id: frontmatter.id as string,
                 title: frontmatter.title as string,
@@ -201,6 +258,7 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
                 lastUpdated: frontmatter.lastUpdated as string,
                 filePath: path.relative(process.cwd(), filePath),
                 chunkId: chunkId,
+                section: sectionHeaderText // Store the extracted or marker section name
             };
             result.metadatas.push(metadataItem);
             // [LOG] Added chunk data to results.

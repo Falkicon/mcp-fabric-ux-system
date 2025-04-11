@@ -15,9 +15,12 @@ contributors:
 
 # Tab (`<fabric-tab>`)
 
+<!-- BEGIN-SECTION: Tab Overview -->
 Represents a single tab control within a `<fabric-tablist>` that activates an associated tab panel.
+<!-- END-SECTION: Tab Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Tab Usage -->
+## Tab Usage (fabric-tab)
 
 Place `<fabric-tab>` elements inside a `<fabric-tablist>`. Assign a `value` and link to a panel via `aria-controls`.
 
@@ -78,8 +81,10 @@ if (tabList) {
   });
 }
 ```
+<!-- END-SECTION: Tab Usage -->
 
-## API Reference (`<fabric-tab>`)
+<!-- BEGIN-SECTION: Tab API -->
+## Tab API Reference (fabric-tab)
 
 Based on `Tab` class.
 
@@ -112,8 +117,10 @@ fabric-tab::part(content) {
   gap: var(--spacingHorizontalS);
 }
 ```
+<!-- END-SECTION: Tab API -->
 
-## Styling
+<!-- BEGIN-SECTION: Tab Styling -->
+## Tab Styling (fabric-tab)
 
 Customize appearance using CSS targeting the host element (`fabric-tab`) or the `content` part.
 
@@ -125,11 +132,14 @@ Customize appearance using CSS targeting the host element (`fabric-tab`) or the 
     *   Font tokens (`--fontSizeBase...`, `--fontWeight...`) based on `size` from parent `tablist`.
     *   Padding tokens (`--spacingVertical...`, `--spacingHorizontal...`) based on `size`.
 *   Refer to `tab.styles.ts` for detailed token usage related to selection, orientation, and appearance.
+<!-- END-SECTION: Tab Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Tab Accessibility -->
+## Tab Accessibility (fabric-tab)
 
 *   Sets `role="tab"`.
 *   Manages `aria-selected` based on selection state controlled by the parent `tablist`.
 *   Manages `aria-disabled` based on the `disabled` attribute.
 *   Requires `aria-controls` attribute linking to the ID of the associated `role="tabpanel"` element.
-*   Relies on the parent `<fabric-tablist>` for keyboard navigation context. 
+*   Relies on the parent `<fabric-tablist>` for keyboard navigation context.
+<!-- END-SECTION: Tab Accessibility -->

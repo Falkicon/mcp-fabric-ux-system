@@ -15,9 +15,11 @@ contributors:
 
 # Accordion (`<fabric-accordion>`)
 
+<!-- BEGIN-SECTION: Accordion Overview -->
 The accordion component allows users to toggle the visibility of sections of content. It includes accordion items, each with a header and a panel that can be expanded or collapsed.
+<!-- END-SECTION: Accordion Overview -->
 
-## Usage
+## Accordion Usage (fabric-accordion)
 
 **Importing:**
 
@@ -83,6 +85,6 @@ if (accordion) {
 }
 ```
 
-## API Reference
+## Accordion API Reference (fabric-accordion)
 
 ### `<fabric-accordion>`

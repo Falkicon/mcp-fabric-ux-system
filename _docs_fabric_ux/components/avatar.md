@@ -15,9 +15,12 @@ contributors:
 
 # Avatar (`<fabric-avatar>`)
 
+<!-- BEGIN-SECTION: Avatar Overview -->
 Displays a visual representation of a user or entity, supporting images, initials, icons, and status indicators.
+<!-- END-SECTION: Avatar Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Avatar Usage -->
+## Avatar Usage (fabric-avatar)
 
 **Importing:**
 
@@ -75,8 +78,10 @@ import type { Avatar } from '@fabric-msft/web-components/avatar';
 <fabric-avatar color="dark-red" name="DR"></fabric-avatar>
 <!-- Other named colors: lavender, orchid, etc. -->
 ```
+<!-- END-SECTION: Avatar Usage -->
 
-## API Reference (`<fabric-avatar>`)
+<!-- BEGIN-SECTION: Avatar API -->
+## Avatar API Reference (fabric-avatar)
 
 Based on `Avatar` class extending `AvatarBase`.
 
@@ -123,8 +128,10 @@ fabric-avatar::part(activity-indicator) {
   border-width: 4px;
 }
 ```
+<!-- END-SECTION: Avatar API -->
 
-## Styling
+<!-- BEGIN-SECTION: Avatar Styling -->
+## Avatar Styling (fabric-avatar)
 
 Customize appearance using CSS targeting the host element or the exposed CSS Parts.
 
@@ -137,9 +144,12 @@ Customize appearance using CSS targeting the host element or the exposed CSS Par
     *   Font tokens (`--fontSizeBase...`, `--fontWeight...`) for initials.
 *   Sizing is controlled directly by the `size` attribute rather than standard spacing tokens.
 *   Refer to `avatar.styles.ts` for detailed token mapping and logic.
+<!-- END-SECTION: Avatar Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Avatar Accessibility -->
+## Avatar Accessibility (fabric-avatar)
 
 *   If using an `<img>`, ensure meaningful `alt` text is provided on the `<img>` tag itself.
 *   If using initials or icons, consider if an `aria-label` on the `<fabric-avatar>` itself is needed to convey the user/entity represented, especially if the visual information alone is insufficient context.
-*   The component generally doesn't add a specific `role` itself, acting as a presentational container. 
+*   The component generally doesn't add a specific `role` itself, acting as a presentational container.
+<!-- END-SECTION: Avatar Accessibility -->

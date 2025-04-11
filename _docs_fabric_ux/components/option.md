@@ -15,9 +15,12 @@ contributors:
 
 # Option (`<fabric-option>`)
 
+<!-- BEGIN-SECTION: Option Overview -->
 Represents a selectable item within a listbox-based component like `<fabric-dropdown>` or `<fabric-combobox>`.
+<!-- END-SECTION: Option Overview -->
 
-## Usage
+<!-- BEGIN-SECTION: Option Usage -->
+## Option Usage (fabric-option)
 
 Place `<fabric-option>` elements inside the default slot of the parent listbox component.
 
@@ -25,13 +28,13 @@ Place `<fabric-option>` elements inside the default slot of the parent listbox c
 
 ```javascript
 // Often imported alongside its parent, e.g., Dropdown:
-import '@fabric-msft/web-components/dropdown/define.js'; 
+import '@fabric-msft/web-components/dropdown/define.js';
 // Or individually (usually not necessary if parent is imported):
 // import '@fabric-msft/web-components/option/define.js';
 
 // Optional: Import the types for Typescript
 import type { Option } from '@fabric-msft/web-components/option';
-import type { Dropdown } from '@fabric-msft/web-components/dropdown'; 
+import type { Dropdown } from '@fabric-msft/web-components/dropdown';
 ```
 
 *See [Installation Guide](../../guides/installation.md) for more ways to integrate Fabric UX components.*
@@ -49,8 +52,10 @@ import type { Dropdown } from '@fabric-msft/web-components/dropdown';
   </fabric-option>
 </fabric-dropdown>
 ```
+<!-- END-SECTION: Option Usage -->
 
-## API Reference (`<fabric-option>`)
+<!-- BEGIN-SECTION: Option API -->
+## Option API Reference (fabric-option)
 
 Based on `Option` class.
 
@@ -81,8 +86,10 @@ fabric-option::part(content) {
   padding: var(--spacingVerticalSNudge) var(--spacingHorizontalM);
 }
 ```
+<!-- END-SECTION: Option API -->
 
-## Styling
+<!-- BEGIN-SECTION: Option Styling -->
+## Option Styling (fabric-option)
 
 Customize appearance using CSS targeting the host element (`fabric-option`) or the `content` part.
 
@@ -94,10 +101,13 @@ Customize appearance using CSS targeting the host element (`fabric-option`) or t
     *   Padding tokens (`--spacingVertical...`, `--spacingHorizontal...`).
 *   Focus indication styles (e.g., outline) are also applied using tokens.
 *   Refer to `option.styles.ts` (or similar file in the component source) for detailed token usage.
+<!-- END-SECTION: Option Styling -->
 
-## Accessibility
+<!-- BEGIN-SECTION: Option Accessibility -->
+## Option Accessibility (fabric-option)
 
 *   Automatically assigned `role="option"`.
 *   Manages `aria-selected` based on the `selected` attribute/property.
 *   Manages `aria-disabled` based on the `disabled` attribute.
-*   Relies on the parent listbox component (e.g., `<fabric-dropdown>`) for overall listbox accessibility context and keyboard navigation. 
+*   Relies on the parent listbox component (e.g., `<fabric-dropdown>`) for overall listbox accessibility context and keyboard navigation.
+<!-- END-SECTION: Option Accessibility -->

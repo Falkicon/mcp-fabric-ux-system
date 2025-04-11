@@ -8,12 +8,15 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Creating Custom Components
 
+<!-- BEGIN-SECTION: Overview -->
 This guide outlines the basic steps and patterns for creating a new custom web component consistent with the Fabric UX System architecture, which is built on `@microsoft/fast-element`.
 
 We'll use a hypothetical `<fabric-counter>` component as an example.
+<!-- END-SECTION: Overview -->
 
 ## 1. File Structure
 
+<!-- BEGIN-SECTION: 1. File Structure -->
 A typical structure for a new component within the Fabric UX System repository:
 
 ```
@@ -29,9 +32,11 @@ src/
         ├── counter.base.ts         # (Optional) Base class if sharing logic with related components
         └── define.ts               # Side-effect import for auto-definition
 ```
+<!-- END-SECTION: 1. File Structure -->
 
 ## 2. Component Class (`counter.ts`)
 
+<!-- BEGIN-SECTION: 2. Component Class (`counter.ts`) -->
 Define the component's logic and properties using FASTElement.
 
 ```typescript
@@ -100,9 +105,11 @@ export class FabricCounter extends FASTElement {
     - **Changed Callbacks:** You can define a method named `propertyNameChanged(oldValue, newValue)` which will be automatically called when the `@observable` property changes.
     - **Manual Tracking:** For complex getters/setters, you can manually track changes using `Observable.track(this, 'propertyName')` in the getter and `Observable.notify(this, 'propertyName')` in the setter, instead of using `@observable`.
 - **`$emit('event-name', detail?)`**: Dispatches a standard `CustomEvent` from the component host. Ensures the component is connected, sets `bubbles: true` and `composed: true`. Use lowercase event names for framework compatibility. The optional `detail` argument is accessible via `event.detail` in the listener.
+<!-- END-SECTION: 2. Component Class (`counter.ts`) -->
 
 ## 3. Template (`counter.template.ts`)
 
+<!-- BEGIN-SECTION: 3. Template (`counter.template.ts`) -->
 Define the component's Shadow DOM structure using FAST's `html` tagged template literal. This defines the internal DOM and how it binds to the component's state.
 
 ```typescript
@@ -176,9 +183,11 @@ export const template = html<FabricProgress>`
 `;
 ```
 In this example, `role`, `aria-*`, and `class` attributes are applied directly to the `<fabric-progress>` host element based on the component's properties.
+<!-- END-SECTION: 3. Template (`counter.template.ts`) -->
 
 ## 4. Styles (`counter.styles.ts`)
 
+<!-- BEGIN-SECTION: 4. Styles (`counter.styles.ts`) -->
 Define the component's encapsulated styles using FAST's `css` template literal and Fabric UX design tokens.
 
 ```typescript
@@ -225,9 +234,11 @@ export const styles = css`
 - **`:host`**: Styles the component element itself.
 - **Design Tokens**: Import tokens and use their corresponding CSS Custom Property names (e.g., `var(${spacingHorizontalM})`).
 - **`[part="..."]`**: Selectors target exposed parts for styling.
+<!-- END-SECTION: 4. Styles (`counter.styles.ts`) -->
 
 ## 5. Definition (`definition.ts`)
 
+<!-- BEGIN-SECTION: 5. Definition (`definition.ts`) -->
 Compose the component definition, associating the class, template, and styles. This object is then used to register the component with the browser's `CustomElementRegistry`.
 
 ```typescript
@@ -263,9 +274,11 @@ export const FabricCounterDefinition = FabricCounter.compose({
 - **`shadowOptions` (Optional):** Configuration for the Shadow DOM. Set to `null` to render in Light DOM (not recommended for Fabric UX components). See [MDN ShadowRootInit](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/ShadowRoot#options).
 - **`elementOptions` (Optional):** Options passed to `customElements.define()`, primarily useful if extending built-in elements. See [MDN ElementDefinitionOptions](https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/define#options).
 - **`registry` (Optional in compose):** Can specify a custom registry here, but typically definition uses the registry passed to `.define()` (see next section).
+<!-- END-SECTION: 5. Definition (`definition.ts`) -->
 
 ## 6. Index & Define (`index.ts`, `define.ts`)
 
+<!-- BEGIN-SECTION: 6. Index & Define (`index.ts`, `define.ts`) -->
 Provide convenient exports and a side-effect import for automatic registration. The `define.ts` file is crucial as importing it registers the component.
 
 **`index.ts` (Barrel File)**
@@ -288,9 +301,11 @@ import { FabricCounterDefinition } from './definition.js';
 // Define the component in the Fabric design system registry
 FabricCounterDefinition.define(FabricDesignSystem.registry);
 ```
+<!-- END-SECTION: 6. Index & Define (`index.ts`, `define.ts`) -->
 
 ## 7. Usage
 
+<!-- BEGIN-SECTION: 7. Usage -->
 If using the `define.ts` side-effect import in your application setup:
 
 ```html
@@ -310,9 +325,11 @@ FabricCounterDefinition.define(FabricDesignSystem.registry);
 
 // Now you can use <fabric-counter> in your HTML
 ```
+<!-- END-SECTION: 7. Usage -->
 
 ## 8. Accessibility Considerations
 
+<!-- BEGIN-SECTION: 8. Accessibility Considerations -->
 Accessibility is crucial. Ensure:
 
 - **Semantic HTML:** Use native elements (`<button>`) where appropriate.
@@ -321,9 +338,11 @@ Accessibility is crucial. Ensure:
 - **Focus Management:** Ensure logical focus order, manage focus in composite components, consider `delegatesFocus: true`.
 - **Keyboard Navigation:** Implement expected keyboard interactions (Enter/Space, Arrow keys).
 - **Accessible Labels:** Provide labels, especially for icon-only controls, using `aria-label` or `aria-labelledby`.
+<!-- END-SECTION: 8. Accessibility Considerations -->
 
 ## 9. Component Lifecycle
 
+<!-- BEGIN-SECTION: 9. Component Lifecycle -->
 `FASTElement` hooks into the standard Web Component lifecycle callbacks. When extending `FASTElement`, you can override these methods, but **always call `super.<methodName>()`** to ensure FAST's internal setup/cleanup runs correctly.
 
 - **`constructor()`:** Runs when the element instance is created. `FASTElement` attaches the Shadow DOM here. Avoid complex logic or DOM access.
@@ -362,9 +381,11 @@ export class LifecycleDemo extends FASTElement {
     }
 }
 ```
+<!-- END-SECTION: 9. Component Lifecycle -->
 
 ## 10. Using FAST Directives
 
+<!-- BEGIN-SECTION: 10. Using FAST Directives -->
 Directives are special functions used within `html` templates to handle common, complex scenarios beyond simple binding. They are used like attribute bindings: `${directive(...)}`.
 
 ### `ref('propertyName')`
@@ -467,9 +488,11 @@ ${repeat(x => x.data, html<DataItem>`
 - Often better handled by slotting individual child components rather than using `repeat` for complex lists, improving maintainability and performance.
 
 These directives provide powerful tools for building dynamic and interactive Fabric UX components.
+<!-- END-SECTION: 10. Using FAST Directives -->
 
 ## 11. Advanced Styling with CSS Templates
 
+<!-- BEGIN-SECTION: 11. Advanced Styling with CSS Templates -->
 While Section 4 demonstrated the basic use of the `css` tagged literal from `@microsoft/fast-element` to define styles, FAST offers more advanced capabilities for managing and composing styles within your Fabric UX components.
 
 ### Style Encapsulation
@@ -578,9 +601,11 @@ When writing component styles, remember these important selectors:
 - **`::slotted(selector)`**: Styles top-level nodes assigned to a `<slot>`. Note that it only styles the direct children slotted in, not their descendants. (See [Styling Components Guide](/guides/styling-components)).
 
 Leveraging style composition and understanding these selectors helps create maintainable and reusable styles within the Fabric UX System.
+<!-- END-SECTION: 11. Advanced Styling with CSS Templates -->
 
 ## 12. Key FAST Concepts Used
 
+<!-- BEGIN-SECTION: 12. Key FAST Concepts Used -->
 - **`FASTElement`:** Base class.
 - **`@observable` / `@attr`:** Reactive properties.
 - **`html` Literal:** Structure and data binding.
@@ -602,3 +627,4 @@ To prevent users briefly seeing unstyled components before they are fully define
 }
 ```
 This ensures custom elements remain hidden until the browser has processed their definition and applied their initial styles.
+<!-- END-SECTION: 12. Key FAST Concepts Used -->

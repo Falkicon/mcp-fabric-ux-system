@@ -15,9 +15,11 @@ contributors:
 
 # Tab Panel (`<fabric-tab-panel>`)
 
+<!-- BEGIN-SECTION: Tab Panel Overview -->
 Represents the content panel associated with a `<fabric-tab>`.
+<!-- END-SECTION: Tab Panel Overview -->
 
-## Usage
+## Tab Panel Usage (fabric-tab-panel)
 
 Use `<fabric-tab-panel>` to wrap the content for each tab. Associate it with a specific `<fabric-tab>` using matching `id` and `aria-labelledby` attributes, and control its visibility based on the selected tab.
 
@@ -64,7 +66,7 @@ import type { Tab } from '@fabric-msft/web-components/tab'; // Example context t
 
 Tab panels are primarily content containers and do not emit specific events related to tab interaction. Events are handled on the parent `<fabric-tablist>`.
 
-## API Reference (`<fabric-tab-panel>`)
+## Tab Panel API Reference (fabric-tab-panel)
 
 Based on `TabPanel` class.
 
@@ -91,7 +93,7 @@ fabric-tab-panel::part(tab-panel) {
 }
 ```
 
-## Styling
+## Tab Panel Styling (fabric-tab-panel)
 
 Provides basic structure and padding for tab content.
 
@@ -100,7 +102,7 @@ Provides basic structure and padding for tab content.
     *   May inherit background/foreground colors.
 *   Refer to `tab-panel.styles.ts` for detailed token usage.
 
-## Accessibility
+## Tab Panel Accessibility (fabric-tab-panel)
 
 *   Sets `role="tabpanel"`.
 *   Requires `aria-labelledby` referencing the `id` of the controlling `<fabric-tab>`.

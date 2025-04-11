@@ -15,10 +15,13 @@ contributors:
 
 # Tooltip (`<fabric-tooltip>`)
 
+<!-- BEGIN-SECTION: Tooltip Overview -->
 Displays brief, contextual information related to a target element, typically on hover or focus.
+<!-- END-SECTION: Tooltip Overview -->
 
 ## Usage
 
+<!-- BEGIN-SECTION: Tooltip Usage -->
 Associate a tooltip with its target element using the `anchor` attribute.
 
 **Importing:**
@@ -89,9 +92,11 @@ if (manualTrigger && manualTip) {
   // manualTrigger.addEventListener('click', () => manualTip.visible = !manualTip.visible);
 }
 ```
+<!-- END-SECTION: Tooltip Usage -->
 
 ## API Reference (`<fabric-tooltip>`)
 
+<!-- BEGIN-SECTION: Tooltip API -->
 Based on `Tooltip` class.
 
 ### Attributes & Properties
@@ -130,9 +135,11 @@ fabric-tooltip::part(tooltip) {
   padding: var(--spacingVerticalXS) var(--spacingHorizontalS);
 }
 ```
+<!-- END-SECTION: Tooltip API -->
 
 ## Styling
 
+<!-- BEGIN-SECTION: Tooltip Styling -->
 Customize appearance using CSS targeting the host element (`fabric-tooltip` - usually hidden) or the `tooltip` part.
 
 *   **Key Design Tokens Used (Examples):**
@@ -142,17 +149,22 @@ Customize appearance using CSS targeting the host element (`fabric-tooltip` - us
     *   Padding tokens (`--spacingVertical...`, `--spacingHorizontal...`).
     *   Font tokens (`--fontSizeBase200`, `--lineHeightBase200`).
 *   Refer to `tooltip.styles.ts` for detailed token usage.
+<!-- END-SECTION: Tooltip Styling -->
 
 ## Accessibility
 
+<!-- BEGIN-SECTION: Tooltip Accessibility -->
 *   Sets `role="tooltip"` on the popup element.
 *   Associates the tooltip with its anchor element via `aria-describedby` (applied to the anchor element).
 *   Tooltips are typically hidden from screen readers until they become visible (via hover/focus).
 *   If the tooltip contains critical information not available otherwise, consider alternative ways to present it.
 *   Focus management (`no-trap-focus` attribute) can impact keyboard accessibility.
+<!-- END-SECTION: Tooltip Accessibility -->
 
 ## Dependencies
 
+<!-- BEGIN-SECTION: Tooltip Dependencies -->
 *   Relies on the HTML Popover API (`[popover]`) or its polyfill for the popup behavior.
 *   Uses CSS Anchor Positioning API or its polyfill for positioning the tooltip relative to its anchor.
-*   Ensure appropriate polyfills are loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)). 
+*   Ensure appropriate polyfills are loaded for broader browser compatibility (see [Polyfilling Guide](../../guides/polyfilling.md)).
+<!-- END-SECTION: Tooltip Dependencies --> 

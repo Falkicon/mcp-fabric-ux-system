@@ -8,10 +8,13 @@ lastUpdated: 2025-04-09 # Placeholder date
 
 # Accessibility Guidelines
 
+<!-- BEGIN-SECTION: Overview -->
 Accessibility is a core principle of the Fabric UX System, ensuring that experiences built with the system are usable by everyone, including people with disabilities. The system is designed to meet or exceed the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA standards and Microsoft's internal accessibility requirements.
+<!-- END-SECTION: Overview -->
 
 ## Implementation Approach
 
+<!-- BEGIN-SECTION: Implementation Approach -->
 The Fabric UX System takes a holistic approach to accessibility, considering it at every stage of the design and development process:
 
 ```
@@ -41,9 +44,11 @@ The Fabric UX System takes a holistic approach to accessibility, considering it 
 ```
 
 By following this approach, the Fabric UX System ensures that accessibility is not an afterthought but an integral part of the design and development process.
+<!-- END-SECTION: Implementation Approach -->
 
 ## Assistive Technologies
 
+<!-- BEGIN-SECTION: Assistive Technologies -->
 Assistive technologies are hardware or software that help people with disabilities use computers and digital products. The Fabric UX System is designed to work seamlessly with these technologies.
 
 ### Screen Readers
@@ -86,9 +91,11 @@ Screen magnifiers enlarge portions of the screen for users with low vision. The 
 - **Responsive design**: Adapting to different zoom levels
 - **High contrast**: Supporting high contrast modes
 - **Text scaling**: Ensuring text scales appropriately when zoomed
+<!-- END-SECTION: Assistive Technologies -->
 
 ## High Contrast Mode Support
 
+<!-- BEGIN-SECTION: High Contrast Mode Support -->
 The Fabric UX System includes comprehensive support for high contrast mode, which is essential for users with low vision or light sensitivity. High contrast mode increases the color contrast of the UI, making it easier to distinguish between different elements.
 
 All components are designed to work in high contrast mode, with special attention to:
@@ -97,9 +104,11 @@ All components are designed to work in high contrast mode, with special attentio
 - **Border visibility**: Making sure borders and boundaries remain visible
 - **Focus indicators**: Providing clear focus indicators that are visible in high contrast mode
 - **Icon visibility**: Ensuring icons are visible and recognizable
+<!-- END-SECTION: High Contrast Mode Support -->
 
 ## WCAG 2.2 Guidelines Implementation
 
+<!-- BEGIN-SECTION: WCAG 2.2 Guidelines Implementation -->
 The Fabric UX System is designed to meet or exceed WCAG 2.2 Level AA standards across these four principles:
 
 ### 1. Perceivable
@@ -136,9 +145,11 @@ Content must be robust enough to be interpreted by various user agents, includin
 - **Compatible**: Content is compatible with current and future user agents
 - **Parsing**: Content can be parsed by assistive technologies
 - **Name, role, value**: User interface component information is available to assistive technologies
+<!-- END-SECTION: WCAG 2.2 Guidelines Implementation -->
 
 ## WCAG 2.2 Updates
 
+<!-- BEGIN-SECTION: WCAG 2.2 Updates -->
 The Fabric UX System incorporates the latest WCAG 2.2 updates, particularly focusing on two key criteria:
 
 ### Dragging Movements (2.5.7, Level AA)
@@ -159,9 +170,11 @@ Key implementations include:
 - Adding adequate spacing around smaller controls
 - Using padding to extend interactive areas
 - Enlarging small elements like chevrons, swatches, and tags
+<!-- END-SECTION: WCAG 2.2 Updates -->
 
 ## Developer Guidelines
 
+<!-- BEGIN-SECTION: Developer Guidelines -->
 ### Semantic HTML
 
 Use semantic HTML elements to convey meaning and structure:
@@ -326,9 +339,11 @@ Key considerations:
 - Ensure icons have text alternatives
 - Provide descriptions for complex visualizations
 - Ensure that decorative elements are hidden from screen readers
+<!-- END-SECTION: Developer Guidelines -->
 
 ## Common Accessibility Pitfalls and Solutions
 
+<!-- BEGIN-SECTION: Common Accessibility Pitfalls and Solutions -->
 ### Non-semantic HTML
 
 **Problem**: Using `<div>` or `<span>` for interactive elements.
@@ -376,9 +391,11 @@ Key considerations:
 **Problem**: Content changes not announced to screen reader users.
 
 **Solution**: Use ARIA live regions to announce updates.
+<!-- END-SECTION: Common Accessibility Pitfalls and Solutions -->
 
 ## Testing and Validation
 
+<!-- BEGIN-SECTION: Testing and Validation -->
 To ensure your application meets accessibility standards:
 
 ### Automated Testing Tools
@@ -403,10 +420,13 @@ Include people with disabilities in your testing:
 - Recruit participants with diverse abilities
 - Test with various assistive technologies
 - Gather feedback on usability and accessibility
+<!-- END-SECTION: Testing and Validation -->
 
 ## Learn More
 
+<!-- BEGIN-SECTION: Learn More -->
 - [WCAG 2.2 Guidelines](https://www.w3.org/TR/WCAG22/)
 - [Microsoft Accessibility Resources](https://www.microsoft.com/accessibility)
 - [Component Accessibility](/components/overview#accessibility)
 - [Content Design Guidelines](/concepts/content-style)
+<!-- END-SECTION: Learn More -->

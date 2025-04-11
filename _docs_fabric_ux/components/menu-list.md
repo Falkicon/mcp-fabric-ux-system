@@ -15,9 +15,11 @@ contributors:
 
 # Menu List (`<fabric-menu-list>`)
 
+<!-- BEGIN-SECTION: Menu List Overview -->
 The container element that holds and manages focus for `<fabric-menu-item>` elements within a `<fabric-menu>`.
+<!-- END-SECTION: Menu List Overview -->
 
-## Usage
+## Menu List Usage (fabric-menu-list)
 
 This component is typically used implicitly **within the template of `<fabric-menu>`** and is not usually directly instantiated or slotted by application developers. It renders the default slot content of the `<fabric-menu>`.
 
@@ -49,8 +51,9 @@ import type { MenuList } from '@fabric-msft/web-components/menu-list';
 ### Handling Events (JavaScript)
 
 Events are typically handled on the parent `<fabric-menu>` element, not directly on the `<fabric-menu-list>`.
+<!-- END-SECTION: Menu List Usage -->
 
-## API Reference (`<fabric-menu-list>`)
+## Menu List API Reference (fabric-menu-list)
 
 Based on `MenuList` class.
 
@@ -78,15 +81,17 @@ fabric-menu-list::part(menu-list) {
   padding: var(--spacingVerticalXS) 0;
 }
 ```
+<!-- END-SECTION: Menu List API -->
 
-## Styling
+## Menu List Styling (fabric-menu-list)
 
 Provides the container for menu items.
 
 *   **Key Design Tokens Used:** Primarily consumes tokens set by the parent `<fabric-menu>` for background, padding, border, and shadow.
 *   Refer to `menu-list.styles.ts` and `menu.styles.ts`.
+<!-- END-SECTION: Menu List Styling -->
 
-## Accessibility
+## Menu List Accessibility (fabric-menu-list)
 
 *   Sets `role="menu"` or `role="menubar"`.
 *   Manages focus navigation between child menu items.
