@@ -7,9 +7,10 @@ import remarkFrontmatter from 'remark-frontmatter';
 // @ts-ignore - Suppress type error for remark-stringify
 import remarkStringify from 'remark-stringify';
 import yaml from 'js-yaml';
-import { pipeline } from '@xenova/transformers';
+import { pipeline, env, Pipeline } from '@xenova/transformers';
 // Import ChromaDB types
-import { ChromaClient, Collection, type Embedding, type Metadatas, type Documents, type IDs, type Embeddings, type Metadata } from 'chromadb';
+import { ChromaClient, Collection, type Embedding, type Metadatas, type Documents, type IDs, type Embeddings, type Metadata, IncludeEnum } from 'chromadb';
+import url from 'url'; // Import the url module
 
 // --- Constants ---
 const DOCS_PATH = path.resolve(process.cwd(), '_docs_fabric_ux');
@@ -36,7 +37,8 @@ let embedder: any = null;
 let collection: Collection | null = null; // ChromaDB collection
 let chromaClient: ChromaClient | null = null;
 
-async function initialize() {
+// Export for testing
+export async function initialize() {
     console.log(`Initializing embedding model: ${EMBEDDING_MODEL}...`);
     embedder = await pipeline('feature-extraction', EMBEDDING_MODEL, {
         quantized: true,
@@ -75,16 +77,23 @@ async function initialize() {
 }
 
 // --- Core Logic ---
-async function processFile(filePath: string): Promise<{
+// Accept embedder as an argument for testability
+export async function processFile(filePath: string, embedderPipeline: Pipeline): Promise<{
     ids: IDs;
     embeddings: Embeddings;
     metadatas: Metadata[];
     documents: Documents;
 }> {
-    if (!embedder) {
-        throw new Error('Embedder not initialized.');
+    // [LOG] Entering processFile
+    console.log(`[processFile: ${path.basename(filePath)}] Entering function.`);
+
+    // Use the passed embedderPipeline instead of the global variable
+    if (!embedderPipeline) {
+        // [LOG] Missing embedder pipeline
+        console.error(`[processFile: ${path.basename(filePath)}] ERROR: Embedder pipeline was not provided.`);
+        throw new Error('Embedder pipeline was not provided to processFile.');
     }
-    console.log(`Processing: ${path.relative(process.cwd(), filePath)}`);
+    console.log(`[processFile: ${path.basename(filePath)}] Processing: ${path.relative(process.cwd(), filePath)}`);
 
     const result = {
         ids: [] as IDs,
@@ -94,49 +103,96 @@ async function processFile(filePath: string): Promise<{
     };
 
     try {
+        // [LOG] Before reading file
+        console.log(`[processFile: ${path.basename(filePath)}] Attempting to read file: ${filePath}`);
         const fileContent = await fs.readFile(filePath, 'utf-8');
+        // [LOG] After reading file
+        console.log(`[processFile: ${path.basename(filePath)}] Successfully read file (${fileContent.length} chars).`);
+
+        // [LOG] Before unified processing
+        console.log(`[processFile: ${path.basename(filePath)}] Initializing unified processor.`);
         const processor = unified()
             .use(remarkParse)
             .use(remarkFrontmatter, ['yaml'])
             .use(remarkStringify);
+        // [LOG] Before parsing content
+        console.log(`[processFile: ${path.basename(filePath)}] Parsing file content with unified.`);
         const tree = processor.parse(fileContent);
+        // [LOG] After parsing content
+        console.log(`[processFile: ${path.basename(filePath)}] Content parsed. Tree root type: ${tree.type}`);
+
         let frontmatter: Record<string, any> = {};
+        // [LOG] Checking for frontmatter
+        console.log(`[processFile: ${path.basename(filePath)}] Checking for YAML frontmatter node.`);
         if (tree.children.length > 0 && tree.children[0].type === 'yaml') {
            const yamlNode = tree.children[0];
+           // [LOG] Found YAML node, attempting to parse.
+           console.log(`[processFile: ${path.basename(filePath)}] Found YAML node, attempting to parse.`);
             try {
                 frontmatter = yaml.load(yamlNode.value as string) as Record<string, any>;
+                // [LOG] Successfully parsed YAML.
+                console.log(`[processFile: ${path.basename(filePath)}] Successfully parsed YAML frontmatter:`, Object.keys(frontmatter));
             } catch (e) {
-                console.warn(`  WARN: Failed to parse YAML frontmatter in ${filePath}`, e);
+                // [LOG] YAML parse error.
+                 console.warn(`[processFile: ${path.basename(filePath)}] WARN: Failed to parse YAML frontmatter. Error:`, e);
+                // Return empty result as parsing failed
                 return result;
             }
-            tree.children.shift();
+            tree.children.shift(); // Remove frontmatter node
         } else {
-            console.warn(`  WARN: No frontmatter found in ${filePath}`);
+             // [LOG] No YAML node found.
+            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No YAML frontmatter node found at the beginning of the document.`);
+             // Return empty result as frontmatter is required
             return result;
         }
-        if (!frontmatter.id || !frontmatter.title || !frontmatter.area) {
-             console.warn(`  WARN: Missing required frontmatter (id, title, area) in ${filePath}`);
+
+        // [LOG] Validating required frontmatter fields.
+        console.log(`[processFile: ${path.basename(filePath)}] Validating required frontmatter fields (id, title, area).`);
+        const requiredFields = ['id', 'title', 'area'];
+        const missingFields = requiredFields.filter(field => !frontmatter[field]);
+
+        if (missingFields.length > 0) {
+            // [LOG] Missing required frontmatter fields.
+             // Log a more specific warning about which fields are missing
+             console.warn(`[processFile: ${path.basename(filePath)}] WARN: Missing required frontmatter fields in file '${path.relative(process.cwd(), filePath)}'. Missing: [${missingFields.join(', ')}]. Found keys: [${Object.keys(frontmatter).join(', ')}]`);
+             // Return empty result as required fields are missing for indexing
              return result;
         }
-        const content = String(processor.stringify(tree)).trim();
-        const chunks = content.split(/\n\s*\n+/).filter(chunk => chunk.trim().length > 0);
-        console.log(`  Found ${chunks.length} chunks.`);
-        if (chunks.length === 0) {
-            console.warn(`  WARN: No content chunks found after parsing ${filePath}`);
-        }
-        // -----------------------------------------------------
+        // [LOG] Required fields present.
+        console.log(`[processFile: ${path.basename(filePath)}] Required frontmatter fields found.`);
 
+        // [LOG] Stringifying remaining content.
+        console.log(`[processFile: ${path.basename(filePath)}] Stringifying remaining AST content.`);
+        const content = String(processor.stringify(tree)).trim();
+        // [LOG] Splitting content into chunks.
+        console.log(`[processFile: ${path.basename(filePath)}] Splitting content into chunks based on double newlines.`);
+        const chunks = content.split(/\n\s*\n+/).filter(chunk => chunk.trim().length > 0);
+        // [LOG] Found chunks.
+        console.log(`[processFile: ${path.basename(filePath)}] Found ${chunks.length} non-empty chunks.`);
+        if (chunks.length === 0) {
+             // [LOG] No content chunks warning.
+            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No content chunks found after parsing ${filePath}`);
+            // No need to return here, can proceed and add nothing
+        }
+
+        // [LOG] Starting chunk processing loop.
+        console.log(`[processFile: ${path.basename(filePath)}] Starting chunk processing loop for ${chunks.length} chunks.`);
         for (let i = 0; i < chunks.length; i++) {
             const chunkText = chunks[i];
             const chunkId = `${frontmatter.id}-chunk-${i}`;
+             // [LOG] Processing chunk.
+            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${i} (ID: ${chunkId}). Length: ${chunkText.length}`);
 
-            const output = await embedder(chunkText, { pooling: 'mean', normalize: true });
+            // [LOG] Before generating embedding.
+            console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${i}.`);
+            const output = await embedderPipeline(chunkText, { pooling: 'mean', normalize: true });
             const embedding: Embedding = Array.from(output.data as Float32Array);
+            // [LOG] After generating embedding.
+            console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${i}. Length: ${embedding.length}`);
 
             result.ids.push(chunkId);
             result.embeddings.push(embedding);
             result.documents.push(chunkText);
-            // Create the metadata object - it conforms to Metadata type
             const metadataItem: Metadata = {
                 id: frontmatter.id as string,
                 title: frontmatter.title as string,
@@ -146,23 +202,32 @@ async function processFile(filePath: string): Promise<{
                 filePath: path.relative(process.cwd(), filePath),
                 chunkId: chunkId,
             };
-            result.metadatas.push(metadataItem); // Push the correctly typed object
+            result.metadatas.push(metadataItem);
+            // [LOG] Added chunk data to results.
+            console.log(`[processFile: ${path.basename(filePath)}] Added chunk ${i} data to results array.`);
         }
+         // [LOG] Finished chunk processing loop.
+        console.log(`[processFile: ${path.basename(filePath)}] Finished chunk processing loop.`);
 
     } catch (error) {
-        console.error(`  ERROR processing file ${filePath}:`, error);
+        // [LOG] Error during processing.
+        console.error(`[processFile: ${path.basename(filePath)}] ERROR during processing:`, error);
         // Return empty result on error
     }
+
+    // [LOG] Returning results.
+    console.log(`[processFile: ${path.basename(filePath)}] Returning ${result.ids.length} processed chunks.`);
     return result;
 }
 
 // --- Main Execution ---
-async function main() {
+// Export for potential integration testing
+export async function main() {
     try {
         await initialize(); // Initialization now includes server ping
 
-        if (!collection) {
-            throw new Error("ChromaDB collection not available after initialization.");
+        if (!collection || !embedder) {
+            throw new Error("ChromaDB collection or embedder not available after initialization.");
         }
 
         console.log(`\nScanning for markdown files in: ${DOCS_PATH}`);
@@ -192,7 +257,7 @@ async function main() {
         let allDocuments: Documents = [];
 
         for (const file of files) {
-            const fileResult = await processFile(file);
+            const fileResult = await processFile(file, embedder);
             allIds = allIds.concat(fileResult.ids);
             allEmbeddings = allEmbeddings.concat(fileResult.embeddings);
             allMetadatas = allMetadatas.concat(fileResult.metadatas);
@@ -231,4 +296,8 @@ async function main() {
     }
 }
 
-main();
+// Execute main only if the script is run directly
+// Use url.pathToFileURL instead of path.ToFileURL
+if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
+    main();
+}

@@ -2,6 +2,7 @@
 id: components_menu-list
 title: Menu List
 description: The internal container holding and managing menu items within a Menu.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/menu-list
 specification: TBD

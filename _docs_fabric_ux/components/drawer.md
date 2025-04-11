@@ -2,6 +2,7 @@
 id: components_drawer
 title: Drawer
 description: Displays content in a panel that slides in from the edge of the screen.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/drawer
 specification: TBD

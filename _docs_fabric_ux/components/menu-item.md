@@ -2,6 +2,7 @@
 id: components_menu-item
 title: Menu Item
 description: Represents a single command or option within a Menu.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/menu-item
 specification: TBD

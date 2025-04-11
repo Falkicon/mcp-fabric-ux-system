@@ -2,6 +2,7 @@
 id: components_button
 title: Button
 description: Displays a clickable button element for user actions.
+area: components
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/button
 specification: TBD

@@ -2,6 +2,7 @@
 id: components_tablist
 title: Tab List
 description: A container component that groups related Tab elements.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/tablist
 specification: TBD

@@ -2,6 +2,7 @@
 id: components_label
 title: Label
 description: Displays text used to label form elements or other UI components.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/label
 specification: TBD

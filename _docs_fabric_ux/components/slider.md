@@ -2,6 +2,7 @@
 id: components_slider
 title: Slider
 description: Allows selecting a value from a specified range.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/slider
 specification: TBD

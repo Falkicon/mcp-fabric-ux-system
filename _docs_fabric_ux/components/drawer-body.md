@@ -2,6 +2,7 @@
 id: components_drawer-body
 title: Drawer Body
 description: A required structural component used within Drawer.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/drawer-body
 specification: TBD

@@ -3,6 +3,7 @@ id: components_menu
 title: Menu
 description: Displays a list of commands or options in a temporary popup surface.
 status: Draft
+area: component
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/menu
 specification: TBD
 history:

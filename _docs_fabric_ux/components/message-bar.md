@@ -2,6 +2,7 @@
 id: components_message-bar
 title: Message Bar
 description: Displays an inline message to communicate information to the user.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/message-bar
 specification: TBD

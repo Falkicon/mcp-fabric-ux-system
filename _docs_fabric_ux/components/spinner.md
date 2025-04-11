@@ -2,6 +2,7 @@
 id: components_spinner
 title: Spinner
 description: Indicates an ongoing operation with indeterminate progress.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/spinner
 specification: TBD

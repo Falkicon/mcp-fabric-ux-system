@@ -2,6 +2,7 @@
 id: components_compound-button
 title: Compound Button
 description: A button variant with primary and secondary text lines.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/compound-button
 specification: TBD

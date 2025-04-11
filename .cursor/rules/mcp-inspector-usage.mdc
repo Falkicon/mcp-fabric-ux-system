@@ -1,0 +1,96 @@
+---
+description: Guidance on using the MCP Inspector tool for testing and debugging MCP servers.
+globs: 
+alwaysApply: false
+---
+# MCP Inspector Usage Guide
+
+This guide provides instructions on how to use the MCP (Model Context Protocol) Inspector, a developer tool for testing and debugging MCP servers.
+
+## Running the Inspector
+
+The primary way to run the inspector is using `npx` directly from your MCP server project directory. You do not need to clone the inspector repository itself.
+
+**Basic Command:**
+
+If your compiled server entry point is `build/index.js`:
+
+```bash
+npx @modelcontextprotocol/inspector node build/index.js
+```
+
+This command starts:
+1.  An **MCP Inspector (MCPI) client UI** (Default port: 6274)
+2.  An **MCP Proxy (MCPP) server** (Default port: 6277)
+
+Open the client UI URL (e.g., `http://localhost:6274`) in your browser to interact with the inspector.
+
+## Passing Arguments and Environment Variables
+
+You can pass arguments and environment variables to your underlying MCP server process through the inspector command.
+
+**Arguments:** Arguments are passed directly after the server command.
+
+```bash
+# Pass arguments arg1 and arg2 to the server
+npx @modelcontextprotocol/inspector node build/index.js arg1 arg2
+```
+
+**Environment Variables:** Use the `-e` flag *before* the server command.
+
+```bash
+# Pass environment variables KEY=value and KEY2=$VALUE2
+npx @modelcontextprotocol/inspector -e KEY=value -e KEY2=$VALUE2 node build/index.js
+```
+
+**Both Arguments and Environment Variables:**
+
+```bash
+npx @modelcontextprotocol/inspector -e KEY=value -e KEY2=$VALUE2 node build/index.js arg1 arg2
+```
+
+**Separating Inspector Flags from Server Arguments:** Use `--` to clearly distinguish flags intended for the inspector from arguments for your server.
+
+```bash
+# Pass KEY=$VALUE to inspector, and -e server-flag to the server
+npx @modelcontextprotocol/inspector -e KEY=$VALUE -- node build/index.js -e server-flag
+```
+
+## Customizing Ports
+
+If the default ports (6274 for client, 6277 for server) conflict with other services, you can specify different ports using environment variables:
+
+```bash
+CLIENT_PORT=8080 SERVER_PORT=9000 npx @modelcontextprotocol/inspector node build/index.js
+```
+
+## Authentication
+
+The inspector supports bearer token authentication for Server-Sent Events (SSE) connections. If your MCP server requires authentication:
+1.  Obtain the necessary bearer token.
+2.  Enter the token into the "Authorization" field in the MCP Inspector UI when connecting.
+3.  The inspector will include this token in the `Authorization` header of its requests to your server.
+
+## Configuration
+
+You can adjust inspector behavior via the `Configuration` button in the UI. Key settings include:
+
+| Setting                                    | Description                                                                                           | Default |
+| :----------------------------------------- | :---------------------------------------------------------------------------------------------------- | :------ |
+| `MCP_SERVER_REQUEST_TIMEOUT`               | Timeout for requests to the MCP server (ms).                                                          | 10000   |
+| `MCP_REQUEST_TIMEOUT_RESET_ON_PROGRESS`    | Whether to reset the timeout when a progress notification is received.                                | true    |
+| `MCP_REQUEST_MAX_TOTAL_TIMEOUT`          | Maximum total timeout for requests, especially useful with progress notifications (ms).               | 60000   |
+| `MCP_PROXY_FULL_ADDRESS`                 | Set if running the MCP Inspector Proxy on a non-default host/port (e.g., `http://10.1.1.22:5577`).      | ""      |
+
+These settings persist across sessions.
+
+## Security Considerations
+
+**Important:** The MCP Inspector includes a proxy server capable of spawning local processes and connecting to specified MCP servers. **Do not expose the MCP Inspector proxy server to untrusted networks.** It should only be run in a trusted local development environment.
+
+## Further Information
+
+For more details, refer to the official documentation:
+*   [MCP Inspector README](https://github.com/modelcontextprotocol/inspector/blob/main/README.md)
+*   [MCP Docs - Inspector Section](https://modelcontextprotocol.io) (Note: Check the official docs site for the exact URL, the README points to the base domain)
+*   [MCP Docs - Debugging Guide](https://modelcontextprotocol.io) (Note: Check the official docs site for the exact URL) 

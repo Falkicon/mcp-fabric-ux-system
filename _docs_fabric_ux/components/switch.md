@@ -2,6 +2,7 @@
 id: components_switch
 title: Switch
 description: Displays a toggle switch for turning an option on or off.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/switch
 specification: TBD

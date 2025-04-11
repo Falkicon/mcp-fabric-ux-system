@@ -2,6 +2,7 @@
 id: components_tooltip
 title: Tooltip
 description: Displays brief, contextual information related to a target element.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/tooltip
 specification: TBD

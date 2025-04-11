@@ -2,6 +2,7 @@
 id: components_divider
 title: Divider
 description: Visually separates content or groups of items.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/divider
 specification: TBD

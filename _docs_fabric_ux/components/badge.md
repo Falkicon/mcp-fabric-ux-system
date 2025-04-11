@@ -2,6 +2,7 @@
 id: components_badge
 title: Badge
 description: Displays a small element for status, notifications, or short labels.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/badge
 specification: TBD

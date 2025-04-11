@@ -2,6 +2,7 @@
 id: components_text
 title: Text
 description: Displays text content with standardized Fabric typography styles.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/text
 specification: TBD

@@ -2,6 +2,7 @@
 id: components_radio
 title: Radio
 description: Represents a single radio button within a Radio Group.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/radio
 specification: TBD

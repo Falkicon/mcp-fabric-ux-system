@@ -2,6 +2,7 @@
 id: components_tree-item
 title: Tree Item
 description: Represents a single item within a Tree.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/tree-item
 specification: TBD

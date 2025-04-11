@@ -3,6 +3,11 @@ description: General coding standards and language-specific guidelines.
 globs: 
 alwaysApply: false
 ---
+---
+description: General coding standards and language-specific guidelines.
+globs: 
+alwaysApply: false
+---
 # Coding Standards
 
 ## General
@@ -45,6 +50,7 @@ alwaysApply: false
 - Document significant dependency changes.
 
 ## Code Formatting & Cleanup
+- When creating files to debug issues, be sure to comment that they are temporary at the top of the file and delete them when the debugging is complete.
 - Apply configured code formatters (e.g., Black, Prettier) consistently.
 - Utilize linters (e.g., Ruff, Flake8, ESLint) to identify potential issues.
 - When requested, assist in generating commands or performing actions to remove unused code, imports, or files (requires human verification before execution).
@@ -53,3 +59,8 @@ alwaysApply: false
 - Sanitize user inputs.
 - Avoid exposing sensitive information in logs or error messages.
 - Follow standard security practices for the framework/platform being used. 
+
+## Testing
+- When tests are failing and there is not a clear solution, consider adding more logs to help debug the issue.
+- If adding more logs don't help to figure out why a test is failing, consider taking a look at the big picture, re-review the code files, and consider a different approach.
+- If a different approach does not solve the problem, consider doing a web search or asking the user to provide research on a specific topic.
