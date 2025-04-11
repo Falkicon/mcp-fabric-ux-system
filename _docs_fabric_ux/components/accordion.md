@@ -2,6 +2,7 @@
 id: components_accordion
 title: Accordion
 description: An accordion component allows users to toggle the visibility of content sections.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/accordion
 specification: TBD  # Link to design spec if available

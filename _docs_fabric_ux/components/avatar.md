@@ -2,6 +2,7 @@
 id: components_avatar
 title: Avatar
 description: Displays a visual representation of a user or entity.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/avatar
 specification: TBD

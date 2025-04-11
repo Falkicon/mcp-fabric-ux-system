@@ -2,6 +2,7 @@
 id: components_tab
 title: Tab
 description: Represents a single tab control within a TabList.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/tab
 specification: TBD

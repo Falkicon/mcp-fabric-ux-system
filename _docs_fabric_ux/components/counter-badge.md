@@ -2,6 +2,7 @@
 id: components_counter-badge
 title: Counter Badge
 description: A badge variant specifically designed to display numerical counts.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/counter-badge
 specification: TBD

@@ -2,6 +2,7 @@
 id: components_toggle-button
 title: Toggle Button
 description: Displays a button that maintains an on/off (checked/unchecked) state.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/toggle-button
 specification: TBD

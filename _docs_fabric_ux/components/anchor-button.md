@@ -2,6 +2,7 @@
 id: components_anchor-button
 title: Anchor Button
 description: Displays a link styled as a button, enabling navigation.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/anchor-button
 specification: TBD

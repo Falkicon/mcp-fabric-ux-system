@@ -2,6 +2,7 @@
 id: components_dialog
 title: Dialog
 description: Displays content in a layer above the main page, requiring user interaction.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/dialog
 specification: TBD

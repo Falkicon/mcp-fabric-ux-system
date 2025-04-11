@@ -2,6 +2,7 @@
 id: components_checkbox
 title: Checkbox
 description: Displays a checkbox input allowing users to select one or more options.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/checkbox
 specification: TBD

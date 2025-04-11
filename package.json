@@ -11,7 +11,7 @@
     "coverage": "vitest run --coverage",
     "build": "tsc",
     "start": "node dist/index.js",
-    "start:stdio": "cross-env MCP_TRANSPORT=stdio node dist/index.js",
+    "start:stdio": "cross-env NODE_ENV=production node dist/index.js -- --stdio",
     "index-docs": "tsx ./scripts/indexDocs.ts",
     "lint": "biome lint ./src ./scripts",
     "lint:fix": "biome lint --apply ./src ./scripts",
@@ -29,16 +29,17 @@
   "type": "module",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@modelcontextprotocol/inspector": "^0.8.2",
     "@types/glob": "^8.1.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.14.0",
     "@types/pino": "^7.0.5",
     "cross-env": "^7.0.3",
+    "glob": "^11.0.1",
     "pino-pretty": "^13.0.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1",
-    "glob": "^11.0.1"
+    "vitest": "^3.1.1"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",

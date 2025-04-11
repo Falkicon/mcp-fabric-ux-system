@@ -2,6 +2,7 @@
 id: components_accordion-item
 title: Accordion Item
 description: Represents an individual expandable section within an Accordion.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/accordion-item
 specification: TBD

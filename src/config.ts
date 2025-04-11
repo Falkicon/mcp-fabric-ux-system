@@ -33,6 +33,14 @@ const defaultLogLevel: LevelWithSilent = 'info';
 const logLevelSchema = z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']);
 const logLevel = logLevelSchema.parse(process.env.MCP_LOG_LEVEL ?? defaultLogLevel);
 
+// RAG Configuration
+const docsPath = path.resolve(process.env.DOCS_PATH || '_docs_fabric_ux');
+const chromaServerUrl = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
+const embeddingModelName = process.env.EMBEDDING_MODEL_NAME || 'Xenova/all-MiniLM-L6-v2';
+const chromaCollectionName = process.env.CHROMA_COLLECTION_NAME || 'fabric_ux_docs';
+// Deprecated - vectorDbPath is no longer used for server connection
+// const vectorDbPath = path.resolve(process.env.VECTOR_DB_PATH || './db'); 
+
 // Custom Greeting Prefix (Example)
 const customGreetingPrefix = process.env.MCP_GREETING_PREFIX || '';
 
@@ -42,5 +50,11 @@ export {
     transportType,
     serverPort,
     logLevel,
-    customGreetingPrefix
+    // customGreetingPrefix // <-- Removed as it seems unused
+    // RAG Config Exports
+    docsPath,
+    chromaServerUrl,
+    embeddingModelName,
+    chromaCollectionName,
+    // vectorDbPath // Not needed for server operation
 };

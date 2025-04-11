@@ -12,32 +12,38 @@ const pinoOptions: LoggerOptions = {
   level: logLevel, // Use imported logLevel
 };
 
+let logger: pino.Logger;
+
 // If in stdio mode, force logs to stderr rather than stdout
 if (isStdioMode) {
-  pinoOptions.transport = {
-    target: 'pino-pretty',
-    options: {
-      colorize: !process.env.NO_COLOR,
-      levelFirst: true,
-      translateTime: 'SYS:standard',
-      // Crucial: Write to stderr when in stdio mode
-      destination: process.stderr,
-    },
-  };
-} else if (process.env.NODE_ENV !== 'production') {
-  // Enable pretty printing for non-production environments
-  pinoOptions.transport = {
-    target: 'pino-pretty',
-    options: {
-      colorize: !process.env.NO_COLOR,
-      levelFirst: true,
-      translateTime: 'SYS:standard',
-    },
-  };
+  // pinoOptions.transport = { // REMOVED transport configuration for stdio mode
+  //   target: 'pino-pretty',
+  //   options: {
+  //     colorize: !process.env.NO_COLOR,
+  //     levelFirst: true,
+  //     translateTime: 'SYS:standard',
+  //     // Crucial: Write to stderr when in stdio mode
+  //     destination: process.stderr, // <-- This caused DataCloneError in worker
+  //   },
+  // };
+  // Initialize pino to write directly to stderr in stdio mode
+  logger = pino.default(pinoOptions, process.stderr);
+} else {
+  // For non-stdio modes
+  if (process.env.NODE_ENV !== 'production') {
+    // Enable pretty printing for non-production environments (writes to stdout by default)
+    pinoOptions.transport = {
+      target: 'pino-pretty',
+      options: {
+        colorize: !process.env.NO_COLOR,
+        levelFirst: true,
+        translateTime: 'SYS:standard',
+      },
+    };
+  }
+  // Initialize pino with options (writes to stdout by default if no transport)
+  logger = pino.default(pinoOptions);
 }
-
-// Create and export the logger instance
-const logger = pino.default(pinoOptions);
 
 // Log startup configuration but only if not in stdio mode (to avoid polluting stdout initially)
 if (!isStdioMode) {

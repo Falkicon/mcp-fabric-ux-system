@@ -2,6 +2,7 @@
 id: components_dropdown
 title: Dropdown
 description: Displays a listbox or combobox for selecting options.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/dropdown
 specification: TBD

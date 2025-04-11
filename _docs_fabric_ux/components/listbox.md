@@ -2,6 +2,7 @@
 id: components_listbox
 title: Listbox
 description: The underlying container for managing listbox options.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/listbox
 specification: TBD

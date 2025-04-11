@@ -2,6 +2,7 @@
 id: components_textarea
 title: Textarea
 description: Displays a multi-line plain-text editing control.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/textarea
 specification: TBD

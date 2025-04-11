@@ -2,6 +2,7 @@
 id: components_field
 title: Field
 description: Provides layout and structure for form controls and their labels.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/field
 specification: TBD

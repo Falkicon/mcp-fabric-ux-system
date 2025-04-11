@@ -2,6 +2,7 @@
 id: components_tab-panel
 title: Tab Panel
 description: Represents the content panel associated with a Tab.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/tab-panel
 specification: TBD

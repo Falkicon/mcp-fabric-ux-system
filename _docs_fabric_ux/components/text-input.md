@@ -2,6 +2,7 @@
 id: components_text-input
 title: Text Input
 description: Displays a single-line text input field.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/text-input
 specification: TBD

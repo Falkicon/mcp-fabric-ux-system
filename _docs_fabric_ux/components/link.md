@@ -2,6 +2,7 @@
 id: components_link
 title: Link
 description: Displays a standard inline hyperlink.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/link
 specification: TBD

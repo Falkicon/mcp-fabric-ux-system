@@ -2,6 +2,7 @@
 id: components_radio-group
 title: Radio Group
 description: Groups multiple Radio elements, ensuring only one can be selected.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/radio-group
 specification: TBD

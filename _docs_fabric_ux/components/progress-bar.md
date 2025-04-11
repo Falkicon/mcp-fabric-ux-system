@@ -2,6 +2,7 @@
 id: components_progress-bar
 title: Progress Bar
 description: Displays progress indication, either determinate or indeterminate.
+area: component
 status: Draft
 source: https://github.com/microsoft/fluentui/tree/master/packages/web-components/src/progress-bar
 specification: TBD
