@@ -33,6 +33,7 @@
     /* If you are using node */
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
+    "types": ["node", "vitest/globals"],
 
     /* If you are building a library */
     // "declaration": true,
@@ -42,8 +43,8 @@
 
     /* Output */
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "."
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
 }

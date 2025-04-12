@@ -7,6 +7,7 @@ import type { ChromaClient, Collection } from 'chromadb';
 import type { Pipeline } from '@xenova/transformers';
 import type { Logger } from 'pino';
 import { IncludeEnum } from 'chromadb'; // Import IncludeEnum for assertion
+import { z } from 'zod';
 
 // --- Simple Mocks for Dependencies ---
 // Define mockLog ensuring properties are functions
@@ -39,8 +40,8 @@ const mockEmbedderPipeline = vi.fn();
 
 // --- Test Suite ---
 describe('askFabricDocs MCP Tool Handler', () => {
-  let handler: (extra: any) => Promise<{ content: TextContent[], isError?: boolean }>;
-  let mockEmbedder: (Pipeline | null) = null;
+  let handler: (args: z.infer<typeof askFabricDocsSchema>, extra: any) => Promise<{ content: TextContent[], isError?: boolean }>;
+  let mockEmbedderPipeline: any = vi.fn();
 
   beforeEach(() => {
     // Reset mocks - Use vi.mocked() again
@@ -65,14 +66,11 @@ describe('askFabricDocs MCP Tool Handler', () => {
     } as unknown as Collection));
     mockEmbedderPipeline.mockReset();
 
-    // Default state for embedder in tests
-    mockEmbedder = mockEmbedderPipeline as unknown as Pipeline; 
-
     // Create a fresh handler for each test with current mock state
     handler = createAskFabricDocsHandler({
       log: mockLog,
       chromaClient: mockChromaClient as ChromaClient,
-      embedder: mockEmbedder,
+      getEmbedder: () => mockEmbedderPipeline as unknown as Pipeline,
       collectionName: 'mock_collection',
     });
   });
@@ -94,7 +92,7 @@ describe('askFabricDocs MCP Tool Handler', () => {
     mockQuery.mockResolvedValue(mockDbResults);
 
     // Act
-    const result = await handler(mockExtra);
+    const result = await handler(mockInput, mockExtra);
 
     // Assert
     expect(mockLog.info).toHaveBeenCalledWith(expect.objectContaining({ traceId: 'test-trace-123' }), 'askFabricDocs tool called');
@@ -111,11 +109,18 @@ describe('askFabricDocs MCP Tool Handler', () => {
     });
     expect(result.isError).toBeFalsy();
     expect(result.content).toHaveLength(2);
-    expect(result.content[0].type).toBe('text');
-    expect(result.content[0].text).toContain('Source: path/doc1.md');
-    expect(result.content[0].text).toContain('Section: Heading 1');
-    expect(result.content[0].text).toContain('content of doc1');
-    expect(result.content[1].text).toContain('Source: path/doc2.md');
+    if (result.content?.[0]?.type === 'text') {
+        expect(result.content[0].text).toContain('Source: path/doc1.md');
+        expect(result.content[0].text).toContain('Section: Heading 1');
+        expect(result.content[0].text).toContain('content of doc1');
+    } else {
+        expect.fail('First result content item was not of type text or was undefined.');
+    }
+    if (result.content?.[1]?.type === 'text') {
+       expect(result.content[1].text).toContain('Source: path/doc2.md');
+    } else {
+       expect.fail('Second result content item was not of type text or was undefined.');
+    }
   });
 
   it('should return a friendly message when no documents are found', async () => {
@@ -135,37 +140,41 @@ describe('askFabricDocs MCP Tool Handler', () => {
     mockQuery.mockResolvedValue(mockDbResultsEmpty);
 
     // Act
-    const result = await handler(mockExtra);
+    const result = await handler(mockInput, mockExtra);
 
     // Assert
     expect(mockQuery).toHaveBeenCalled();
     expect(result.isError).toBeFalsy();
     expect(result.content).toHaveLength(1);
-    expect(result.content[0].type).toBe('text');
-    expect(result.content[0].text).toBe('No relevant documents found for your query.');
+    if (result.content?.[0]?.type === 'text') {
+      expect(result.content[0].text).toBe('No relevant documents found for your query.');
+    } else {
+      expect.fail('Result content item was not of type text or was undefined.');
+    }
   });
 
   it('should return an error if the embedding model is not loaded', async () => {
-    // Arrange
-    mockEmbedder = null;
+    // Arrange: Create a handler specifically for this test where getEmbedder returns null
     handler = createAskFabricDocsHandler({
       log: mockLog,
       chromaClient: mockChromaClient as ChromaClient,
-      embedder: mockEmbedder, 
+      getEmbedder: () => null, // Simulate embedder not being loaded
       collectionName: 'mock_collection',
     });
     const mockInput = { query: 'test query', resultCount: 3 };
     const mockExtra = { traceId: 'test-trace-789', input: mockInput }; 
 
     // Act
-    const result = await handler(mockExtra);
+    const result = await handler(mockInput, mockExtra);
 
     // Assert
     expect(mockLog.error).toHaveBeenCalledWith('Embedding model not loaded yet.');
     expect(result.isError).toBe(true);
-    expect(result.content).toHaveLength(1);
-    expect(result.content[0].type).toBe('text');
-    expect(result.content[0].text).toContain('Embedding model is not ready');
+    if (result.content?.[0]?.type === 'text') {
+      expect(result.content[0].text).toContain('Embedding model is not ready');
+    } else {
+       expect.fail('Error content item was not of type text or was undefined.');
+    }
     expect(mockEmbedderPipeline).not.toHaveBeenCalled();
     expect(mockQuery).not.toHaveBeenCalled();
   });
@@ -178,12 +187,16 @@ describe('askFabricDocs MCP Tool Handler', () => {
     mockEmbedderPipeline.mockRejectedValue(embedError);
 
     // Act
-    const result = await handler(mockExtra);
+    const result = await handler(mockInput, mockExtra);
 
     // Assert
     expect(mockLog.error).toHaveBeenCalledWith({ error: embedError, query: 'error query' }, expect.stringContaining('Error executing RAG pipeline'));
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('Error during search: Embedding failed');
+    if (result.content?.[0]?.type === 'text') {
+      expect(result.content[0].text).toContain('Error during search: Embedding failed');
+    } else {
+      expect.fail('Error content item was not of type text or was undefined.');
+    }
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -197,26 +210,15 @@ describe('askFabricDocs MCP Tool Handler', () => {
     mockQuery.mockRejectedValue(dbError);
 
     // Act
-    const result = await handler(mockExtra);
+    const result = await handler(mockInput, mockExtra);
 
     // Assert
     expect(mockLog.error).toHaveBeenCalledWith({ error: dbError, query: 'db error query' }, expect.stringContaining('Error executing RAG pipeline'));
     expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('Error during search: DB connection failed');
-  });
-  
-  it('should return an error if the input is invalid (internal check)', async () => {
-    // Arrange
-    const invalidExtra = { traceId: 'test-trace-invalid', input: { query: 123 } };
-
-    // Act
-    const result = await handler(invalidExtra);
-
-    // Assert
-    expect(mockLog.error).toHaveBeenCalledWith({ receivedExtra: invalidExtra }, 'Failed to extract valid input from handler parameter');
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('Invalid input received');
-    expect(mockEmbedderPipeline).not.toHaveBeenCalled();
-    expect(mockQuery).not.toHaveBeenCalled();
+    if (result.content?.[0]?.type === 'text') {
+      expect(result.content[0].text).toContain('Error during search: DB connection failed');
+    } else {
+       expect.fail('Error content item was not of type text or was undefined.');
+    }
   });
 }); 

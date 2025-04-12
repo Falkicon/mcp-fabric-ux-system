@@ -16,8 +16,8 @@ const transportType = process.env.MCP_TRANSPORT === 'http' ? 'http' : 'stdio';
 let port = 8080; // Default port
 if (transportType === 'http' && process.env.PORT) {
   try {
-    port = parseInt(process.env.PORT, 10);
-    if (isNaN(port)) {
+    port = Number.parseInt(process.env.PORT, 10);
+    if (Number.isNaN(port)) {
       port = 8080; // Fallback to default if parsing fails
       console.warn('Invalid PORT environment variable. Using default port 8080.');
     }

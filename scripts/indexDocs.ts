@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import * as glob from 'glob';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -7,10 +7,10 @@ import remarkFrontmatter from 'remark-frontmatter';
 // @ts-ignore - Suppress type error for remark-stringify
 import remarkStringify from 'remark-stringify';
 import yaml from 'js-yaml';
-import { pipeline, env, Pipeline } from '@xenova/transformers';
+import { pipeline, env, type Pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
 // Import ChromaDB types
-import { ChromaClient, Collection, type Embedding, type Metadatas, type Documents, type IDs, type Embeddings, type Metadata, IncludeEnum } from 'chromadb';
-import url from 'url'; // Import the url module
+import { ChromaClient, type Collection, type Embedding, type Metadatas, type Documents, type IDs, type Embeddings, type Metadata, IncludeEnum } from 'chromadb';
+import url from 'node:url'; // Import the url module
 
 // --- Constants ---
 const DOCS_PATH = path.resolve(process.cwd(), '_docs_fabric_ux');
@@ -22,7 +22,7 @@ const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
 
 // --- Interfaces ---
 // Chroma uses Metadatas type which is Record<string, any>
-interface DocMetadata extends Record<string, any> {
+interface DocMetadata extends Record<string, unknown> {
     id: string;
     title: string;
     area: string;
@@ -33,7 +33,7 @@ interface DocMetadata extends Record<string, any> {
 }
 
 // --- Initialization ---
-let embedder: any = null;
+let embedder: FeatureExtractionPipeline | null = null;
 let collection: Collection | null = null; // ChromaDB collection
 let chromaClient: ChromaClient | null = null;
 
@@ -78,7 +78,7 @@ export async function initialize() {
 
 // --- Core Logic ---
 // Accept embedder as an argument for testability
-export async function processFile(filePath: string, embedderPipeline: Pipeline): Promise<{
+export async function processFile(filePath: string, embedderPipeline: FeatureExtractionPipeline): Promise<{
     ids: IDs;
     embeddings: Embeddings;
     metadatas: Metadata[];
@@ -121,16 +121,17 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
         // [LOG] After parsing content
         console.log(`[processFile: ${path.basename(filePath)}] Content parsed. Tree root type: ${tree.type}`);
 
-        let frontmatter: Record<string, any> = {};
+        let frontmatter: Record<string, unknown> = {};
         let yamlEndOffset = 0; // Variable to store the end offset
         // [LOG] Checking for frontmatter
         console.log(`[processFile: ${path.basename(filePath)}] Checking for YAML frontmatter node.`);
-        if (tree.children.length > 0 && tree.children[0].type === 'yaml') {
-           const yamlNode = tree.children[0];
+        const firstChild = tree.children?.[0]; // Use optional chaining
+        if (firstChild?.type === 'yaml') {
+           const yamlNode = firstChild;
            // [LOG] Found YAML node, attempting to parse.
            console.log(`[processFile: ${path.basename(filePath)}] Found YAML node, attempting to parse.`);
             try {
-                frontmatter = yaml.load(yamlNode.value as string) as Record<string, any>;
+                frontmatter = yaml.load(yamlNode.value as string) as Record<string, unknown>;
                 yamlEndOffset = yamlNode.position?.end?.offset ?? 0; // Store the end offset
                 // [LOG] Successfully parsed YAML.
                 console.log(`[processFile: ${path.basename(filePath)}] Successfully parsed YAML frontmatter:`, Object.keys(frontmatter));
@@ -170,13 +171,17 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
         const rawContentWithoutFrontmatter = fileContent.substring(yamlEndOffset).trim();
 
         const sectionRegex = /<!--\s*BEGIN-SECTION:\s*(.*?)\s*-->(.*?)<!--\s*END-SECTION:\s*\1\s*-->/gs;
-        let match;
+        let match: RegExpExecArray | null;
         let lastIndex = 0;
         const sections: { name: string; text: string }[] = [];
 
-        while ((match = sectionRegex.exec(rawContentWithoutFrontmatter)) !== null) {
-            const sectionName = match[1].trim();
-            const sectionText = match[2].trim();
+        while (true) {
+            match = sectionRegex.exec(rawContentWithoutFrontmatter);
+            if (match === null) {
+                break; // Exit loop if no more matches
+            }
+            const sectionName = match[1]?.trim() ?? 'unknown-section'; // Add nullish coalescing
+            const sectionText = match[2]?.trim() ?? ''; // Add nullish coalescing
             const precedingText = rawContentWithoutFrontmatter.substring(lastIndex, match.index).trim();
 
             let combinedText = sectionText;
@@ -195,9 +200,10 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
 
         // Handle any remaining content after the last marker
         const remainingText = rawContentWithoutFrontmatter.substring(lastIndex).trim();
-        if (remainingText && sections.length > 0) {
-            sections[sections.length - 1].text += `\n\n${remainingText}`; // Append to the last section
-            console.log(`[processFile: ${path.basename(filePath)}] Appended ${remainingText.length} trailing chars to last section '${sections[sections.length - 1].name}'`);
+        const lastSection = sections[sections.length - 1]; // Get last section once
+        if (remainingText && lastSection) { // Check if lastSection exists
+            lastSection.text += `\n\n${remainingText}`; // Append to the last section
+            console.log(`[processFile: ${path.basename(filePath)}] Appended ${remainingText.length} trailing chars to last section '${lastSection.name}'`);
         } else if (remainingText && sections.length === 0) {
              // If NO sections were found, treat the whole remaining content as one chunk
              console.log(`[processFile: ${path.basename(filePath)}] No section markers found, treating entire content as one chunk.`);
@@ -210,11 +216,11 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
 
         // [LOG] Starting chunk processing loop based on sections.
         console.log(`[processFile: ${path.basename(filePath)}] Starting chunk processing loop for ${sections.length} sections.`);
-        for (let i = 0; i < sections.length; i++) {
-            const section = sections[i];
+        for (const section of sections) { // Use for...of loop
+            if (!section) continue; // Add safety check for undefined section (though unlikely with for...of)
             // Sanitize section name for use in ID
             const sanitizedSectionName = section.name.toLowerCase().replace(/[^a-z0-9\-]+/g, '-').replace(/^-+|-+$/g, '');
-            const chunkId = `${frontmatter.id}-section-${sanitizedSectionName || 'content'}-${i}`;
+            const chunkId = `${frontmatter.id}-section-${sanitizedSectionName || 'content'}`;
 
             // --- BEGIN: Prepend Header Logic ---
             let textToEmbed = section.text;
@@ -224,11 +230,11 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
             const headerRegex = /^##\s+(.*?)(?:\s*\(.*\))?\s*$/m;
             const headerMatch = section.text.match(headerRegex);
 
-            if (headerMatch && headerMatch[1]) {
+            if (headerMatch?.[1]) {
                 sectionHeaderText = headerMatch[1].trim(); // Get clean header text
                 // Prepend the found header to the text for embedding
                 textToEmbed = `${sectionHeaderText}\n\n${section.text}`;
-                console.log(`[processFile: ${path.basename(filePath)}] Prepended header '${sectionHeaderText}' to chunk ${i}.`);
+                console.log(`[processFile: ${path.basename(filePath)}] Prepended header '${sectionHeaderText}' to chunk ${section.name}`);
             } else {
                  console.log(`[processFile: ${path.basename(filePath)}] No H2 header found in section '${section.name}', using marker name.`);
                  // Optionally prepend the marker name if no header found?
@@ -237,15 +243,15 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
             // --- END: Prepend Header Logic ---
 
             // [LOG] Processing chunk.
-            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${i} (ID: ${chunkId}, Section: '${section.name}'). Length: ${section.text.length} (Embedding length: ${textToEmbed.length})`);
+            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${section.name}. Length: ${section.text.length} (Embedding length: ${textToEmbed.length})`);
 
             // [LOG] Before generating embedding.
-            console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${i}.`);
+            console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${section.name}.`);
             // Use textToEmbed (Header + Content) for embedding
             const output = await embedderPipeline(textToEmbed, { pooling: 'mean', normalize: true });
             const embedding: Embedding = Array.from(output.data as Float32Array);
             // [LOG] After generating embedding.
-            console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${i}. Length: ${embedding.length}`);
+            console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${section.name}. Length: ${embedding.length}`);
 
             result.ids.push(chunkId);
             result.embeddings.push(embedding);
@@ -262,7 +268,7 @@ export async function processFile(filePath: string, embedderPipeline: Pipeline):
             };
             result.metadatas.push(metadataItem);
             // [LOG] Added chunk data to results.
-            console.log(`[processFile: ${path.basename(filePath)}] Added chunk ${i} data to results array.`);
+            console.log(`[processFile: ${path.basename(filePath)}] Added chunk ${section.name} data to results array.`);
         }
          // [LOG] Finished chunk processing loop.
         console.log(`[processFile: ${path.basename(filePath)}] Finished chunk processing loop.`);
@@ -284,12 +290,14 @@ export async function main() {
     try {
         await initialize(); // Initialization now includes server ping
 
-        if (!collection || !embedder) {
-            throw new Error("ChromaDB collection or embedder not available after initialization.");
+        // Type assertion for embedder after check
+        if (!collection || !embedder) { 
+             throw new Error("ChromaDB collection or embedder not available after initialization.");
         }
+        const currentEmbedder = embedder; // Use a new variable after the check
 
         console.log(`\nScanning for markdown files in: ${DOCS_PATH}`);
-        const files = glob.sync(`**/*.md`, { cwd: DOCS_PATH, absolute: true });
+        const files = glob.sync('**/*.md', { cwd: DOCS_PATH, absolute: true });
         console.log(`Found ${files.length} markdown files.`);
 
         // Optional: Clear existing collection
@@ -314,12 +322,17 @@ export async function main() {
         let allMetadatas: Metadata[] = []; // Correct type here
         let allDocuments: Documents = [];
 
+        console.log(`Processing ${files.length} files...`);
         for (const file of files) {
-            const fileResult = await processFile(file, embedder);
-            allIds = allIds.concat(fileResult.ids);
-            allEmbeddings = allEmbeddings.concat(fileResult.embeddings);
-            allMetadatas = allMetadatas.concat(fileResult.metadatas);
-            allDocuments = allDocuments.concat(fileResult.documents);
+            // Pass the checked embedder
+            // Explicitly cast embedder type to satisfy compiler, even if signature differs
+            const fileResult = await processFile(file, currentEmbedder as unknown as Pipeline);
+            if (fileResult.ids.length > 0) {
+                allIds.push(...fileResult.ids);
+                allEmbeddings.push(...fileResult.embeddings);
+                allMetadatas.push(...fileResult.metadatas);
+                allDocuments.push(...fileResult.documents);
+            }
         }
         console.log(`Collected ${allIds.length} total chunks from ${files.length} files.`);
 
@@ -331,7 +344,7 @@ export async function main() {
                 metadatas: allMetadatas, // Should be Metadata[] now
                 documents: allDocuments,
             });
-            console.log(`>>> ChromaDB collection.add call completed.`);
+            console.log('>>> ChromaDB collection.add call completed.');
 
             // Verify count
             const finalCount = await collection.count();
@@ -354,8 +367,10 @@ export async function main() {
     }
 }
 
-// Execute main only if the script is run directly
-// Use url.pathToFileURL instead of path.ToFileURL
-if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
-    main();
+// Check if the script is being run directly
+if (process.argv[1] && import.meta.url === url.pathToFileURL(process.argv[1]).href) {
+    main().catch(error => {
+        console.error("Unhandled error in main execution:", error);
+        process.exit(1);
+    });
 }

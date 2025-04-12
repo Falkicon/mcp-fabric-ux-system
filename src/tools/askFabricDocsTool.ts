@@ -1,7 +1,7 @@
 // src/tools/askFabricDocsTool.ts
 import { z } from 'zod';
 import type { TextContent } from '@modelcontextprotocol/sdk/types.js';
-import { ChromaClient, Collection, IncludeEnum } from 'chromadb';
+import { type ChromaClient, type Collection, IncludeEnum } from 'chromadb';
 import type { Pipeline, FeatureExtractionPipeline } from '@xenova/transformers';
 
 // Define the schema separately, exporting it for potential reuse
@@ -13,9 +13,9 @@ export const askFabricDocsSchema = z.object({
 // Type for the handler's dependencies - Use FeatureExtractionPipeline type
 interface AskFabricDocsDeps {
   log: { 
-      info: (...args: any[]) => void;
-      warn: (...args: any[]) => void;
-      error: (...args: any[]) => void;
+      info: (...args: unknown[]) => void;
+      warn: (...args: unknown[]) => void;
+      error: (...args: unknown[]) => void;
   };
   chromaClient: ChromaClient;
   // Use the more specific type returned by the getter
@@ -29,7 +29,8 @@ export function createAskFabricDocsHandler(deps: AskFabricDocsDeps) {
   const { log, chromaClient, getEmbedder, collectionName } = deps;
 
   // The actual handler function - Now receives validated args as first param
-  return async (args: z.infer<typeof askFabricDocsSchema>, extra: any): Promise<{ content: TextContent[], isError?: boolean }> => {
+  // biome-ignore lint/suspicious/noExplicitAny: extra param type from SDK
+  return async (args: z.infer<typeof askFabricDocsSchema>, extra: any): Promise<{ content: TextContent[]; isError?: boolean }> => {
     // Args are already validated by the SDK based on the schema shape passed to server.tool()
     // Remove the manual validation:
     // const input = extra.input as z.infer<typeof askFabricDocsSchema>; 
