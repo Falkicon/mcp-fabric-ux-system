@@ -4,11 +4,11 @@
 
 ### 1.1. Goal
 
-To create a dedicated Model Context Protocol (MCP) server that acts as an expert source for the Fabric UX System. This server will provide developers using MCP-enabled AI clients with up-to-date information, guidance, and potentially interactive tools related to Fabric UX design, development, components, and content standards, by indexing a curated set of RAG-optimized documentation files located in the `_docs_fabric_ux` directory.
+To create a dedicated, **hosted** Model Context Protocol (MCP) server that acts as an expert source for the Fabric UX System. This server will provide developers using MCP-enabled AI clients (like VS Code and Cursor) with up-to-date information related to Fabric UX by indexing a curated set of RAG-optimized documentation files (`_docs_fabric_ux`). This hosted approach aims for easier adoption and maintenance compared to the previous local-only setup.
 
 ### 1.2. Background
 
-This project adapts the MCP server boilerplate to specifically serve information about the Fabric UX System by indexing the curated documentation in `_docs_fabric_ux` using a Retrieval-Augmented Generation (RAG) approach. This enables AI agents to provide more accurate and context-aware assistance to developers working within this ecosystem.
+This project adapts the MCP server boilerplate to specifically serve information about the Fabric UX System by indexing the curated documentation in `_docs_fabric_ux` using a Retrieval-Augmented Generation (RAG) approach. The focus is shifting to a hosted model using a **hosted vector database** and **SSE transport** to improve accessibility and automate updates via CI/CD.
 
 ### 1.3. Target audience
 
@@ -20,7 +20,7 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 
 - **Language:** TypeScript
 - **Framework/SDK:** Utilize the official Anthropic TypeScript MCP SDK.
-- **Transport:** Primarily support standard input/output (`stdio`) for local client integration (e.g., Cursor).
+- **Transport:** Primarily support **Server-Sent Events (SSE) over HTTP** for broader client compatibility.
 - **Architecture:** Retrieval-Augmented Generation (RAG).
   - Indexing: Parse, chunk, and create vector embeddings for local documentation files.
   - Retrieval: Use vector similarity search to find relevant document chunks based on user queries.
@@ -28,19 +28,19 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 - **Primitives:** Develop MCP primitives focused on RAG:
   - Core Tool: `askFabricDocs(query: string)` - Takes a natural language query, retrieves relevant documentation chunks using vector search, and returns them as context.
   - *Potential Future Primitives: More specific tools leveraging metadata search (e.g., `getComponentAccessibility(componentName: string)`), or Resource/Prompt primitives if supported by clients.* 
-- **Data Source:** Local, RAG-optimized documentation files (primarily Markdown) located within the `_docs_fabric_ux` directory. This content will be synthesized and restructured from original sources (like those previously in `_references`).
-- **Indexing Engine:** Utilize a local vector database (e.g., ChromaDB, LanceDB) populated by an indexing script.
-- **Embedding Model:** Use a suitable sentence transformer model (local or API-based) for creating text embeddings.
+- **Data Source:** Local, RAG-optimized documentation files (primarily Markdown) located within the `_docs_fabric_ux` directory. These files will also serve as the source for a companion static documentation site.
+- **Indexing Engine:** Utilize a **hosted vector database** (e.g., Pinecone, Weaviate, Zilliz Cloud, Chroma Cloud) populated by an indexing script run via CI/CD.
+- **Embedding Model:** Use a suitable sentence transformer model (e.g., `@xenova/transformers` running locally during indexing/CI) for creating text embeddings.
 - **Configuration:**
-  - Primarily via environment variables.
-  - Document relevant configuration options (e.g., `DOCS_PATH`, `VECTOR_DB_PATH`, `EMBEDDING_MODEL_NAME`). Example: `DOCS_PATH=_docs_fabric_ux`.
+  - Primarily via environment variables (especially for API keys, DB URLs, etc.).
+  - Secrets managed securely (e.g., GitHub Secrets for CI/CD).
 - **Validation:** Implement input validation for tool arguments using `zod`.
-- **Error handling:** Maintain a consistent error handling strategy.
-- **Logging:** Utilize the existing structured logging mechanism (`pino`).
-- **Containerization:** Maintain the `Dockerfile` (potential V2 distribution method, may need adaptation for indexing).
-- **Documentation:** Update the `README.md` comprehensively covering the RAG architecture, the indexing process (`npm run index-docs`), setup, usage (`askFabricDocs` tool), and local deployment model.
-- **Testing:** Develop tests for the indexing process and the `askFabricDocs` tool.
-- **Linting/Formatting:** Maintain ESLint and Prettier integration.
+- **Error handling:** Maintain a consistent error handling strategy suitable for a hosted service.
+- **Logging:** Utilize structured logging (`pino`), potentially integrating with a logging service for the hosted server.
+- **Static Site:** A companion static documentation site built with Astro, sourced from `_docs_fabric_ux` and deployed to GitHub Pages.
+- **CI/CD:** Automate indexing, site deployment (GitHub Pages), and server deployment (Chosen Platform) using GitHub Actions.
+- **Testing:** Develop tests for indexing, the `askFabricDocs` tool (against hosted DB), and potentially SSE transport.
+- **Linting/Formatting:** Maintain Biome integration.
 
 ### 2.2. Non-goals (Initial version)
 
@@ -65,53 +65,88 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 - **AI vs User**: MCP tools are designed to be called by the AI assistant, not directly by users in chat. Users cannot invoke MCP tools using "@Tool" syntax in the chat interface.
 - **Tool Discovery**: The AI automatically discovers registered tools and can call them without user configuration.
 
-## 3. Work plan
+## 3. Decisions to be Made
 
-*(Refined based on RAG architecture with local files)*
+- **Vector Database:** Choose specific hosted vector database provider (e.g., Pinecone, Weaviate, Zilliz, Chroma Cloud, Supabase). Research free tiers, limits, TS clients, performance.
+- **MCP Server Hosting:** Choose specific hosting platform for the Node.js/SSE server (e.g., Cloudflare Workers, Vercel Functions, Netlify Functions, Render, Fly.io). Research free tiers, limits, Node.js support, environment variable management, ease of deployment.
+- **Server Authentication:** Decide if hosted MCP server requires a simple API key/token. (Strongly Recommended).
+- **Logging Service:** Evaluate need for and choose a centralized logging service (e.g., Logtail, Axiom, Datadog). Research options and free tiers.
 
-| Task ID | Description                                           | Estimated Effort | Status    | Notes                                                                                                              |
-| :------ | :---------------------------------------------------- | :--------------- | :-------- | :----------------------------------------------------------------------------------------------------------------- |
-| **SETUP** | **Environment & Dependencies**                        |                  |           |                                                                                                                    |
-| SETUP-01| Choose & Add Dependencies (Vector DB, Embeddings Lib) | S                | Done      | `chromadb`, `@xenova/transformers`, `unified`, `remark-parse`, `remark-frontmatter` installed.                       |
-| **DATA**  | **Documentation Rebuild (RAG Optimization)**          |                  |           |                                                                                                                    |
-| DATA-REBUILD-DEFINE | Define Target Structure & Format for `_docs_fabric_ux` | M                | Done      | Defined in `_docs_fabric_ux/DOCUMENTATION_GUIDE.md`.                                |
-| DATA-REBUILD-GUIDE | Create Documentation Standards Guide                  | S                | Done      | Created `_docs_fabric_ux/DOCUMENTATION_GUIDE.md`.                                                  |
-| DATA-REBUILD-EXECUTE| Rebuild/Synthesize Docs into `_docs_fabric_ux`    | XL               | Done     | Created new `.md` files based on defined structure/format, using `_references` as source. Depends on DEFINE task. |
-| DATA-UPDATE-FRONTMATTER| Add Missing Frontmatter to Component Docs | M               | Done    | Checked several component files (`accordion.md`, `accordion-item.md`, `anchor-button.md`, `avatar.md`) - required `id`, `title`, `area` fields were already present. |
-| DATA-IMPROVE-CHUNKING | Optimize Documentation Format for Better RAG Chunking | L               | Done      | **Goal:** Improve RAG accuracy by ensuring logical content blocks are indexed as single chunks. <br>**Primary Actions:**<br>1. **Implement Explicit Section Markers:** Wrapped logical blocks (Overview, Attributes, Usage, Accessibility, Theming, etc.) in component docs (`.md` files) with `<!-- BEGIN-SECTION: Name -->` and `<!-- END-SECTION: Name -->` comments to define clear chunk boundaries.<br>2. **Add Contextual Headers:** Ensured all major section headers include the component name and tag, e.g., (`## Button Usage (fabric-button)`).<br>3. **Define Standard Template:** Updated `DOCUMENTATION_GUIDE.md` or create a template incorporating these standards.<br>**Status:** Applied to component files alphabetically. Manual fixes for `text.md` and `textarea.md` completed.<br>**Secondary Actions (Future):** Enhance frontmatter metadata, use structured comments for property groups, potentially use `<div>` wrappers if needed. |
-| **IMPL**  | **Core Implementation (RAG)**                         |                  |           | *Depends on DATA tasks*                                                                                  |
-| IMPL-01 | Implement Indexing Script (`scripts/indexDocs.ts`)    | L                | Done      | Target `_docs_fabric_ux`. Implemented marker-based chunking. Indexes content into ChromaDB via HTTP. Requires ChromaDB server (e.g., Docker). `npm run index-docs`. **Needs re-run after DATA-IMPROVE-CHUNKING.** |
-| IMPL-02 | Implement `askFabricDocs` MCP Tool                  | M                | Done      | Connect to Vector DB (ChromaDB Server), embed query, search, return chunks. **Validation Note:** Basic retrieval works, but relevance needs improvement (e.g., query for `fabric-text` props didn't return API section first). |
-| IMPL-03 | Integrate Tool into MCP Server (`src/index.ts`)       | S                | Done      | Registered tool via `server.tool()`. **Validation Note:** Functionality confirmed, but linked to IMPL-02's retrieval quality. |
-| **TEST**  | **Testing**                                           |                  |           | *Depends on IMPL tasks*                                                                                            |
-| TEST-01 | Add Unit/Integration Tests for Indexing             | M                | Paused    | **Paused:** All tests for the current `scripts/indexDocs.ts` (covering `main` and `processFile`) are on hold pending the refactor to a hosted vector DB and new indexing mechanism (DEPLOY-01). |
-| TEST-02 | Add Unit/Integration Tests for `askFabricDocs` Tool | M                | Done      | Test query processing, vector search results via server.                                                           |
-| TEST-03 | Run Indexing Script after Frontmatter Update          | S                | Done      | `npm run index-docs` run successfully with marker-based chunking. Depends on DATA-UPDATE-FRONTMATTER & DATA-IMPROVE-CHUNKING. |
-| TEST-04 | Validate `askFabricDocs` via MCP Inspector          | S                | Done      | Test tool execution and result relevance after re-indexing. Depends on TEST-03. **Note:** Manual tests show retrieval works but is sensitive to query phrasing; queries matching headers/specific terms perform best. |
-| **DOCS**  | **Documentation**                                     |                  |           | *Depends on IMPL tasks*                                                                                            |
-| DOCS-01 | Update `README.md` with Setup & Usage Instructions    | M                | Done      | Cover RAG, `_docs_fabric_ux`, ChromaDB server requirement (Docker), indexing script, `askFabricDocs` tool.        |
-| DOCS-02 | Update `mcp-server.plan.md` (Self-updating)           | XS               | Done      | Updated for RAG rebuild plan & ChromaDB server dependency.                                                         |
-| **REFACTOR**| **Refactoring & Quality Improvements**                |                  |           |                                                                                                                    |
-| REFACTOR-01 | Evaluate & Implement Biome for Linting/Formatting     | M                | Done      | Consider replacing ESLint/Prettier with Biome for potential speed/simplicity gains.                                |
-| REFACTOR-02 | Refactor `src/index.ts` for testability             | S                | Done      | Export `askFabricDocsHandler` and provide access to `embedder` state for testing. Moved handler to separate module (src/tools/) to simplify testing via dependency injection. |
-| **DEPLOY**| **Future Considerations**                             |                  |           |                                                                                                                    |
-| DEPLOY-01 | Implement Hosted Server & Connector (SSE)             | XL               | Future    | Support for Copilot Studio etc.                                                                                    |
+## 4. Development Process Notes
 
-### 3.1. Effort estimation key
+- **Branching Strategy:** Use feature branches for each milestone (e.g., `feat/M1-core-mvp`). Merge to `main` (or `develop`) after completion and code review.
+- **Code Reviews:** Each milestone's completion implies a code review before merging the feature branch.
+- **Secrets Policy:** Production secrets (API keys, tokens) must *only* reside in the hosting platform's secrets manager and GitHub Actions Secrets. `.env` is for local development overrides only. Document required vars in `.env.example`.
+- **Logging:** Add ample, contextual logging during development using the structured logger (`pino`) to aid debugging and understanding.
+- **TSDoc:** Add TSDoc comments to exported functions, classes, types, and complex internal logic as code is written, not just at the end.
+
+## 5. Work plan Milestones
+
+*(MVP-First Approach: Deliver core hosted functionality, then automate & harden)*
+
+| Milestone | Task ID       | Description                                                            | Status    | Notes                                                                                                              |
+| :-------- | :------------ | :--------------------------------------------------------------------- | :-------- | :----------------------------------------------------------------------------------------------------------------- |
+| **M1**    | **Core Hosted RAG MVP** |                                                                        |           | *Goal: Basic, functional hosted MCP server (SSE) querying manually indexed hosted DB. Requires code review before merge.* |
+|           | M1-TASK-00    | Verify `.gitignore` includes `.env`, `node_modules`, `dist/`, etc.     | Done      | Ensure no secrets or generated files are committed.                                                              |
+|           | M1-DECISION-01| **Chosen:** Provision **Pinecone** as hosted vector DB.                | Done      | Use existing account. Free tier suitable for initial phase.                                                      |
+|           | M1-DECISION-02| **Chosen:** Setup **Vercel** as server hosting platform.               | Done      | Leverage platform features for deployment, env vars.                                                             |
+|           | M1-DECISION-03| **Chosen:** Implement basic server auth via `X-API-Key` header.        | Done      | Server reads expected key from `MCP_API_KEY` env var. Client must send header.                                   |
+|           | M1-TASK-01    | Refactor `scripts/indexDocs.ts` for **Pinecone** client & auth         | Done      | Requires Pinecone API key/environment. Handle via env vars.                                                    |
+|           | M1-TASK-02    | Update essential config (`.env.example`, `src/config.ts`)            | Done      | Add `PINECONE_API_KEY`, `PINECONE_ENVIRONMENT`, `PINECONE_INDEX_NAME` (default: fabric-ux-system), `MCP_API_KEY`. |
+|           | M1-TASK-03    | **Manually run** `indexDocs.ts` to populate **Pinecone** index         | Done      | Requires M1-TASK-01 complete. Ensure index 'fabric-ux-system' exists (dim: 384, metric: cosine).               |
+|           | M1-TASK-04    | Refactor server (`index.ts`, tools) for **SSE**, **Pinecone**, & **Auth** | Done      | Check `X-API-Key` header against `MCP_API_KEY`. Resolved build issues: Used explicit tsc path in build script, reverted pino logger call to `pino.default()`, suppressed SDK import error (TS2307) via dynamic import + @ts-ignore. Build passes for src/, fails for tests/ (expected). |
+|           | M1-TASK-05    | **Manually deploy** server to **Vercel**                                | To Do     | Requires M1-TASK-04.                                                                                             |
+|           | M1-TASK-06    | Basic E2E test: Connect MCP client (w/ header) to hosted endpoint    | To Do     | Validate core MVP functionality.                                                                                 |
+|           | M1-TASK-07    | Add M1 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include Pinecone/Vercel choices, auth details, setup, env vars, secrets policy.                                |
+| **M2**    | **Automation Basics & Site Foundation** |                                                        |           | *Goal: Automate indexing/deployments (manual trigger), basic static site setup (GitHub Pages). Requires code review.* |
+|           | M2-DECISION-01| Decide final location for docs (`_docs_fabric_ux` vs `/site/...`)      | Decision  | Research Astro best practices. Affects M2-TASK-01, M2-TASK-03 path.                                           |
+|           | M2-TASK-01    | Set up Astro project, configure docs location, basic layout/pages      | To Do     | Depends on M2-DECISION-01.                                                                                       |
+|           | M2-TASK-02    | Set up GitHub Action: Astro build & deploy to **GitHub Pages**         | To Do     |                                                                                                                    |
+|           | M2-TASK-03    | Set up GitHub Action: Run indexing script (use Secrets, manual trigger) | To Do     | Path depends on M2-DECISION-01. Include lint/format checks.                                                    |
+|           | M2-TASK-04    | Set up GitHub Action: MCP server build & deploy **to Vercel**          | To Do     | Use Secrets, manual trigger. Include lint/format checks.                                                         |
+|           | M2-TASK-05    | Review M1/M2 changes, basic cleanup (e.g., stdio remnants)           | To Do     |                                                                                                                    |
+|           | M2-TASK-06    | Add M2 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include docs location decision, Astro setup, CI action details.                                                |
+| **M3**    | **Production Readiness - Robustness & Structure** |                                                        |           | *Goal: Enhance server reliability, maintainability, observability. Requires code review before merge.*           |
+|           | M3-TASK-01    | Implement Health Check endpoint (`/healthz`)                           | To Do     | Check server status & optionally DB connection.                                                                  |
+|           | M3-TASK-02    | Improve `indexDocs.ts` robustness (error handling, idempotency)      | To Do     | Handle file errors, ensure safe reruns.                                                                          |
+|           | M3-TASK-03    | Implement new tool structure (`src/tools/[toolName]/...`)              | To Do     | Apply to `askFabricDocs`.                                                                                        |
+|           | M3-TASK-04    | Define & implement pattern for shared tool dependencies/utilities      | To Do     | E.g., `src/lib/` for shared clients/functions.                                                                 |
+|           | M3-DECISION-01| Choose & Integrate Centralized Logging Service (if desired)            | Decision  | See Decisions section.                                                                                             |
+|           | M3-TASK-05    | Update CI Actions for **automatic triggering** (optional)              | To Do     | E.g., trigger on docs/code changes.                                                                              |
+|           | M3-TASK-06    | Review M3 changes, perform more thorough cleanup                       | To Do     |                                                                                                                    |
+|           | M3-TASK-07    | Add M3 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include health check details, robustness improvements, tool structure, logging integration.                        |
+| **M4**    | **Testing & Documentation** |                                                                        |           | *Goal: Comprehensive testing, final docs, final cleanup. Requires code review before merge.*                     |
+|           | M4-TASK-01    | Write/Update tests using **mocked DB client**                          | To Do     | Adapt paused `TEST-01`. Focus on mocking Vector DB client.                                                     |
+|           | M4-TASK-02    | Perform thorough E2E testing with MCP client (e.g., Cursor)        | To Do     | Use hosted SSE endpoint.                                                                                         |
+|           | M4-TASK-03    | Create platform config files (e.g., `vercel.json`)                     | To Do     | As needed for Vercel deployment.                                                                                 |
+|           | M4-TASK-04    | Configure Platform-Level **Rate Limiting** on Vercel (IP-based)       | To Do     | Prevent abuse (e.g., 60-120 req/min/ip).                                                                         |
+|           | M4-TASK-05    | Update `README.md`, `mcp-server.plan.md` status                        | To Do     | Incorporate details from `DEVELOPMENT_NOTES.md`. Reflect hosted setup, SSE, auth, etc.                       |
+|           | M4-TASK-06    | Update `CHANGELOG.md`                                                  | To Do     | Document changes since v1.0.0.                                                                                 |
+|           | M4-TASK-07    | Final review and cleanup pass across the project                       | To Do     | Includes dependency review (`npm audit`, consider `npm update`).                                                  |
+
+### 5.1. Effort estimation key
 
 - **S:** Small (<= 2 hours)
 - **M:** Medium (2-4 hours)
 - **L:** Large (4-8 hours)
 - **XL:** Extra Large (> 8 hours)
 
-## 4. Future considerations
+## 6. Future considerations
 
-- **Optimize Documentation for RAG:** Enhance the documentation format with structural elements that improve chunking and retrieval, such as explicit section markers, component-specific metadata, and unique section identifiers. This would improve the accuracy and completeness of responses from the `askFabricDocs` tool.
-- **Migrate to Hosted Vector Database:** Evaluate and implement a hosted vector database solution (e.g., Chroma Cloud, Pinecone) to store the documentation index. This would eliminate the need for users to run a local database (like ChromaDB via Docker) and centralize index updates, simplifying the setup for end-users integrating via MCP clients like Cursor. Requires handling authentication and potentially introducing network latency.
-- Real-time or more frequent documentation updates.
-- Integration with specific CI/CD platforms.
-- Adding more sophisticated AuthN/AuthZ examples if access needs control.
-- Providing IaC templates (Terraform, etc.).
-- Developing more complex interactive tools (e.g., code snippet generation based on Fabric UX).
+- **Advanced RAG Enhancements:** Improve retrieval accuracy and relevance beyond the initial implementation.
+  - *Chunking Strategy:* Explore semantic chunking, overlapping chunks, or context-aware splitting.
+  - *Metadata Filtering:* Extract richer metadata during indexing and implement pre/post-search filtering.
+  - *Query Transformation:* Implement query expansion or decomposition.
+  - *Re-ranking:* Add a cross-encoder or other re-ranking step after initial retrieval.
+  - *Hybrid Search:* Combine vector search with keyword search (e.g., BM25).
+  - *Embedding Model Evaluation:* Experiment with different embedding models optimized for technical docs.
+- **Optimize Documentation Format for RAG:** (Related to above) Enhance the documentation format itself with structural elements that improve chunking and retrieval.
+- **Real-time or more frequent documentation updates.**
+- **Integration with specific CI/CD platforms.**
+- **Adding more sophisticated AuthN/AuthZ examples if access needs control.**
+- **Providing IaC templates (Terraform, etc.).**
+- **Developing more complex interactive tools (e.g., code snippet generation based on Fabric UX).**
+- Consider more sophisticated config management (e.g., `node-config`) if environment complexity increases.
+- Monitor Astro build times in CI/CD for potential optimization needs.
 
 This plan provides a starting point. We can adjust the scope, priorities, and details as needed.

@@ -7,41 +7,29 @@ import { logLevel } from './config.js'; // Import logLevel from config
 // Check if we're in stdio mode
 const isStdioMode = process.argv.includes('--stdio');
 
-// Configure Pino options
-const pinoOptions: LoggerOptions = {
-  level: logLevel, // Use imported logLevel
-};
-
 let logger: pino.Logger;
 
-// If in stdio mode, force logs to stderr rather than stdout
-if (isStdioMode) {
-  // pinoOptions.transport = { // REMOVED transport configuration for stdio mode
-  //   target: 'pino-pretty',
-  //   options: {
-  //     colorize: !process.env.NO_COLOR,
-  //     levelFirst: true,
-  //     translateTime: 'SYS:standard',
-  //     // Crucial: Write to stderr when in stdio mode
-  //     destination: process.stderr, // <-- This caused DataCloneError in worker
-  //   },
-  // };
-  // Initialize pino to write directly to stderr in stdio mode
-  logger = pino.default(pinoOptions, process.stderr);
-} else {
-  // For non-stdio modes
-  if (process.env.NODE_ENV !== 'production') {
-    // Enable pretty printing for non-production environments (writes to stdout by default)
-    pinoOptions.transport = {
+if (process.env.NODE_ENV === 'development') {
+  const pinoOptions = {
+    level: logLevel,
+    transport: {
       target: 'pino-pretty',
       options: {
-        colorize: !process.env.NO_COLOR,
-        levelFirst: true,
-        translateTime: 'SYS:standard',
+        colorize: true,
+        ignore: 'pid,hostname', // Don't ignore time
+        translateTime: 'SYS:yyyy-mm-dd HH:MM:ss.l',
       },
-    };
-  }
-  // Initialize pino with options (writes to stdout by default if no transport)
+    },
+  };
+  // Revert to pino.default() based on TS2349 error with NodeNext
+  logger = pino.default(pinoOptions, process.stderr);
+
+} else {
+  const pinoOptions = {
+    level: logLevel,
+    // Add other production options if needed (e.g., serializers)
+  };
+  // Revert to pino.default()
   logger = pino.default(pinoOptions);
 }
 

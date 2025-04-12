@@ -35,14 +35,34 @@ const logLevel = logLevelSchema.parse(process.env.MCP_LOG_LEVEL ?? defaultLogLev
 
 // RAG Configuration
 const docsPath = path.resolve(process.env.DOCS_PATH || '_docs_fabric_ux');
-const chromaServerUrl = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
 const embeddingModelName = process.env.EMBEDDING_MODEL_NAME || 'Xenova/all-MiniLM-L6-v2';
-const chromaCollectionName = process.env.CHROMA_COLLECTION_NAME || 'fabric_ux_docs';
-// Deprecated - vectorDbPath is no longer used for server connection
-// const vectorDbPath = path.resolve(process.env.VECTOR_DB_PATH || './db'); 
 
-// Custom Greeting Prefix (Example)
-const customGreetingPrefix = process.env.MCP_GREETING_PREFIX || '';
+// Pinecone Configuration
+const pineconeApiKey = process.env.PINECONE_API_KEY;
+const pineconeEnvironment = process.env.PINECONE_ENVIRONMENT;
+const pineconeIndexName = process.env.PINECONE_INDEX_NAME || 'fabric-ux-system'; // Default index name
+
+// --- MCP Server Auth Configuration ---
+const mcpApiKey = process.env.MCP_API_KEY;
+
+// Deprecated ChromaDB config
+// const chromaServerUrl = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
+// const chromaCollectionName = process.env.CHROMA_COLLECTION_NAME || 'fabric_ux_docs';
+
+// Validation for required environment variables
+if (!pineconeApiKey) {
+    console.warn('Missing required environment variable: PINECONE_API_KEY');
+    // Consider throwing an error in production environments or if essential
+    // throw new Error('Missing required environment variable: PINECONE_API_KEY');
+}
+if (!pineconeEnvironment) {
+    console.warn('Missing required environment variable: PINECONE_ENVIRONMENT');
+    // Consider throwing an error
+}
+if (!mcpApiKey) {
+    console.warn('Missing required environment variable: MCP_API_KEY. Server auth will be disabled.');
+    // Allow proceeding without auth key for flexibility, but warn loudly.
+}
 
 // --- Logging removed from here --- 
 
@@ -50,11 +70,13 @@ export {
     transportType,
     serverPort,
     logLevel,
-    // customGreetingPrefix // <-- Removed as it seems unused
     // RAG Config Exports
     docsPath,
-    chromaServerUrl,
     embeddingModelName,
-    chromaCollectionName,
-    // vectorDbPath // Not needed for server operation
+    // Pinecone Config Exports
+    pineconeApiKey,
+    pineconeEnvironment,
+    pineconeIndexName,
+    // Auth Config Exports
+    mcpApiKey,
 };

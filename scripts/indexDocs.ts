@@ -7,167 +7,160 @@ import remarkFrontmatter from 'remark-frontmatter';
 // @ts-ignore - Suppress type error for remark-stringify
 import remarkStringify from 'remark-stringify';
 import yaml from 'js-yaml';
-import { pipeline, env, type Pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
-// Import ChromaDB types
-import { ChromaClient, type Collection, type Embedding, type Metadatas, type Documents, type IDs, type Embeddings, type Metadata, IncludeEnum } from 'chromadb';
+import { pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
 import url from 'node:url'; // Import the url module
 
-// --- Constants ---
-const DOCS_PATH = path.resolve(process.cwd(), '_docs_fabric_ux');
-// Use Chroma server path instead of local path - Use IPv4 loopback
-const CHROMA_SERVER_URL = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
-const COLLECTION_NAME = 'fabric_ux_docs';
-const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
-// const VECTOR_COLUMN_NAME = 'vector'; // No longer needed
+// --- Pinecone Client Import ---\
+import { Pinecone, type Index, type PineconeRecord, type RecordMetadata } from '@pinecone-database/pinecone';
 
-// --- Interfaces ---
-// Chroma uses Metadatas type which is Record<string, any>
-interface DocMetadata extends Record<string, unknown> {
-    id: string;
+// --- Configuration Import ---\
+import {
+    docsPath,
+    embeddingModelName,
+    pineconeApiKey,
+    // pineconeEnvironment, // Environment likely inferred or not needed for Index()
+    pineconeIndexName,
+} from '../src/config.js';
+
+// --- Constants ---\
+const EMBEDDING_MODEL = embeddingModelName;
+const PINECONE_UPSERT_BATCH_SIZE = 100;
+
+// --- Interfaces ---\
+// Define interface explicitly matching Pinecone requirements
+// Keep lastUpdated as string, but handle undefined during assignment
+interface DocMetadata extends RecordMetadata {
+    doc_id: string;
     title: string;
     area: string;
-    tags: string; // Keep as JSON string for Chroma metadata
-    lastUpdated: string;
+    tags: string[];
+    lastUpdated: string; // Required string if present on the object
     filePath: string;
     chunkId: string;
+    section: string;
+    textContent: string;
 }
 
-// --- Initialization ---
+// --- Initialization ---\
 let embedder: FeatureExtractionPipeline | null = null;
-let collection: Collection | null = null; // ChromaDB collection
-let chromaClient: ChromaClient | null = null;
+let pinecone: Pinecone | null = null;
+let pineconeIndex: Index<DocMetadata> | null = null; // Specify metadata type
 
-// Export for testing
 export async function initialize() {
+    // --- Input Validation ---\
+    if (!pineconeApiKey) {
+        throw new Error("Pinecone API key is missing. Check PINECONE_API_KEY environment variable.");
+    }
+    if (!pineconeIndexName) {
+        throw new Error("Pinecone index name is missing. Check PINECONE_INDEX_NAME environment variable.");
+    }
+
     console.log(`Initializing embedding model: ${EMBEDDING_MODEL}...`);
     embedder = await pipeline('feature-extraction', EMBEDDING_MODEL, {
         quantized: true,
     });
     console.log('Embedding model initialized.');
 
-    console.log(`Initializing ChromaDB client for server at ${CHROMA_SERVER_URL}...`);
-    chromaClient = new ChromaClient({ path: CHROMA_SERVER_URL }); // Connect to server URL
-    // Optional: Add auth headers if needed via fetchOptions
-    // chromaClient = new ChromaClient({
-    //     path: CHROMA_SERVER_URL,
-    //     fetchOptions: {
-    //         headers: {
-    //             Authorization: `Bearer ${process.env.CHROMA_API_KEY}`,
-    //             'X-Chroma-Token': process.env.CHROMA_AUTH_TOKEN // Example auth methods
-    //         }
-    //     }
-    // });
-    console.log('ChromaDB client initialized.');
+    console.log(`Initializing Pinecone client...`);
+    // Initialize relying on environment variable PINECONE_API_KEY
+    pinecone = new Pinecone();
+    console.log('Pinecone client initialized.');
 
-    // Ping server to check connection
+    // Check if index exists and is ready
+    console.log(`Checking Pinecone index '${pineconeIndexName}'...`);
     try {
-        console.log('Pinging ChromaDB server...');
-        const version = await chromaClient.version();
-        console.log(`ChromaDB server version: ${version}`);
-        const heartbeat = await chromaClient.heartbeat(); // Returns nanoseconds
-        console.log(`ChromaDB server heartbeat: ${heartbeat / 1_000_000_000} seconds`);
-    } catch (pingError) {
-        console.error('ERROR: Failed to connect to ChromaDB server. Is it running?', pingError);
-        throw pingError; // Re-throw to stop the script
+        const description = await pinecone.describeIndex(pineconeIndexName);
+        if (!description.status?.ready) {
+             throw new Error(`Pinecone index '${pineconeIndexName}' exists but is not ready. Status: ${JSON.stringify(description.status)}`);
+        }
+         console.log(`Pinecone index '${pineconeIndexName}' is ready. Status: ${JSON.stringify(description.status)}`);
+    } catch (error: any) {
+        if (error.message && error.message.includes('NotFound')) {
+             console.error(`ERROR: Pinecone index '${pineconeIndexName}' not found.`);
+             console.error('Please create the index in the Pinecone console with the correct dimension (e.g., 384) and metric (e.g., cosine).');
+        } else {
+             console.error(`ERROR: Failed to describe Pinecone index '${pineconeIndexName}'.`, error);
+        }
+        throw error;
     }
 
-    console.log(`Getting or creating collection: ${COLLECTION_NAME}...`);
-    collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
-    console.log('Collection obtained.');
+    // Get a handle to the index, specifying the metadata type
+    pineconeIndex = pinecone.Index<DocMetadata>(pineconeIndexName);
+    console.log(`Obtained handle for Pinecone index '${pineconeIndexName}'.`);
 }
 
-// --- Core Logic ---
-// Accept embedder as an argument for testability
-export async function processFile(filePath: string, embedderPipeline: FeatureExtractionPipeline): Promise<{
-    ids: IDs;
-    embeddings: Embeddings;
-    metadatas: Metadata[];
-    documents: Documents;
-}> {
-    // [LOG] Entering processFile
+// --- Core Logic ---\
+export async function processFile(
+    filePath: string,
+    embedderPipeline: FeatureExtractionPipeline
+): Promise<PineconeRecord<DocMetadata>[]> {
     console.log(`[processFile: ${path.basename(filePath)}] Entering function.`);
 
-    // Use the passed embedderPipeline instead of the global variable
     if (!embedderPipeline) {
-        // [LOG] Missing embedder pipeline
         console.error(`[processFile: ${path.basename(filePath)}] ERROR: Embedder pipeline was not provided.`);
         throw new Error('Embedder pipeline was not provided to processFile.');
     }
     console.log(`[processFile: ${path.basename(filePath)}] Processing: ${path.relative(process.cwd(), filePath)}`);
 
-    const result = {
-        ids: [] as IDs,
-        embeddings: [] as Embeddings,
-        metadatas: [] as Metadata[],
-        documents: [] as Documents,
-    };
+    const vectorsForPinecone: PineconeRecord<DocMetadata>[] = [];
 
     try {
-        // [LOG] Before reading file
         console.log(`[processFile: ${path.basename(filePath)}] Attempting to read file: ${filePath}`);
         const fileContent = await fs.readFile(filePath, 'utf-8');
-        // [LOG] After reading file
         console.log(`[processFile: ${path.basename(filePath)}] Successfully read file (${fileContent.length} chars).`);
 
-        // [LOG] Before unified processing
         console.log(`[processFile: ${path.basename(filePath)}] Initializing unified processor.`);
         const processor = unified()
             .use(remarkParse)
             .use(remarkFrontmatter, ['yaml'])
             .use(remarkStringify);
-        // [LOG] Before parsing content
+
         console.log(`[processFile: ${path.basename(filePath)}] Parsing file content with unified.`);
         const tree = processor.parse(fileContent);
-        // [LOG] After parsing content
         console.log(`[processFile: ${path.basename(filePath)}] Content parsed. Tree root type: ${tree.type}`);
 
         let frontmatter: Record<string, unknown> = {};
-        let yamlEndOffset = 0; // Variable to store the end offset
-        // [LOG] Checking for frontmatter
+        let yamlEndOffset = 0;
         console.log(`[processFile: ${path.basename(filePath)}] Checking for YAML frontmatter node.`);
-        const firstChild = tree.children?.[0]; // Use optional chaining
+        const firstChild = tree.children?.[0];
         if (firstChild?.type === 'yaml') {
            const yamlNode = firstChild;
-           // [LOG] Found YAML node, attempting to parse.
            console.log(`[processFile: ${path.basename(filePath)}] Found YAML node, attempting to parse.`);
             try {
                 frontmatter = yaml.load(yamlNode.value as string) as Record<string, unknown>;
-                yamlEndOffset = yamlNode.position?.end?.offset ?? 0; // Store the end offset
-                // [LOG] Successfully parsed YAML.
+                yamlEndOffset = yamlNode.position?.end?.offset ?? 0;
                 console.log(`[processFile: ${path.basename(filePath)}] Successfully parsed YAML frontmatter:`, Object.keys(frontmatter));
             } catch (e) {
-                // [LOG] YAML parse error.
                  console.warn(`[processFile: ${path.basename(filePath)}] WARN: Failed to parse YAML frontmatter. Error:`, e);
-                // Return empty result as parsing failed
-                return result;
+                return vectorsForPinecone;
             }
-            tree.children.shift(); // Remove frontmatter node
         } else {
-             // [LOG] No YAML node found.
-            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No YAML frontmatter node found at the beginning of the document.`);
-             // Return empty result as frontmatter is required
-            return result;
+            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No YAML frontmatter node found. Skipping file.`);
+            return vectorsForPinecone;
         }
 
-        // [LOG] Validating required frontmatter fields.
         console.log(`[processFile: ${path.basename(filePath)}] Validating required frontmatter fields (id, title, area).`);
         const requiredFields = ['id', 'title', 'area'];
-        const missingFields = requiredFields.filter(field => !frontmatter[field]);
+        const missingFields = requiredFields.filter(field => !frontmatter[field] || typeof frontmatter[field] !== 'string');
 
         if (missingFields.length > 0) {
-            // [LOG] Missing required frontmatter fields.
-             // Log a more specific warning about which fields are missing
-             console.warn(`[processFile: ${path.basename(filePath)}] WARN: Missing required frontmatter fields in file '${path.relative(process.cwd(), filePath)}'. Missing: [${missingFields.join(', ')}]. Found keys: [${Object.keys(frontmatter).join(', ')}]`);
-             // Return empty result as required fields are missing for indexing
-             return result;
+             console.warn(`[processFile: ${path.basename(filePath)}] WARN: Missing required string frontmatter fields: [${missingFields.join(', ')}]. Skipping file.`);
+             return vectorsForPinecone;
         }
-        // [LOG] Required fields present.
-        console.log(`[processFile: ${path.basename(filePath)}] Required frontmatter fields found.`);
+        const docId = frontmatter.id as string;
+        const title = frontmatter.title as string;
+        const area = frontmatter.area as string;
 
-        // [LOG] Processing content using SECTION markers.
+        let tags: string[] = [];
+        if (Array.isArray(frontmatter.tags)) {
+            tags = frontmatter.tags.map(String).filter(tag => tag.trim() !== '');
+        } else if (typeof frontmatter.tags === 'string') {
+            tags = frontmatter.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+        }
+        // Get lastUpdated as string | undefined
+        const lastUpdated = frontmatter.lastUpdated ? String(frontmatter.lastUpdated) : undefined;
+
         console.log(`[processFile: ${path.basename(filePath)}] Extracting content based on section markers.`);
-
-        // Use raw file content for regex matching to preserve structure within markers
         const rawContentWithoutFrontmatter = fileContent.substring(yamlEndOffset).trim();
 
         const sectionRegex = /<!--\s*BEGIN-SECTION:\s*(.*?)\s*-->(.*?)<!--\s*END-SECTION:\s*\1\s*-->/gs;
@@ -175,186 +168,191 @@ export async function processFile(filePath: string, embedderPipeline: FeatureExt
         let lastIndex = 0;
         const sections: { name: string; text: string }[] = [];
 
-        while (true) {
-            match = sectionRegex.exec(rawContentWithoutFrontmatter);
-            if (match === null) {
-                break; // Exit loop if no more matches
-            }
-            const sectionName = match[1]?.trim() ?? 'unknown-section'; // Add nullish coalescing
-            const sectionText = match[2]?.trim() ?? ''; // Add nullish coalescing
+        while ((match = sectionRegex.exec(rawContentWithoutFrontmatter)) !== null) {
+            const sectionName = match[1]?.trim() || 'unknown-section';
+            const sectionText = match[2]?.trim() || '';
             const precedingText = rawContentWithoutFrontmatter.substring(lastIndex, match.index).trim();
 
             let combinedText = sectionText;
-            // Prepend preceding text to the current section's content
             if (precedingText) {
                 combinedText = `${precedingText}\n\n${sectionText}`;
-                console.log(`[processFile: ${path.basename(filePath)}] Prepended ${precedingText.length} chars to section '${sectionName}'`);
             }
-
             if (combinedText) {
                  sections.push({ name: sectionName, text: combinedText });
                  console.log(`[processFile: ${path.basename(filePath)}] Found section: '${sectionName}', Length: ${combinedText.length}`);
             }
             lastIndex = sectionRegex.lastIndex;
         }
-
-        // Handle any remaining content after the last marker
         const remainingText = rawContentWithoutFrontmatter.substring(lastIndex).trim();
-        const lastSection = sections[sections.length - 1]; // Get last section once
-        if (remainingText && lastSection) { // Check if lastSection exists
-            lastSection.text += `\n\n${remainingText}`; // Append to the last section
-            console.log(`[processFile: ${path.basename(filePath)}] Appended ${remainingText.length} trailing chars to last section '${lastSection.name}'`);
+
+        // Add extra check before accessing last element
+        if (remainingText && sections.length > 0) {
+             const lastSection = sections[sections.length - 1];
+             if(lastSection){ // Satisfy linter
+                lastSection.text += `\n\n${remainingText}`;
+                console.log(`[processFile: ${path.basename(filePath)}] Appended ${remainingText.length} trailing chars to last section '${lastSection.name}'`);
+             }
         } else if (remainingText && sections.length === 0) {
-             // If NO sections were found, treat the whole remaining content as one chunk
              console.log(`[processFile: ${path.basename(filePath)}] No section markers found, treating entire content as one chunk.`);
-             sections.push({ name: 'default', text: remainingText });
+             sections.push({ name: 'content', text: remainingText });
         }
 
         if (sections.length === 0) {
-            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No content sections found or extracted in ${filePath}`);
+            console.warn(`[processFile: ${path.basename(filePath)}] WARN: No content sections found or extracted in ${filePath}. Skipping.`);
         }
 
-        // [LOG] Starting chunk processing loop based on sections.
         console.log(`[processFile: ${path.basename(filePath)}] Starting chunk processing loop for ${sections.length} sections.`);
-        for (const section of sections) { // Use for...of loop
-            if (!section) continue; // Add safety check for undefined section (though unlikely with for...of)
-            // Sanitize section name for use in ID
+        for (const section of sections) {
             const sanitizedSectionName = section.name.toLowerCase().replace(/[^a-z0-9\-]+/g, '-').replace(/^-+|-+$/g, '');
-            const chunkId = `${frontmatter.id}-section-${sanitizedSectionName || 'content'}`;
+            const chunkId = `${docId}-section-${sanitizedSectionName || 'content'}`;
 
-            // --- BEGIN: Prepend Header Logic ---
             let textToEmbed = section.text;
-            let sectionHeaderText = section.name; // Default to name from marker
-
-            // Regex to find the first H2 header within the section text
+            let sectionHeaderText = section.name;
             const headerRegex = /^##\s+(.*?)(?:\s*\(.*\))?\s*$/m;
             const headerMatch = section.text.match(headerRegex);
-
-            if (headerMatch?.[1]) {
-                sectionHeaderText = headerMatch[1].trim(); // Get clean header text
-                // Prepend the found header to the text for embedding
+            if (headerMatch?.[1]) { // Use optional chaining
+                sectionHeaderText = headerMatch[1].trim();
                 textToEmbed = `${sectionHeaderText}\n\n${section.text}`;
-                console.log(`[processFile: ${path.basename(filePath)}] Prepended header '${sectionHeaderText}' to chunk ${section.name}`);
             } else {
                  console.log(`[processFile: ${path.basename(filePath)}] No H2 header found in section '${section.name}', using marker name.`);
-                 // Optionally prepend the marker name if no header found?
-                 // textToEmbed = `${section.name}\n\n${section.text}`;
+                 sectionHeaderText = section.name;
             }
-            // --- END: Prepend Header Logic ---
 
-            // [LOG] Processing chunk.
-            console.log(`[processFile: ${path.basename(filePath)}] Processing chunk ${section.name}. Length: ${section.text.length} (Embedding length: ${textToEmbed.length})`);
+            if (!textToEmbed || textToEmbed.length === 0) {
+                console.warn(`[processFile: ${path.basename(filePath)}] WARN: Skipping empty chunk ${chunkId}.`);
+                continue;
+            }
 
-            // [LOG] Before generating embedding.
-            console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${section.name}.`);
-            // Use textToEmbed (Header + Content) for embedding
+            console.log(`[processFile: ${path.basename(filePath)}] Generating embedding for chunk ${chunkId}. Input length: ${textToEmbed.length}`);
             const output = await embedderPipeline(textToEmbed, { pooling: 'mean', normalize: true });
-            const embedding: Embedding = Array.from(output.data as Float32Array);
-            // [LOG] After generating embedding.
-            console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${section.name}. Length: ${embedding.length}`);
+            const embeddingValues: number[] = Array.from(output.data as Float32Array);
+            console.log(`[processFile: ${path.basename(filePath)}] Embedding generated for chunk ${chunkId}. Dimension: ${embeddingValues.length}`);
 
-            result.ids.push(chunkId);
-            result.embeddings.push(embedding);
-            result.documents.push(section.text); // Store the ORIGINAL section text (without prepended header)
-            const metadataItem: Metadata = {
-                id: frontmatter.id as string,
-                title: frontmatter.title as string,
-                area: frontmatter.area as string,
-                tags: JSON.stringify(frontmatter.tags || []), 
-                lastUpdated: frontmatter.lastUpdated as string,
+            // Create metadata object for Pinecone, omitting lastUpdated if undefined
+            // Initialize without lastUpdated first
+            const metadataPayload: DocMetadata = {
+                doc_id: docId,
+                title: title,
+                area: area,
+                tags: tags,
                 filePath: path.relative(process.cwd(), filePath),
                 chunkId: chunkId,
-                section: sectionHeaderText // Store the extracted or marker section name
+                section: sectionHeaderText,
+                textContent: section.text,
+                // We need to assign lastUpdated conditionally but satisfy the type
+                // Since the interface requires it, but Pinecone doesn't allow undefined,
+                // we only add it if it exists. TypeScript should infer this correctly
+                // when checking the final object shape against the Index<DocMetadata> type.
+                // Hacky: Assign an empty string initially to satisfy the type checker for the object literal,
+                // then overwrite or ensure it's set correctly in the conditional.
+                // This property will be effectively absent if lastUpdated is undefined.
+                lastUpdated: '', // Temporary placeholder to satisfy the type
             };
-            result.metadatas.push(metadataItem);
-            // [LOG] Added chunk data to results.
-            console.log(`[processFile: ${path.basename(filePath)}] Added chunk ${section.name} data to results array.`);
+
+            // Conditionally assign the actual lastUpdated value if it exists
+            if (lastUpdated !== undefined) {
+                metadataPayload.lastUpdated = lastUpdated;
+            } else {
+                // If lastUpdated is undefined, remove the placeholder property
+                // This ensures we don't send an empty string if it wasn't defined.
+                delete (metadataPayload as Partial<DocMetadata>).lastUpdated;
+            }
+
+            const vector: PineconeRecord<DocMetadata> = {
+                id: chunkId,
+                values: embeddingValues,
+                metadata: metadataPayload,
+            };
+
+            vectorsForPinecone.push(vector);
+            console.log(`[processFile: ${path.basename(filePath)}] Prepared Pinecone vector for chunk ${chunkId}.`);
         }
-         // [LOG] Finished chunk processing loop.
         console.log(`[processFile: ${path.basename(filePath)}] Finished chunk processing loop.`);
 
     } catch (error) {
-        // [LOG] Error during processing.
         console.error(`[processFile: ${path.basename(filePath)}] ERROR during processing:`, error);
-        // Return empty result on error
+        return [];
     }
 
-    // [LOG] Returning results.
-    console.log(`[processFile: ${path.basename(filePath)}] Returning ${result.ids.length} processed chunks.`);
-    return result;
+    console.log(`[processFile: ${path.basename(filePath)}] Returning ${vectorsForPinecone.length} processed vectors.`);
+    return vectorsForPinecone;
 }
 
-// --- Main Execution ---
-// Export for potential integration testing
+// --- Main Execution ---\
 export async function main() {
     try {
-        await initialize(); // Initialization now includes server ping
+        await initialize();
 
-        // Type assertion for embedder after check
-        if (!collection || !embedder) { 
-             throw new Error("ChromaDB collection or embedder not available after initialization.");
+        if (!pineconeIndex || !embedder) {
+             throw new Error("Pinecone index handle or embedder not available after initialization.");
         }
-        const currentEmbedder = embedder; // Use a new variable after the check
+        const currentIndex = pineconeIndex;
+        const currentEmbedder = embedder;
 
-        console.log(`\nScanning for markdown files in: ${DOCS_PATH}`);
-        const files = glob.sync('**/*.md', { cwd: DOCS_PATH, absolute: true });
+        // --- Optional: Clear existing vectors (USE WITH CAUTION) ---\
+        // console.log(`WARNING: Clearing all vectors from index '${pineconeIndexName}'...`);
+        // await currentIndex.deleteAll();
+        // console.log(`Index '${pineconeIndexName}' cleared.`);
+        // await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second pause
+
+        console.log(`\nScanning for markdown files in: ${docsPath}`);
+        const files = glob.sync('**/*.md', { cwd: docsPath, absolute: true });
         console.log(`Found ${files.length} markdown files.`);
 
-        // Optional: Clear existing collection
-        console.log(`Clearing existing collection: ${COLLECTION_NAME}...`);
-        const count = await collection.count();
-        if (count > 0) {
-            // Correct peek call with options object
-            const existingIds = await collection.peek({ limit: count });
-            if(existingIds.ids.length > 0){
-                await collection.delete({ ids: existingIds.ids });
-                console.log(`Deleted ${existingIds.ids.length} items from collection.`);
-            } else {
-                 console.log('Collection count > 0 but peek returned no IDs.');
-            }
-        } else {
-            console.log('Collection is already empty.');
-        }
-
-        console.log('\nProcessing files and preparing data for ChromaDB...');
-        let allIds: IDs = [];
-        let allEmbeddings: Embeddings = [];
-        let allMetadatas: Metadata[] = []; // Correct type here
-        let allDocuments: Documents = [];
+        console.log('\nProcessing files and preparing data for Pinecone...');
+        let totalVectorsProcessed = 0;
+        const vectorBatch: PineconeRecord<DocMetadata>[] = [];
 
         console.log(`Processing ${files.length} files...`);
         for (const file of files) {
-            // Pass the checked embedder
-            // Explicitly cast embedder type to satisfy compiler, even if signature differs
-            const fileResult = await processFile(file, currentEmbedder as unknown as Pipeline);
-            if (fileResult.ids.length > 0) {
-                allIds.push(...fileResult.ids);
-                allEmbeddings.push(...fileResult.embeddings);
-                allMetadatas.push(...fileResult.metadatas);
-                allDocuments.push(...fileResult.documents);
+            const fileVectors = await processFile(file, currentEmbedder);
+
+            if (fileVectors.length > 0) {
+                vectorBatch.push(...fileVectors);
+                totalVectorsProcessed += fileVectors.length;
+
+                // Upsert in batches
+                if (vectorBatch.length >= PINECONE_UPSERT_BATCH_SIZE) {
+                    console.log(`Upserting batch of ${vectorBatch.length} vectors to Pinecone index '${pineconeIndexName}'...`);
+                    try {
+                        // Use the correctly typed index handle
+                        await currentIndex.upsert(vectorBatch);
+                        console.log(`Batch upsert successful.`);
+                    } catch (upsertError) {
+                        console.error(`ERROR during Pinecone batch upsert:`, upsertError);
+                    }
+                    vectorBatch.length = 0; // Clear the batch
+                }
+            } else {
+                 console.log(`[Main] No vectors generated for file: ${path.basename(file)}. Skipping.`);
             }
         }
-        console.log(`Collected ${allIds.length} total chunks from ${files.length} files.`);
 
-        if (allIds.length > 0) {
-            console.log(`\nAdding ${allIds.length} chunks to ChromaDB collection '${COLLECTION_NAME}'...`);
-            await collection.add({
-                ids: allIds,
-                embeddings: allEmbeddings,
-                metadatas: allMetadatas, // Should be Metadata[] now
-                documents: allDocuments,
-            });
-            console.log('>>> ChromaDB collection.add call completed.');
-
-            // Verify count
-            const finalCount = await collection.count();
-            console.log(`>>> Verification: collection.count() returned ${finalCount}.`);
-             if (finalCount !== allIds.length) {
-                 console.warn(`WARN: Final count (${finalCount}) does not match expected count (${allIds.length})!`);
+        // Upsert any remaining vectors in the last batch
+        if (vectorBatch.length > 0) {
+            console.log(`Upserting final batch of ${vectorBatch.length} vectors to Pinecone index '${pineconeIndexName}'...`);
+            try {
+                 // Use the correctly typed index handle
+                await currentIndex.upsert(vectorBatch);
+                console.log(`Final batch upsert successful.`);
+            } catch (upsertError) {
+                 console.error(`ERROR during final Pinecone batch upsert:`, upsertError);
             }
-        } else {
-            console.log('\nNo chunks collected, skipping add operation.');
+            vectorBatch.length = 0; // Clear the batch
         }
+
+        console.log(`\nCollected and attempted to upsert ${totalVectorsProcessed} total vectors from ${files.length} files.`);
+
+        // Optional: Get index stats after upserting
+        try {
+             console.log(`Fetching final stats for index '${pineconeIndexName}'...`);
+             await new Promise(resolve => setTimeout(resolve, 2000)); // Short delay
+             const stats = await currentIndex.describeIndexStats();
+             console.log(`Index stats: ${JSON.stringify(stats, null, 2)}`);
+        } catch (statsError) {
+             console.error(`WARN: Could not fetch final index stats.`, statsError);
+        }
+
 
         console.log('\nIndexing script logic finished.');
 
@@ -362,7 +360,6 @@ export async function main() {
         console.error('FATAL ERROR during indexing:', error);
         process.exitCode = 1;
     } finally {
-        // No explicit close needed for HTTP client
         console.log('Script execution finished.');
     }
 }
