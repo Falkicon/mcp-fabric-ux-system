@@ -52,8 +52,6 @@ let pinecone: Pinecone | null = null;
 let pineconeIndex: Index<DocMetadata> | null = null;
 
 let embedder: FeatureExtractionPipeline | null = null;
-// --- Temporarily COMMENT OUT Async Initialization ---
-/*
 console.error('[INDEX.TS] Starting async IIFE for initialization');
 (async () => {
     console.error('[INDEX.TS] Inside async IIFE - Before try block');
@@ -82,56 +80,62 @@ console.error('[INDEX.TS] Starting async IIFE for initialization');
         console.error('[INDEX.TS] Inside async IIFE - Initialization successful');
 
     } catch (error) {
-        // Use console.error here as logger might not be fully ready or working
         console.error('[INDEX.TS] FATAL ERROR during async initialization:', error);
         log.error({ error }, 'Failed during asynchronous initialization (Pinecone/Embedder).');
         process.exit(1);
     }
 })();
 console.error('[INDEX.TS] After async IIFE definition');
-*/
-console.error('[INDEX.TS] SKIPPED Async Initialization');
-// --- End Initializations ---
 
-// --- Temporarily COMMENT OUT McpServer and Tool Registration ---
-/*
 console.error('[INDEX.TS] Creating McpServer instance (top level)');
-const server = new McpServer({ ... });
+const server = new McpServer({
+    name: 'mcp_fabric_ux_system',
+    version: '1.0.0',
+    capabilities: {
+        tools: true,
+        resources: false,
+        prompts: false,
+    },
+});
 console.error('[INDEX.TS] McpServer instance created');
 
 console.error('[INDEX.TS] Before tool handler creation');
-const askFabricDocsHandlerInstance = createAskFabricDocsHandler({ ... });
+const askFabricDocsHandlerInstance = createAskFabricDocsHandler({
+    log: {
+        info: (...args: unknown[]) => log.info(args),
+        warn: (...args: unknown[]) => log.warn(args),
+        error: (...args: unknown[]) => log.error(args),
+    },
+    pineconeIndex: pineconeIndex!,
+    getEmbedder: () => embedder,
+});
 console.error('[INDEX.TS] After tool handler creation');
 
 server.tool('askFabricDocs', askFabricDocsSchema.shape, askFabricDocsHandlerInstance);
 console.error('[INDEX.TS] After tool registration');
-*/
-console.error('[INDEX.TS] SKIPPED MCP Server/Tool Setup');
-// --- End Tool Registration ---
 
-// --- Start Server (HTTP - Simplified) ---
 async function startServer() {
-    console.error('[INDEX.TS] Entered startServer() function - SIMPLIFIED');
+    console.error('[INDEX.TS] Entered startServer() function');
 
-    // --- Temporarily COMMENT OUT Dynamic Import ---
-    /*
     let HttpServerTransport: any;
     console.error('[INDEX.TS] Before dynamic import attempt');
     try {
+        // Keep @ts-ignore as build fails without it
         // @ts-ignore
         const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
-        // ... dynamic import logic ...
+        console.error('[INDEX.TS] Dynamic import successful');
+        HttpServerTransport = sdkHttpModule.HttpServerTransport;
+        if (!HttpServerTransport) {
+             throw new Error('HttpServerTransport not found in dynamic import.');
+        }
+        log.info('Dynamically imported HttpServerTransport successfully.');
     } catch (importError) {
-        console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
-        log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
-        process.exit(1);
+         console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
+         log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
+         process.exit(1);
     }
     console.error('[INDEX.TS] After dynamic import section');
-    */
-    console.error('[INDEX.TS] SKIPPED Dynamic Import');
 
-    // --- Temporarily COMMENT OUT Initialization Wait Loop ---
-    /*
     console.error('[INDEX.TS] Before initialization wait loop');
     while (!pineconeIndex || !embedder) {
         console.error('[INDEX.TS] Waiting for initialization...');
@@ -139,61 +143,53 @@ async function startServer() {
     }
     console.error('[INDEX.TS] Initialization complete. Proceeding to start HTTP server.');
     log.info('Pinecone index and embedder initialized. Proceeding to start HTTP server.');
-    */
-    console.error('[INDEX.TS] SKIPPED Init Wait Loop');
 
     console.error('[INDEX.TS] Before httpServer try block');
     try {
         console.error('[INDEX.TS] Creating HTTP server...');
         const httpServer = http.createServer(async (req, res) => {
-            // Simplified Handler for Debugging
-            console.error(`[INDEX.TS] DEBUG HANDLER: Received request: ${req.method} ${req.url}`);
-            log.info({ url: req.url, method: req.method, headers: req.headers }, 'DEBUG HANDLER: Request received');
+            console.error(`[INDEX.TS] Incoming HTTP request: ${req.method} ${req.url}`);
+            log.debug({ url: req.url, method: req.method }, 'Incoming HTTP request');
 
-            // --- Temporarily COMMENT OUT Auth Check ---
-            /*
             const providedApiKey = req.headers['x-api-key'];
             if (!mcpApiKey) {
                 log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
+                console.error('[INDEX.TS] WARNING: MCP_API_KEY not set, skipping auth.');
             } else if (providedApiKey !== mcpApiKey) {
                 log.warn({ provided: providedApiKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
+                console.error(`[INDEX.TS] Unauthorized attempt: Key provided: ${providedApiKey}`);
                 res.writeHead(401, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Unauthorized - DEBUG MODE' }));
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
                 return;
             }
             log.debug('API Key validated successfully.');
-            */
-            console.error('[INDEX.TS] DEBUG HANDLER: SKIPPED Auth Check');
+            console.error('[INDEX.TS] API Key validated successfully.');
 
-            // --- Temporarily COMMENT OUT MCP Transport Logic ---
             if (req.url === '/' && req.method === 'GET') {
-                 console.error('[INDEX.TS] DEBUG HANDLER: Root path requested. Sending basic OK response.');
-                 log.info('DEBUG HANDLER: Root path requested. Sending basic OK.');
-                 res.writeHead(200, { 'Content-Type': 'text/plain' });
-                 res.end('Server is running (Debug Mode)');
-            /*
+                console.error('[INDEX.TS] Root path requested. Handing off to MCP Transport...');
                 log.info('MCP connection request received. Initializing transport...');
                 try {
                      const transport = new HttpServerTransport({
-                        server: server, // server would be undefined here now
+                        server: server,
                         request: req,
                         response: res,
                         keepAliveInterval: 30000
                     });
                      log.info('HttpServerTransport initialized for request.');
+                     console.error('[INDEX.TS] HttpServerTransport initialized.');
                 } catch (transportError) {
+                     console.error('[INDEX.TS] Error initializing MCP transport:', transportError);
                      log.error({ error: transportError }, 'Error initializing or handling MCP transport');
                      if (!res.headersSent) {
                         res.writeHead(500, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ error: 'Internal Server Error during transport setup' }));
                      }
                 }
-            */
             } else {
-                console.error(`[INDEX.TS] DEBUG HANDLER: Path ${req.url} not handled. Sending 404.`);
-                log.warn({ url: req.url }, 'DEBUG HANDLER: Path not handled.');
-                res.writeHead(404, { 'Content-Type': 'text/plain' });
-                res.end('Not Found (Debug Mode)');
+                 console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);
+                 log.warn({ url: req.url }, 'Request path not handled by MCP server.');
+                 res.writeHead(404, { 'Content-Type': 'text/plain' });
+                 res.end('Not Found');
             }
         });
         console.error('[INDEX.TS] HTTP server created');
@@ -202,14 +198,13 @@ async function startServer() {
         httpServer.listen(serverPort, () => {
             console.error(`[INDEX.TS] Server listening on port ${serverPort}`);
         });
-        // ... rest of listeners and signal handlers ...
+
         httpServer.on('error', (error) => {
             console.error('[INDEX.TS] HTTP server error:', error);
             process.exit(1);
         });
         console.error('[INDEX.TS] HTTP server listeners attached');
 
-        // Graceful shutdown handling
         process.on('SIGTERM', () => {
             log.info('SIGTERM signal received: closing HTTP server');
             httpServer.close(() => {
@@ -226,7 +221,6 @@ async function startServer() {
              });
          });
 
-        // Add global error handlers
         process.on('uncaughtException', (error) => {
             log.fatal({ error }, 'UNCAUGHT EXCEPTION');
             process.exit(1);
@@ -242,7 +236,6 @@ async function startServer() {
     }
 }
 
-// Start the server if not testing
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
 if (!isTestEnv) {
     console.error('[INDEX.TS] Calling startServer()');
