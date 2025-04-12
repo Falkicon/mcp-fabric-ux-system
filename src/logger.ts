@@ -1,37 +1,44 @@
 import pino, { type LoggerOptions } from 'pino';
 import { logLevel } from './config.js'; // Import logLevel from config
+import { z } from 'zod';
 
-// Determine log level from environment or default
-// const logLevel = process.env.LOG_LEVEL || 'info'; // Removed direct env access
+// Log Level
+const defaultLogLevel: LevelWithSilent = 'info';
+const logLevelSchema = z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']);
+const logLevel = logLevelSchema.parse(process.env.MCP_LOG_LEVEL ?? defaultLogLevel);
 
 // Check if we're in stdio mode
 const isStdioMode = process.argv.includes('--stdio');
 
 let logger: pino.Logger;
 
+// Use pino-pretty for local development, basic JSON for production/other
 if (process.env.NODE_ENV === 'development') {
+  console.error('[Logger] Initializing Pino for DEVELOPMENT with pino-pretty');
   const pinoOptions = {
     level: logLevel,
     transport: {
       target: 'pino-pretty',
       options: {
         colorize: true,
-        ignore: 'pid,hostname', // Don't ignore time
+        ignore: 'pid,hostname',
         translateTime: 'SYS:yyyy-mm-dd HH:MM:ss.l',
       },
     },
   };
-  // Revert to pino.default() based on TS2349 error with NodeNext
+  // In development, pino-pretty writes to stdout, but we might want stderr
   logger = pino.default(pinoOptions, process.stderr);
-
 } else {
+  // For production or other environments (like Vercel)
+  console.error(`[Logger] Initializing Pino for PRODUCTION/OTHER environment (NODE_ENV: ${process.env.NODE_ENV})`);
   const pinoOptions = {
     level: logLevel,
-    // Add other production options if needed (e.g., serializers)
+    // Standard JSON logging, Vercel should capture stdout/stderr
   };
-  // Revert to pino.default()
   logger = pino.default(pinoOptions);
 }
+
+console.error(`[Logger] Pino instance created. Level: ${logger.level}`);
 
 // Log startup configuration but only if not in stdio mode (to avoid polluting stdout initially)
 if (!isStdioMode) {

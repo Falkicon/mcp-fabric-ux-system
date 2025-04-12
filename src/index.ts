@@ -1,4 +1,5 @@
-process.stderr.write('--- Top of src/index.ts ---\n');
+// Add early log
+console.error('[INDEX.TS] TOP LEVEL');
 
 process.stderr.write('--- Importing MCP SDK ---\n');
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -16,6 +17,7 @@ process.stderr.write('--- Finished Importing Zod ---\n');
 
 process.stderr.write('--- Importing Logger ---\n');
 import logger from './logger.js';
+console.error('[INDEX.TS] Imports completed');
 process.stderr.write('--- Finished Importing Logger ---\n');
 
 process.stderr.write('--- Importing Pinecone Client ---\n');
@@ -42,15 +44,21 @@ import { askFabricDocsSchema, createAskFabricDocsHandler, type DocMetadata } fro
 process.stderr.write('--- Finished Importing askFabricDocs Tool ---\n');
 
 process.stderr.write('--- Global Initializations ---\n');
-
+console.error('[INDEX.TS] Before logger assignment');
 const log = logger;
+console.error('[INDEX.TS] After logger assignment');
 
 let pinecone: Pinecone | null = null;
 let pineconeIndex: Index<DocMetadata> | null = null;
 
 let embedder: FeatureExtractionPipeline | null = null;
+// --- Embedding Model Initialization (Async IIFE) ---
+console.error('[INDEX.TS] Starting async IIFE for initialization');
 (async () => {
+    console.error('[INDEX.TS] Inside async IIFE - Before try block');
     try {
+        console.error('[INDEX.TS] Inside async IIFE - Start try block');
+        // --- Initialize Pinecone Client ---
         log.info('Initializing Pinecone client...');
         if (!pineconeApiKey) {
             throw new Error('PINECONE_API_KEY is not set. Cannot initialize Pinecone.');
@@ -58,6 +66,7 @@ let embedder: FeatureExtractionPipeline | null = null;
         pinecone = new Pinecone();
         log.info('Pinecone client initialized.');
 
+        // --- Get Pinecone Index Handle ---
         if (!pineconeIndexName) {
             throw new Error('PINECONE_INDEX_NAME is not set. Cannot get index handle.');
         }
@@ -65,15 +74,21 @@ let embedder: FeatureExtractionPipeline | null = null;
         pineconeIndex = pinecone.Index<DocMetadata>(pineconeIndexName);
         log.info(`Obtained handle for Pinecone index '${pineconeIndexName}'.`);
 
+        // --- Initialize Embedder ---
         log.info(`Loading embedding model: ${embeddingModelName}...`);
         embedder = await pipeline('feature-extraction', embeddingModelName);
         log.info(`Embedding model ${embeddingModelName} loaded successfully.`);
+        console.error('[INDEX.TS] Inside async IIFE - Initialization successful');
 
     } catch (error) {
+        // Use console.error here as logger might not be fully ready or working
+        console.error('[INDEX.TS] FATAL ERROR during async initialization:', error);
         log.error({ error }, 'Failed during asynchronous initialization (Pinecone/Embedder).');
         process.exit(1);
     }
 })();
+console.error('[INDEX.TS] After async IIFE definition');
+// --- End Initializations ---
 
 process.stderr.write('--- Creating McpServer instance (top level) ---\n');
 const server = new McpServer({
@@ -85,6 +100,7 @@ const server = new McpServer({
         prompts: false,
     },
 });
+console.error('[INDEX.TS] McpServer instance created');
 process.stderr.write('--- Finished creating McpServer instance (top level) ---\n');
 
 const askFabricDocsHandlerInstance = createAskFabricDocsHandler({
@@ -103,36 +119,50 @@ server.tool(
     askFabricDocsHandlerInstance
 );
 
+console.error('[INDEX.TS] After tool handler creation');
 log.info('Registered tool: askFabricDocs');
+console.error('[INDEX.TS] After tool registration');
 
+// --- Start Server (HTTP/SSE) ---
 async function startServer() {
+    console.error('[INDEX.TS] Entered startServer() function');
     process.stderr.write('--- Entered startServer() ---\n');
 
     // --- Dynamically import HttpServerTransport ---
     let HttpServerTransport: any;
+    console.error('[INDEX.TS] Before dynamic import attempt');
     try {
-        // Add @ts-ignore to suppress the TS2307 error for now
         // @ts-ignore
         const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
+        console.error('[INDEX.TS] Dynamic import successful');
         HttpServerTransport = sdkHttpModule.HttpServerTransport;
         if (!HttpServerTransport) {
              throw new Error('HttpServerTransport not found in dynamic import.');
         }
         log.info('Dynamically imported HttpServerTransport successfully.');
     } catch (importError) {
+         console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
          log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
          process.exit(1);
     }
     // --- End Dynamic Import ---
+    console.error('[INDEX.TS] After dynamic import section');
 
+    // Wait for async initializations to complete
+    console.error('[INDEX.TS] Before initialization wait loop');
     while (!pineconeIndex || !embedder) {
-        log.info('Waiting for Pinecone index and embedder initialization...');
+        // log.info('Waiting for Pinecone index and embedder initialization...');
+        console.error('[INDEX.TS] Waiting for initialization...');
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
+    console.error('[INDEX.TS] Initialization complete. Proceeding to start HTTP server.');
     log.info('Pinecone index and embedder initialized. Proceeding to start HTTP server.');
 
+    console.error('[INDEX.TS] Before httpServer try block');
     try {
+        console.error('[INDEX.TS] Creating HTTP server...');
         const httpServer = http.createServer(async (req, res) => {
+            console.error(`[INDEX.TS] Incoming HTTP request: ${req.method} ${req.url}`);
             log.debug({ url: req.url, method: req.method }, 'Incoming HTTP request');
 
             const providedApiKey = req.headers['x-api-key'];
@@ -169,16 +199,21 @@ async function startServer() {
                 res.end(JSON.stringify({ error: 'Not Found' }));
             }
         });
+        console.error('[INDEX.TS] HTTP server created');
 
+        console.error('[INDEX.TS] Setting up httpServer listeners...');
         httpServer.listen(serverPort, () => {
-            log.info({ port: serverPort }, `MCP server listening for SSE connections on port ${serverPort}`);
-            process.stderr.write(`--- MCP server ready on port ${serverPort} ---\n`);
+            console.error(`[INDEX.TS] Server listening on port ${serverPort}`);
+            // log.info({ port: serverPort }, `MCP server listening for SSE connections on port ${serverPort}`);
+            // process.stderr.write(`--- MCP server ready on port ${serverPort} ---\n`);
         });
 
         httpServer.on('error', (error) => {
-            log.error({ error }, 'HTTP server error');
+            console.error('[INDEX.TS] HTTP server error:', error);
+            // log.error({ error }, 'HTTP server error');
             process.exit(1);
         });
+        console.error('[INDEX.TS] HTTP server listeners attached');
 
         process.on('SIGTERM', () => {
             log.info('SIGTERM signal received: closing HTTP server');
@@ -206,14 +241,18 @@ async function startServer() {
         });
 
     } catch (error) {
-        log.fatal({ error }, 'Fatal error during server startup');
+        console.error('[INDEX.TS] FATAL ERROR during server startup:', error);
+        // log.fatal({ error }, 'Fatal error during server startup');
         process.exit(1);
     }
 }
 
+// Start the server if not testing
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
 if (!isTestEnv) {
-    process.stderr.write('--- Calling startServer() ---\n');
+    console.error('[INDEX.TS] Calling startServer()');
     startServer();
-    process.stderr.write('--- Returned from startServer() call (process might wait) ---\n');
+    console.error('[INDEX.TS] Returned from startServer() call (process might wait)');
+} else {
+    console.error('[INDEX.TS] Skipping startServer() in test environment');
 }
