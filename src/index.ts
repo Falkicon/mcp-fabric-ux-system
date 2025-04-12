@@ -173,25 +173,29 @@ async function startServer() {
         const providedApiKeyHeader = req.headers['x-api-key'];
         const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
-        // TEMPORARILY COMMENT OUT CHECK FOR TESTING
-        /*
+        // Restore API key check
         if (!mcpApiKey) {
             log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
             console.error('[INDEX.TS] WARNING: MCP_API_KEY not set, skipping auth.');
-        } else if (providedApiKey !== mcpApiKey) {
-            const loggableKey = typeof providedApiKey === 'string' ? providedApiKey.substring(0, 5) + '...' : '[Invalid Format/Absent]';
-            log.warn({ provided: loggableKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
-            console.error(`[INDEX.TS] Unauthorized attempt: Invalid or missing X-API-Key`);
-            res.writeHead(401, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Unauthorized' }));
-            return;
+        } else {
+            // Add detailed logging before the check
+            const expectedKeyLength = mcpApiKey.length;
+            const receivedKeyType = typeof providedApiKey;
+            const receivedKeyLength = typeof providedApiKey === 'string' ? providedApiKey.length : 0;
+            log.info({ expectedKeyLength, receivedKeyType, receivedKeyLength }, 'Performing API Key Check');
+            console.error(`[INDEX.TS] Checking API Key. Expected Length: ${expectedKeyLength}, Received Type: ${receivedKeyType}, Received Length: ${receivedKeyLength}`);
+
+            if (providedApiKey !== mcpApiKey) {
+                const loggableKey = typeof providedApiKey === 'string' ? providedApiKey.substring(0, 5) + '...' : '[Invalid Format/Absent]';
+                log.warn({ provided: loggableKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
+                console.error(`[INDEX.TS] Unauthorized attempt: Invalid or missing X-API-Key`);
+                res.writeHead(401, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Unauthorized' }));
+                return;
+            }
         }
         log.debug('API Key validated successfully.');
         console.error('[INDEX.TS] API Key validated successfully.');
-        */
-       // FOR TESTING: Assume key is valid for now
-       log.warn('SKIPPING API KEY CHECK FOR TESTING!');
-       console.error('[INDEX.TS] SKIPPING API KEY CHECK FOR TESTING!');
 
         // --- Handle MCP connection requests at root path --- 
         if (req.url === '/' && req.method === 'GET') {
