@@ -2,8 +2,8 @@
 console.error('[INDEX.TS] TOP LEVEL - SIMPLIFIED FOR DEBUGGING');
 
 process.stderr.write('--- Importing MCP SDK ---\n');
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-// import { McpServer, HttpServerTransport } from '@modelcontextprotocol/sdk';
+// Revert to static import - we will troubleshoot the build error
+import { McpServer, HttpServerTransport } from '@modelcontextprotocol/sdk';
 import { TextContent } from '@modelcontextprotocol/sdk/types.js';
 process.stderr.write('--- Finished Importing MCP SDK ---\n');
 
@@ -116,28 +116,6 @@ console.error('[INDEX.TS] After tool registration');
 
 async function startServer() {
     console.error('[INDEX.TS] Entered startServer() function');
-
-    let HttpServerTransport: any;
-    console.error('[INDEX.TS] Before dynamic import attempt');
-    try {
-        // Keep @ts-ignore as build fails without it
-        // @ts-ignore
-        // Try importing from the root SDK package
-        const sdkHttpModule = await import('@modelcontextprotocol/sdk');
-        // const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http');
-        // const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
-        console.error('[INDEX.TS] Dynamic import successful');
-        HttpServerTransport = sdkHttpModule.HttpServerTransport;
-        if (!HttpServerTransport) {
-             throw new Error('HttpServerTransport not found in dynamic import.');
-        }
-        log.info('Dynamically imported HttpServerTransport successfully.');
-    } catch (importError) {
-         console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
-         log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
-         process.exit(1);
-    }
-    console.error('[INDEX.TS] After dynamic import section');
 
     console.error('[INDEX.TS] Before initialization wait loop');
     while (!pineconeIndex || !embedder) {
