@@ -173,39 +173,42 @@ async function startServer() {
         const providedApiKeyHeader = req.headers['x-api-key'];
         const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
-        // Log the value of mcpApiKey read from config
-        const keyFromEnv = mcpApiKey || '[Not Set]'; // Handle undefined/null for logging
-        const keyPreview = typeof keyFromEnv === 'string' && keyFromEnv !== '[Not Set]' ? keyFromEnv.substring(0, 3) + '...' + keyFromEnv.substring(keyFromEnv.length - 3) : '[Not Set]';
-        log.info({ keyPreview, keyLength: keyFromEnv === '[Not Set]' ? 0 : keyFromEnv.length }, 'MCP_API_KEY value loaded from environment');
-        console.error(`[INDEX.TS] MCP_API_KEY from env: ${keyPreview} (Length: ${keyFromEnv === '[Not Set]' ? 0 : keyFromEnv.length})`);
+        // === Read API Key directly from process.env INSIDE the handler ===
+        const apiKeyFromEnvDirectly = process.env.MCP_API_KEY;
 
-        // Restore API key check
-        if (!mcpApiKey) {
-            log.warn('MCP_API_KEY check failed (!mcpApiKey is true). Cannot authenticate.');
-            console.error('[INDEX.TS] WARNING: MCP_API_KEY check failed (!mcpApiKey is true).');
-             // Send 401 if key is expected but not configured on server
-             res.writeHead(401, { 'Content-Type': 'application/json' });
-             res.end(JSON.stringify({ error: 'Unauthorized - Server Configuration Issue' }));
-             return;
+        // Log the value read directly from process.env
+        const directKeyPreview = typeof apiKeyFromEnvDirectly === 'string' ? apiKeyFromEnvDirectly.substring(0, 3) + '...' + apiKeyFromEnvDirectly.substring(apiKeyFromEnvDirectly.length - 3) : '[Not Set Directly]';
+        const directKeyLength = typeof apiKeyFromEnvDirectly === 'string' ? apiKeyFromEnvDirectly.length : 0;
+        log.info({ directKeyPreview, directKeyLength }, 'MCP_API_KEY value read directly inside handler');
+        console.error(`[INDEX.TS] MCP_API_KEY direct read: ${directKeyPreview} (Length: ${directKeyLength})`);
+
+        // Perform check using the directly read key
+        if (!apiKeyFromEnvDirectly) {
+            log.warn('DIRECT READ: MCP_API_KEY check failed (!apiKeyFromEnvDirectly is true). Cannot authenticate.');
+            console.error('[INDEX.TS] WARNING: DIRECT READ: MCP_API_KEY check failed.');
+            // Send 401 if key is expected but not configured/available
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Unauthorized - Server Configuration Issue (Direct Read Fail)' }));
+            return;
         } else {
-            // Add detailed logging before the check
-            const expectedKeyLength = mcpApiKey.length;
-            const receivedKeyType = typeof providedApiKey;
-            const receivedKeyLength = typeof providedApiKey === 'string' ? providedApiKey.length : 0;
-            log.info({ expectedKeyLength, receivedKeyType, receivedKeyLength }, 'Performing API Key Check');
-            console.error(`[INDEX.TS] Checking API Key. Expected Length: ${expectedKeyLength}, Received Type: ${receivedKeyType}, Received Length: ${receivedKeyLength}`);
+            // Log using the directly read key's length
+            const expectedLen = apiKeyFromEnvDirectly.length;
+            const receivedLen = typeof providedApiKey === 'string' ? providedApiKey.length : -1;
+            console.error(`[KEY CHECK] Path: ${req.url}, Expected Length: ${expectedLen}, Received Type: ${typeof providedApiKey}, Received Length: ${receivedLen}`);
+            log.info({ expectedKeyLength: expectedLen, receivedKeyType: typeof providedApiKey, receivedKeyLength: receivedLen }, 'Performing API Key Check (Direct Read)');
 
-            if (providedApiKey !== mcpApiKey) {
+            // Compare received key with the directly read key
+            if (providedApiKey !== apiKeyFromEnvDirectly) {
                 const loggableKey = typeof providedApiKey === 'string' ? providedApiKey.substring(0, 5) + '...' : '[Invalid Format/Absent]';
-                log.warn({ provided: loggableKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
-                console.error(`[INDEX.TS] Unauthorized attempt: Invalid or missing X-API-Key`);
+                log.warn({ provided: loggableKey }, 'Unauthorized attempt (Direct Read): Invalid or missing X-API-Key header.');
+                console.error(`[INDEX.TS] Unauthorized attempt (Direct Read): Invalid or missing X-API-Key`);
                 res.writeHead(401, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Unauthorized' }));
                 return;
             }
         }
-        log.debug('API Key validated successfully.');
-        console.error('[INDEX.TS] API Key validated successfully.');
+        log.debug('API Key validated successfully (Direct Read).');
+        console.error('[INDEX.TS] API Key validated successfully (Direct Read).');
 
         // --- Handle MCP connection requests at root path --- 
         if (req.url === '/' && req.method === 'GET') {
