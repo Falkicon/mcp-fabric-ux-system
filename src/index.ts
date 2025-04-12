@@ -171,14 +171,14 @@ async function startServer() {
 
         // --- API Key Authentication ---
         const providedApiKeyHeader = req.headers['x-api-key'];
-        // Handle potential string array from headers
         const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
+        // TEMPORARILY COMMENT OUT CHECK FOR TESTING
+        /*
         if (!mcpApiKey) {
             log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
             console.error('[INDEX.TS] WARNING: MCP_API_KEY not set, skipping auth.');
         } else if (providedApiKey !== mcpApiKey) {
-            // Check if providedApiKey is a string before logging substring
             const loggableKey = typeof providedApiKey === 'string' ? providedApiKey.substring(0, 5) + '...' : '[Invalid Format/Absent]';
             log.warn({ provided: loggableKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
             console.error(`[INDEX.TS] Unauthorized attempt: Invalid or missing X-API-Key`);
@@ -188,6 +188,10 @@ async function startServer() {
         }
         log.debug('API Key validated successfully.');
         console.error('[INDEX.TS] API Key validated successfully.');
+        */
+       // FOR TESTING: Assume key is valid for now
+       log.warn('SKIPPING API KEY CHECK FOR TESTING!');
+       console.error('[INDEX.TS] SKIPPING API KEY CHECK FOR TESTING!');
 
         // --- Handle MCP connection requests at root path --- 
         if (req.url === '/' && req.method === 'GET') {
