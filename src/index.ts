@@ -173,10 +173,20 @@ async function startServer() {
         const providedApiKeyHeader = req.headers['x-api-key'];
         const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
+        // Log the value of mcpApiKey read from config
+        const keyFromEnv = mcpApiKey || '[Not Set]'; // Handle undefined/null for logging
+        const keyPreview = typeof keyFromEnv === 'string' && keyFromEnv !== '[Not Set]' ? keyFromEnv.substring(0, 3) + '...' + keyFromEnv.substring(keyFromEnv.length - 3) : '[Not Set]';
+        log.info({ keyPreview, keyLength: keyFromEnv === '[Not Set]' ? 0 : keyFromEnv.length }, 'MCP_API_KEY value loaded from environment');
+        console.error(`[INDEX.TS] MCP_API_KEY from env: ${keyPreview} (Length: ${keyFromEnv === '[Not Set]' ? 0 : keyFromEnv.length})`);
+
         // Restore API key check
         if (!mcpApiKey) {
-            log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
-            console.error('[INDEX.TS] WARNING: MCP_API_KEY not set, skipping auth.');
+            log.warn('MCP_API_KEY check failed (!mcpApiKey is true). Cannot authenticate.');
+            console.error('[INDEX.TS] WARNING: MCP_API_KEY check failed (!mcpApiKey is true).');
+             // Send 401 if key is expected but not configured on server
+             res.writeHead(401, { 'Content-Type': 'application/json' });
+             res.end(JSON.stringify({ error: 'Unauthorized - Server Configuration Issue' }));
+             return;
         } else {
             // Add detailed logging before the check
             const expectedKeyLength = mcpApiKey.length;
