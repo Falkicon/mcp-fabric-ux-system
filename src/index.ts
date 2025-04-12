@@ -82,7 +82,11 @@ process.stderr.write('--- Finished creating McpServer instance (top level) ---\n
 
 // Create the handler instance by injecting dependencies
 const askFabricDocsHandlerInstance = createAskFabricDocsHandler({
-    log: log,
+    log: { // Use wrapper functions to match expected signature
+        info: (...args: unknown[]) => log.info(args),
+        warn: (...args: unknown[]) => log.warn(args),
+        error: (...args: unknown[]) => log.error(args),
+    },
     chromaClient: chromaClient,
     getEmbedder: () => embedder, 
     collectionName: chromaCollectionName,

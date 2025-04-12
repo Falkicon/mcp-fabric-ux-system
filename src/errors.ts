@@ -25,11 +25,8 @@ export class ToolExecutionError extends AppError {
       ...context,
       toolName,
     });
-    if (cause) {
-      // Pino typically handles nested errors well, but preserving the cause might be useful
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: Explicitly assigning cause for potential debugging
       (this as any).cause = cause;
-    }
   }
 }
 

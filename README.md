@@ -5,7 +5,7 @@
 A Model Context Protocol (MCP) server designed to act as an expert source for the Fabric UX System. It allows MCP-enabled AI clients (like Cursor) to access up-to-date information about Fabric UX components, development practices, design guidelines, and content standards by performing semantic search over local, RAG-optimized documentation files.
 
 This server uses a **Retrieval-Augmented Generation (RAG)** approach:
-1.  **Indexing:** Reads local Fabric UX documentation files from the `_docs_fabric_ux` directory, splits them into meaningful chunks, generates vector embeddings using a local model, and stores them in a vector database (ChromaDB) accessed via a running server.
+1.  **Indexing:** Reads local Fabric UX documentation files from the `_docs_fabric_ux` directory (the single source of truth for content), splits them into meaningful chunks, generates vector embeddings using a local model, and stores them in a vector database (ChromaDB) accessed via a running server.
 2.  **Retrieval:** When the `askFabricDocs` tool is called, it searches the vector database for documentation chunks semantically similar to the user's query.
 3.  **Generation:** The retrieved chunks are returned to the AI client, which uses them as context to generate an informed answer.
 
@@ -35,6 +35,15 @@ This server uses a **Retrieval-Augmented Generation (RAG)** approach:
 - Git (for cloning and getting updates)
 - [Docker](https://www.docker.com/products/docker-desktop/) (or another way to run a ChromaDB server instance)
 
+**Important:** A running ChromaDB server instance is **required** both for indexing the documentation (`npm run index-docs`) and for running the MCP server itself (`npm start`, `npm run dev`).
+
+## Core Workflow Summary
+
+1.  **Start ChromaDB Server:** Ensure your ChromaDB instance (e.g., via Docker) is running and accessible (Default: `http://127.0.0.1:8000`).
+2.  **Index Documentation:** Run `npm run index-docs` to populate ChromaDB with the content from `_docs_fabric_ux`. This only needs to be done once initially, or again after updating the source documents.
+3.  **Start MCP Server:** Run the server using `npm run dev` (development) or `npm start` (production).
+4.  **Connect Client:** Configure your MCP client (e.g., Cursor) to connect to the running server (typically via `stdio`).
+
 ## Setup and Installation
 
 1.  **Clone the repository:**
@@ -61,7 +70,7 @@ This server uses a **Retrieval-Augmented Generation (RAG)** approach:
     - Edit the `.env` file if needed (see [Configuration](#configuration)). Default paths usually work if running ChromaDB locally.
 
 4.  **Start ChromaDB Server:**
-    *The server needs a running ChromaDB instance to connect to. The easiest way is often via Docker.* 
+    *The server needs a running ChromaDB instance **before** indexing or running the MCP server. The easiest way is often via Docker.* 
     ```bash
     # Pull the latest ChromaDB image
     docker pull chromadb/chroma 
@@ -74,7 +83,8 @@ This server uses a **Retrieval-Augmented Generation (RAG)** approach:
     *If you stop the container (`docker stop chroma_server`), you can restart it later with `docker start chroma_server`.* 
 
 5.  **Index Documentation:**
-    *This crucial step scans the source documents in `_docs_fabric_ux`, generates embeddings, and populates the running ChromaDB server.* 
+    *This crucial step scans the source documents in `_docs_fabric_ux`, generates embeddings, and populates the **running** ChromaDB server.* 
+    *Ensure ChromaDB is running before executing this command.* 
     ```bash
     npm run index-docs
     ```
@@ -94,7 +104,7 @@ Configuration is managed via environment variables, loaded from `.env`. Key opti
 
 ## Running the Server
 
-**Important:** Ensure you have run `npm run index-docs` at least once *while the ChromaDB server is running* before starting the MCP server.
+**Important:** Ensure your **ChromaDB server is running** and you have run `npm run index-docs` at least once *while the ChromaDB server was running* before starting the MCP server.
 
 ### Development Mode (with Hot-Reload and Pretty Logs)
 *Requires the ChromaDB server to be running.* 
@@ -122,15 +132,14 @@ npm run dev
 
 ## Updating Content
 
-To update the information the server uses:
+To update the information the server uses (after modifying files in `_docs_fabric_ux`):
 
-1.  **Update source docs:** Make changes within the `_docs_fabric_ux` directory or pull latest changes if versioned in Git.
-2.  **Ensure ChromaDB server is running.**
-3.  **Re-index the documentation:** This clears the existing collection in ChromaDB and repopulates it with the latest content.
+1.  **Ensure ChromaDB server is running.**
+2.  **Re-index the documentation:** This clears the existing collection in ChromaDB and repopulates it with the latest content from `_docs_fabric_ux`.
     ```bash
     npm run index-docs
     ```
-4.  **Restart the MCP server** if it was running.
+3.  **Restart the MCP server** if it was running.
 
 ## Available MCP Tools
 
