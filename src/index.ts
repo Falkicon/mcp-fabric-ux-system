@@ -146,28 +146,16 @@ async function startServer() {
     await initializationComplete;
     console.error('[INDEX.TS] After initialization wait loop');
 
-    // Check if initialization *actually* succeeded (variables should be non-null)
+    // Check if initialization *actually* succeeded
     if (!pineconeIndex) {
         log.fatal('Pinecone index is not initialized after wait. Cannot start server.');
         process.exit(1);
     }
-    // Corrected check for the embedder pipeline
     if (!embedder) {
         log.fatal('Embedding pipeline is not initialized after wait. Cannot start server.');
         process.exit(1);
     }
-     // Update tool handler instance *after* await to ensure dependencies are ready
-    // This assumes createAskFabricDocsHandler uses the latest values when invoked
-    // If the handler captures the initial null values, this needs redesign.
-    // Re-assigning might not be necessary if the handler uses the getEmbedder function correctly.
-    // We will assume the current handler structure works for now.
-
-
-    // Check if SSEServerTransport was imported correctly
-    if (!SSEServerTransport) {
-        log.fatal('SSEServerTransport not available (import failed?). Cannot start server.');
-        process.exit(1);
-    }
+    // No need to check SSEServerTransport import here, it's used below
 
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
     if (isNaN(port)) {
@@ -175,14 +163,76 @@ async function startServer() {
         process.exit(1);
     }
 
-    const transport = new SSEServerTransport({ port });
-    log.info(`Attempting to connect server via SSE transport on port ${port}...`);
+    // Create a standard Node HTTP server
+    console.error('[INDEX.TS] Creating HTTP server...');
+    const httpServer = http.createServer(async (req, res) => {
+        console.error(`[INDEX.TS] Incoming HTTP request: ${req.method} ${req.url}`);
+        log.debug({ url: req.url, method: req.method }, 'Incoming HTTP request');
 
-    await server.connect(transport);
+        // --- API Key Authentication ---
+        const providedApiKeyHeader = req.headers['x-api-key'];
+        // Handle potential string array from headers
+        const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
-    log.info(`MCP Server connected via SSE transport on port ${port}`);
+        if (!mcpApiKey) {
+            log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
+            console.error('[INDEX.TS] WARNING: MCP_API_KEY not set, skipping auth.');
+        } else if (providedApiKey !== mcpApiKey) {
+            // Check if providedApiKey is a string before logging substring
+            const loggableKey = typeof providedApiKey === 'string' ? providedApiKey.substring(0, 5) + '...' : '[Invalid Format/Absent]';
+            log.warn({ provided: loggableKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
+            console.error(`[INDEX.TS] Unauthorized attempt: Invalid or missing X-API-Key`);
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Unauthorized' }));
+            return;
+        }
+        log.debug('API Key validated successfully.');
+        console.error('[INDEX.TS] API Key validated successfully.');
 
-    console.error('[INDEX.TS] Returned from server.connect()');
+        // --- Handle MCP connection requests at root path --- 
+        if (req.url === '/' && req.method === 'GET') {
+            console.error('[INDEX.TS] Root path request. Handing off to MCP SSE Transport...');
+            log.info('MCP connection request received. Initializing SSE transport for this request...');
+            try {
+                // Initialize SSEServerTransport passing the path string '/' as the first argument.
+                // The req/res might be handled by server.connect or implicitly.
+                 const transport = new SSEServerTransport('/', res);
+                 // Connect the main server instance to this request-specific transport
+                 await server.connect(transport);
+                 log.info('SSEServerTransport connected for this request.');
+                 console.error('[INDEX.TS] SSEServerTransport connected.');
+                 // Transport handles closing the response when done
+            } catch (transportError) {
+                 console.error('[INDEX.TS] Error initializing or connecting MCP SSE transport:', transportError);
+                 log.error({ error: transportError }, 'Error initializing or connecting MCP SSE transport');
+                 if (!res.headersSent) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Internal Server Error during transport setup' }));
+                 }
+            }
+        } else {
+             console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);
+             log.warn({ url: req.url }, 'Request path not handled by MCP server.');
+             res.writeHead(404, { 'Content-Type': 'text/plain' });
+             res.end('Not Found');
+        }
+    });
+    console.error('[INDEX.TS] HTTP server created');
+
+    // --- Start Listening --- 
+    console.error('[INDEX.TS] Setting up httpServer listeners...');
+    httpServer.listen(port, () => {
+        console.error(`[INDEX.TS] Server listening on port ${port}`);
+        log.info(`HTTP server listening on port ${port} for MCP connections at '/'`);
+    });
+
+    httpServer.on('error', (error) => {
+        console.error('[INDEX.TS] HTTP server error:', error);
+        log.fatal({ error }, 'HTTP server error');
+        process.exit(1);
+    });
+    console.error('[INDEX.TS] HTTP server listeners attached');
+
 }
 
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
