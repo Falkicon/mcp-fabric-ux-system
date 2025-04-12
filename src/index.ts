@@ -122,7 +122,9 @@ async function startServer() {
     try {
         // Keep @ts-ignore as build fails without it
         // @ts-ignore
-        const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
+        // Try importing without the .js extension
+        const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http');
+        // const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
         console.error('[INDEX.TS] Dynamic import successful');
         HttpServerTransport = sdkHttpModule.HttpServerTransport;
         if (!HttpServerTransport) {
