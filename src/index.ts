@@ -170,7 +170,8 @@ async function startServer() {
         log.debug({ url: req.url, method: req.method }, 'Incoming HTTP request');
 
         // --- API Key Authentication ---
-        const providedApiKeyHeader = req.headers['x-api-key'];
+        // Check both lowercase and original case for the header
+        const providedApiKeyHeader = req.headers['x-api-key'] || req.headers['X-API-Key'];
         const providedApiKey = Array.isArray(providedApiKeyHeader) ? providedApiKeyHeader[0] : providedApiKeyHeader;
 
         // === Read API Key directly from process.env INSIDE the handler ===
