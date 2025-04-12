@@ -1,5 +1,5 @@
 // Add early log
-console.error('[INDEX.TS] TOP LEVEL');
+console.error('[INDEX.TS] TOP LEVEL - SIMPLIFIED FOR DEBUGGING');
 
 process.stderr.write('--- Importing MCP SDK ---\n');
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -52,7 +52,8 @@ let pinecone: Pinecone | null = null;
 let pineconeIndex: Index<DocMetadata> | null = null;
 
 let embedder: FeatureExtractionPipeline | null = null;
-// --- Embedding Model Initialization (Async IIFE) ---
+// --- Temporarily COMMENT OUT Async Initialization ---
+/*
 console.error('[INDEX.TS] Starting async IIFE for initialization');
 (async () => {
     console.error('[INDEX.TS] Inside async IIFE - Before try block');
@@ -88,99 +89,93 @@ console.error('[INDEX.TS] Starting async IIFE for initialization');
     }
 })();
 console.error('[INDEX.TS] After async IIFE definition');
+*/
+console.error('[INDEX.TS] SKIPPED Async Initialization');
 // --- End Initializations ---
 
-process.stderr.write('--- Creating McpServer instance (top level) ---\n');
-const server = new McpServer({
-    name: 'mcp_fabric_ux_system',
-    version: '1.0.0',
-    capabilities: {
-        tools: true,
-        resources: false,
-        prompts: false,
-    },
-});
+// --- Temporarily COMMENT OUT McpServer and Tool Registration ---
+/*
+console.error('[INDEX.TS] Creating McpServer instance (top level)');
+const server = new McpServer({ ... });
 console.error('[INDEX.TS] McpServer instance created');
-process.stderr.write('--- Finished creating McpServer instance (top level) ---\n');
 
-const askFabricDocsHandlerInstance = createAskFabricDocsHandler({
-    log: {
-        info: (...args: unknown[]) => log.info(args),
-        warn: (...args: unknown[]) => log.warn(args),
-        error: (...args: unknown[]) => log.error(args),
-    },
-    pineconeIndex: pineconeIndex!,
-    getEmbedder: () => embedder,
-});
-
-server.tool(
-    'askFabricDocs',
-    askFabricDocsSchema.shape,
-    askFabricDocsHandlerInstance
-);
-
+console.error('[INDEX.TS] Before tool handler creation');
+const askFabricDocsHandlerInstance = createAskFabricDocsHandler({ ... });
 console.error('[INDEX.TS] After tool handler creation');
-log.info('Registered tool: askFabricDocs');
+
+server.tool('askFabricDocs', askFabricDocsSchema.shape, askFabricDocsHandlerInstance);
 console.error('[INDEX.TS] After tool registration');
+*/
+console.error('[INDEX.TS] SKIPPED MCP Server/Tool Setup');
+// --- End Tool Registration ---
 
-// --- Start Server (HTTP/SSE) ---
+// --- Start Server (HTTP - Simplified) ---
 async function startServer() {
-    console.error('[INDEX.TS] Entered startServer() function');
-    process.stderr.write('--- Entered startServer() ---\n');
+    console.error('[INDEX.TS] Entered startServer() function - SIMPLIFIED');
 
-    // --- Dynamically import HttpServerTransport ---
+    // --- Temporarily COMMENT OUT Dynamic Import ---
+    /*
     let HttpServerTransport: any;
     console.error('[INDEX.TS] Before dynamic import attempt');
     try {
         // @ts-ignore
         const sdkHttpModule = await import('@modelcontextprotocol/sdk/server/http.js');
-        console.error('[INDEX.TS] Dynamic import successful');
-        HttpServerTransport = sdkHttpModule.HttpServerTransport;
-        if (!HttpServerTransport) {
-             throw new Error('HttpServerTransport not found in dynamic import.');
-        }
-        log.info('Dynamically imported HttpServerTransport successfully.');
+        // ... dynamic import logic ...
     } catch (importError) {
-         console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
-         log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
-         process.exit(1);
+        console.error('[INDEX.TS] FATAL ERROR during dynamic import:', importError);
+        log.fatal({ error: importError }, 'Failed to dynamically import HttpServerTransport.');
+        process.exit(1);
     }
-    // --- End Dynamic Import ---
     console.error('[INDEX.TS] After dynamic import section');
+    */
+    console.error('[INDEX.TS] SKIPPED Dynamic Import');
 
-    // Wait for async initializations to complete
+    // --- Temporarily COMMENT OUT Initialization Wait Loop ---
+    /*
     console.error('[INDEX.TS] Before initialization wait loop');
     while (!pineconeIndex || !embedder) {
-        // log.info('Waiting for Pinecone index and embedder initialization...');
         console.error('[INDEX.TS] Waiting for initialization...');
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
     console.error('[INDEX.TS] Initialization complete. Proceeding to start HTTP server.');
     log.info('Pinecone index and embedder initialized. Proceeding to start HTTP server.');
+    */
+    console.error('[INDEX.TS] SKIPPED Init Wait Loop');
 
     console.error('[INDEX.TS] Before httpServer try block');
     try {
         console.error('[INDEX.TS] Creating HTTP server...');
         const httpServer = http.createServer(async (req, res) => {
-            console.error(`[INDEX.TS] Incoming HTTP request: ${req.method} ${req.url}`);
-            log.debug({ url: req.url, method: req.method }, 'Incoming HTTP request');
+            // Simplified Handler for Debugging
+            console.error(`[INDEX.TS] DEBUG HANDLER: Received request: ${req.method} ${req.url}`);
+            log.info({ url: req.url, method: req.method, headers: req.headers }, 'DEBUG HANDLER: Request received');
 
+            // --- Temporarily COMMENT OUT Auth Check ---
+            /*
             const providedApiKey = req.headers['x-api-key'];
             if (!mcpApiKey) {
                 log.warn('MCP_API_KEY is not set. Allowing connection without authentication (NOT RECOMMENDED).');
             } else if (providedApiKey !== mcpApiKey) {
                 log.warn({ provided: providedApiKey }, 'Unauthorized attempt: Invalid or missing X-API-Key header.');
                 res.writeHead(401, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Unauthorized' }));
+                res.end(JSON.stringify({ error: 'Unauthorized - DEBUG MODE' }));
                 return;
             }
             log.debug('API Key validated successfully.');
+            */
+            console.error('[INDEX.TS] DEBUG HANDLER: SKIPPED Auth Check');
 
+            // --- Temporarily COMMENT OUT MCP Transport Logic ---
             if (req.url === '/' && req.method === 'GET') {
+                 console.error('[INDEX.TS] DEBUG HANDLER: Root path requested. Sending basic OK response.');
+                 log.info('DEBUG HANDLER: Root path requested. Sending basic OK.');
+                 res.writeHead(200, { 'Content-Type': 'text/plain' });
+                 res.end('Server is running (Debug Mode)');
+            /*
                 log.info('MCP connection request received. Initializing transport...');
                 try {
                      const transport = new HttpServerTransport({
-                        server: server,
+                        server: server, // server would be undefined here now
                         request: req,
                         response: res,
                         keepAliveInterval: 30000
@@ -193,10 +188,12 @@ async function startServer() {
                         res.end(JSON.stringify({ error: 'Internal Server Error during transport setup' }));
                      }
                 }
+            */
             } else {
-                log.debug({ url: req.url }, 'Request path not handled by MCP server.');
-                res.writeHead(404, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Not Found' }));
+                console.error(`[INDEX.TS] DEBUG HANDLER: Path ${req.url} not handled. Sending 404.`);
+                log.warn({ url: req.url }, 'DEBUG HANDLER: Path not handled.');
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('Not Found (Debug Mode)');
             }
         });
         console.error('[INDEX.TS] HTTP server created');
@@ -204,17 +201,15 @@ async function startServer() {
         console.error('[INDEX.TS] Setting up httpServer listeners...');
         httpServer.listen(serverPort, () => {
             console.error(`[INDEX.TS] Server listening on port ${serverPort}`);
-            // log.info({ port: serverPort }, `MCP server listening for SSE connections on port ${serverPort}`);
-            // process.stderr.write(`--- MCP server ready on port ${serverPort} ---\n`);
         });
-
+        // ... rest of listeners and signal handlers ...
         httpServer.on('error', (error) => {
             console.error('[INDEX.TS] HTTP server error:', error);
-            // log.error({ error }, 'HTTP server error');
             process.exit(1);
         });
         console.error('[INDEX.TS] HTTP server listeners attached');
 
+        // Graceful shutdown handling
         process.on('SIGTERM', () => {
             log.info('SIGTERM signal received: closing HTTP server');
             httpServer.close(() => {
@@ -231,6 +226,7 @@ async function startServer() {
              });
          });
 
+        // Add global error handlers
         process.on('uncaughtException', (error) => {
             log.fatal({ error }, 'UNCAUGHT EXCEPTION');
             process.exit(1);
@@ -242,7 +238,6 @@ async function startServer() {
 
     } catch (error) {
         console.error('[INDEX.TS] FATAL ERROR during server startup:', error);
-        // log.fatal({ error }, 'Fatal error during server startup');
         process.exit(1);
     }
 }
