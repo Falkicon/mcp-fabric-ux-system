@@ -1,6 +1,10 @@
-import pino, { type LoggerOptions } from 'pino';
-import { logLevel } from './config.js'; // Import logLevel from config
+import pino, { type LoggerOptions, type LevelWithSilent } from 'pino';
+// Import the value from config and alias it
+import { logLevel as configLogLevel } from './config.js';
 import { z } from 'zod';
+
+// Use the aliased import
+const appLogLevel = configLogLevel;
 
 // Log Level
 const defaultLogLevel: LevelWithSilent = 'info';
@@ -11,6 +15,9 @@ const logLevel = logLevelSchema.parse(process.env.MCP_LOG_LEVEL ?? defaultLogLev
 const isStdioMode = process.argv.includes('--stdio');
 
 let logger: pino.Logger;
+
+// Use the LevelWithSilent type from pino
+let level: LevelWithSilent = appLogLevel;
 
 // Use pino-pretty for local development, basic JSON for production/other
 if (process.env.NODE_ENV === 'development') {
