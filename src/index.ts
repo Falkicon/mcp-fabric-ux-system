@@ -76,9 +76,11 @@ console.error('[INDEX.TS] Starting async IIFE for initialization');
         try {
             // Initialize with explicit configuration using environment variables
             log.info({ environment: pineconeEnvironment, indexName: pineconeIndexName }, 'Configuring Pinecone client');
+            // Create Pinecone client with the proper configuration structure
             pinecone = new Pinecone({
-                apiKey: pineconeApiKey,
-                environment: pineconeEnvironment  // This will now always have a value from config.ts
+                apiKey: pineconeApiKey
+                // Note: Recent versions of Pinecone SDK don't use "environment" in the constructor
+                // It's now automatically determined from the API key
             });
             log.info('Pinecone client initialized successfully');
 
@@ -221,19 +223,10 @@ async function startServer() {
             console.error('[INDEX.TS] Root path request. Handing off to MCP SSE Transport...');
             log.info('MCP connection request received. Initializing SSE transport for this request...');
             try {
-                // Initialize SSEServerTransport with request and response objects
-                // Vercel serverless environment compatible approach
-                const transport = new SSEServerTransport({
-                    request: req,
-                    response: res,
-                    // Add Vercel-specific headers if needed
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'Connection': 'keep-alive',
-                        'X-Accel-Buffering': 'no' // Prevents Vercel from buffering the response
-                    }
-                });
-                    
+                // Initialize SSEServerTransport correctly with path and response parameters
+                // This matches the expected 2 parameters according to the error message
+                const transport = new SSEServerTransport('/', res);
+                
                 // Connect the main server instance to this request-specific transport
                 await server.connect(transport);
                 log.info('SSEServerTransport connected for this request.');
