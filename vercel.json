@@ -13,7 +13,12 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/src/index.ts"
+      "dest": "/src/index.ts",
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "X-API-Key, Content-Type, Accept"
+      }
     }
   ],
   "functions": {

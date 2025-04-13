@@ -68,24 +68,29 @@ console.error('[INDEX.TS] Starting async IIFE for initialization');
         // --- Initialize Pinecone Client ---
         log.info('Initializing Pinecone client...');
         if (!pineconeApiKey) {
-            throw new Error('PINECONE_API_KEY is not set. Cannot initialize Pinecone.');
+            const error = new Error('PINECONE_API_KEY is not set. Cannot initialize Pinecone.');
+            log.error({ error }, 'Failed to initialize Pinecone client');
+            throw error;
         }
-        // Make sure PINECONE_ENVIRONMENT is set
-        if (!pineconeEnvironment) {
-            console.error('Missing required environment variable: PINECONE_ENVIRONMENT');
-            // Optionally throw an error or exit if critical
-            // throw new Error('Missing required environment variable: PINECONE_ENVIRONMENT');
-        }
-        pinecone = new Pinecone(); // Assumes API key is handled via environment variable
-        log.info('Pinecone client initialized.');
 
-        // --- Get Pinecone Index Handle ---
-        if (!pineconeIndexName) {
-            throw new Error('PINECONE_INDEX_NAME is not set. Cannot get index handle.');
+        try {
+            // Initialize with explicit configuration using environment variables
+            log.info({ environment: pineconeEnvironment, indexName: pineconeIndexName }, 'Configuring Pinecone client');
+            pinecone = new Pinecone({
+                apiKey: pineconeApiKey,
+                environment: pineconeEnvironment  // This will now always have a value from config.ts
+            });
+            log.info('Pinecone client initialized successfully');
+
+            // Verify we can get the index handle
+            log.info(`Getting handle for Pinecone index '${pineconeIndexName}'`);
+            pineconeIndex = pinecone.Index<DocMetadata>(pineconeIndexName);
+            log.info(`Obtained handle for Pinecone index '${pineconeIndexName}'`);
+        } catch (pineconeError) {
+            log.error({ error: pineconeError }, 'Failed to initialize Pinecone client or get index handle');
+            console.error('[INDEX.TS] FATAL ERROR: Failed to initialize Pinecone:', pineconeError);
+            throw pineconeError; // Re-throw to halt initialization
         }
-        log.info(`Checking and getting handle for Pinecone index '${pineconeIndexName}'...`);
-        pineconeIndex = pinecone.Index<DocMetadata>(pineconeIndexName);
-        log.info(`Obtained handle for Pinecone index '${pineconeIndexName}'.`);
 
         // --- Initialize Embedder ---
         log.info(`Loading embedding model: ${embeddingModelName}...`);
@@ -228,7 +233,7 @@ async function startServer() {
                         'X-Accel-Buffering': 'no' // Prevents Vercel from buffering the response
                     }
                 });
-                 
+                    
                 // Connect the main server instance to this request-specific transport
                 await server.connect(transport);
                 log.info('SSEServerTransport connected for this request.');
@@ -242,11 +247,43 @@ async function startServer() {
                     res.end(JSON.stringify({ error: 'Internal Server Error during transport setup' }));
                 }
             }
-        } else {
-             console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);
-             log.warn({ url: req.url }, 'Request path not handled by MCP server.');
-             res.writeHead(404, { 'Content-Type': 'text/plain' });
-             res.end('Not Found');
+        } 
+        // --- Diagnostics endpoint for troubleshooting ---
+        else if (req.url?.startsWith('/_diagnostics') || req.url?.includes('_diag=')) {
+            console.error('[INDEX.TS] Diagnostics endpoint accessed');
+            log.info('Diagnostics endpoint accessed');
+            
+            // Import the diagnostics function from config.js
+            import { getDiagnostics } from './config.js';
+            
+            // Gather diagnostic information including the environment variables
+            const diagnostics = {
+                serverStatus: {
+                    pineconeInitialized: pinecone !== null,
+                    indexHandleObtained: pineconeIndex !== null,
+                    embedderLoaded: embedder !== null,
+                    serverReady: pinecone !== null && pineconeIndex !== null && embedder !== null
+                },
+                config: getDiagnostics(),
+                rawEnvironmentVariables: {
+                    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT || '[not set]',
+                    PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME || '[not set]',
+                    PINECONE_API_KEY: process.env.PINECONE_API_KEY ? '[present]' : '[not set]',
+                    MCP_API_KEY: process.env.MCP_API_KEY ? '[present]' : '[not set]'
+                },
+                timestamp: new Date().toISOString(),
+                uptime: process.uptime()
+            };
+            
+            // Send the diagnostics info back
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(diagnostics, null, 2));
+        } 
+        else {
+            console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);
+            log.warn({ url: req.url }, 'Request path not handled by MCP server.');
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Not Found');
         }
     });
     console.error('[INDEX.TS] HTTP server created');

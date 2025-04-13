@@ -1,11 +1,9 @@
 import dotenv from 'dotenv';
 import path from 'node:path';
-// import logger from './logger.js'; // Don't import logger here
 import { z } from 'zod';
-import type { LevelWithSilent } from 'pino'; // Import pino type if needed elsewhere, or remove
+import type { LevelWithSilent } from 'pino';
 
 // Load environment variables from .env file
-// Determine the path to the .env file based on the current working directory
 const envPath = path.resolve(process.cwd(), '.env');
 dotenv.config({ path: envPath });
 
@@ -18,7 +16,7 @@ if (transportType === 'http' && process.env.PORT) {
   try {
     port = Number.parseInt(process.env.PORT, 10);
     if (Number.isNaN(port)) {
-      port = 8080; // Fallback to default if parsing fails
+      port = 8080; // Fallback to default
       console.warn('Invalid PORT environment variable. Using default port 8080.');
     }
   } catch (error) {
@@ -37,33 +35,66 @@ const logLevel = logLevelSchema.parse(process.env.MCP_LOG_LEVEL ?? defaultLogLev
 const docsPath = path.resolve(process.env.DOCS_PATH || '_docs_fabric_ux');
 const embeddingModelName = process.env.EMBEDDING_MODEL_NAME || 'Xenova/all-MiniLM-L6-v2';
 
-// Pinecone Configuration
-const pineconeApiKey = process.env.PINECONE_API_KEY;
-// Default Pinecone environment to "us-east-1" if not specified
-const pineconeEnvironment = process.env.PINECONE_ENVIRONMENT || 'us-east-1';
-const pineconeIndexName = process.env.PINECONE_INDEX_NAME || 'fabric-ux-system'; // Default index name
+// Pinecone Configuration with strong defaults and explicit handling
+const pineconeApiKey = process.env.PINECONE_API_KEY || '';
+
+// CRITICAL: Ensure Pinecone environment is explicitly defined
+// Default to us-east-1 based on the user's configuration
+const pineconeEnvironment = (() => {
+  const envVar = process.env.PINECONE_ENVIRONMENT;
+  if (!envVar || envVar.trim() === '') {
+    console.warn('PINECONE_ENVIRONMENT not set. Using default value "us-east-1"');
+    return 'us-east-1'; // Default based on user's Pinecone console
+  }
+  return envVar;
+})();
+
+// Default index name
+const pineconeIndexName = process.env.PINECONE_INDEX_NAME || 'fabric-ux-system';
 
 // --- MCP Server Auth Configuration ---
-const mcpApiKey = process.env.MCP_API_KEY;
+const mcpApiKey = process.env.MCP_API_KEY || '';
 
-// Validation for required environment variables
+// Log complete configuration to make debugging easier
+console.error('--------- SERVER CONFIGURATION ---------');
+console.error(`Pinecone Environment: "${pineconeEnvironment}"`);
+console.error(`Pinecone Index: "${pineconeIndexName}"`);
+console.error(`Pinecone API Key: ${pineconeApiKey ? '[Set]' : '[Not Set]'}`);
+console.error(`MCP API Key: ${mcpApiKey ? '[Set]' : '[Not Set]'}`);
+console.error(`Embedding Model: ${embeddingModelName}`);
+console.error('---------------------------------------');
+
+// Validate critical configuration with clear error messages
 if (!pineconeApiKey) {
-    console.warn('Missing required environment variable: PINECONE_API_KEY');
-    // Consider throwing an error in production environments or if essential
-    // throw new Error('Missing required environment variable: PINECONE_API_KEY');
+    const errorMessage = 'CRITICAL ERROR: PINECONE_API_KEY is not set';
+    console.error(errorMessage);
+    throw new Error(errorMessage);
 }
-
-// Log the Pinecone configuration being used
-console.error(`[CONFIG] Using Pinecone environment: ${pineconeEnvironment}`);
-console.error(`[CONFIG] Using Pinecone index: ${pineconeIndexName}`);
-console.error(`[CONFIG] Pinecone API key provided: ${pineconeApiKey ? 'Yes' : 'No'}`);
 
 if (!mcpApiKey) {
-    console.warn('Missing required environment variable: MCP_API_KEY. Server auth will be disabled.');
-    // Allow proceeding without auth key for flexibility, but warn loudly.
+    console.warn('WARNING: MCP_API_KEY is not set. Authentication will be disabled.');
 }
 
-// --- Logging removed from here --- 
+// Function to get all environment variables for diagnostics
+// This is useful for debugging deployment issues
+export function getDiagnostics() {
+    return {
+        environment: {
+            pineconeEnvironment,
+            pineconeIndexName,
+            pineconeApiKeyProvided: !!pineconeApiKey,
+            mcpApiKeyProvided: !!mcpApiKey,
+            embeddingModel: embeddingModelName,
+            nodeEnv: process.env.NODE_ENV || 'development',
+            serverPort
+        },
+        runtimeInfo: {
+            platform: process.platform,
+            nodeVersion: process.version,
+            memory: process.memoryUsage()
+        }
+    };
+}
 
 export {
     transportType,
