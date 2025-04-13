@@ -254,16 +254,19 @@ async function startServer() {
             req.url === '/_diagnostics' || 
             req.url === '/diagnostics' || 
             req.url?.includes('_diag=') || 
-            req.url?.includes('?diag')
+            req.url?.includes('?diag') ||
+            req.url?.includes('diagnostics')
         ) {
             console.error('[INDEX.TS] Diagnostics endpoint accessed');
             log.info('Diagnostics endpoint accessed');
             
-            // Import the diagnostics function - no need for dynamic import
-            // We already imported config.ts at the top level, so just use the direct function
-            const { getDiagnostics } = await import('./config.js');
-            
             try {
+                // Skip the authentication check for diagnostics endpoint
+                // This allows you to see if the server is running even if auth is broken
+                
+                // Import the diagnostics function
+                const { getDiagnostics } = await import('./config.js');
+                
                 // Gather diagnostic information including the environment variables
                 const diagnostics = {
                     serverStatus: {
@@ -295,6 +298,13 @@ async function startServer() {
                         url: req.url,
                         method: req.method,
                         headers: req.headers
+                    },
+                    vercelInfo: {
+                        deploymentUrl: process.env.VERCEL_URL || '[not set]',
+                        environment: process.env.VERCEL_ENV || '[not set]',
+                        region: process.env.VERCEL_REGION || '[not set]',
+                        gitCommitSha: process.env.VERCEL_GIT_COMMIT_SHA || '[not set]',
+                        gitCommitMessage: process.env.VERCEL_GIT_COMMIT_MESSAGE || '[not set]'
                     }
                 };
                 
@@ -312,7 +322,8 @@ async function startServer() {
                 res.end(JSON.stringify({ 
                     error: 'Error generating diagnostics', 
                     message: diagError instanceof Error ? diagError.message : String(diagError),
-                    stack: diagError instanceof Error ? diagError.stack : undefined
+                    stack: diagError instanceof Error ? diagError.stack : undefined,
+                    timestamp: new Date().toISOString()
                 }, null, 2));
             }
         } 

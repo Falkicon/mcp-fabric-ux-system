@@ -1,0 +1,10 @@
+# Allow Vercel to access everything needed for deployment
+# Explicitly ignore only what should be excluded
+.git
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+# Ignore development logs but not server logs
+*.log
+!server.log

@@ -26,5 +26,15 @@
       "memory": 1024,
       "maxDuration": 60
     }
+  },
+  "buildCommand": "chmod +x ./vercel-build.sh && ./vercel-build.sh",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "github": {
+    "enabled": true,
+    "silent": false
   }
 }
