@@ -8,7 +8,7 @@ To create a dedicated, **hosted** Model Context Protocol (MCP) server that acts 
 
 ### 1.2. Background
 
-This project adapts the MCP server boilerplate to specifically serve information about the Fabric UX System by indexing the curated documentation in `_docs_fabric_ux` using a Retrieval-Augmented Generation (RAG) approach. The focus is shifting to a hosted model using a **hosted vector database** and **SSE transport** to improve accessibility and automate updates via CI/CD.
+This project adapts the MCP server boilerplate to specifically serve information about the Fabric UX System by indexing the curated documentation in `_docs_fabric_ux` using a Retrieval-Augmented Generation (RAG) approach. The focus is shifting to a hosted model using a **hosted vector database** (Pinecone) and **SSE transport** to improve accessibility and automate updates via CI/CD.
 
 ### 1.3. Target audience
 
@@ -27,26 +27,24 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
   - Generation: Rely on the MCP client's AI agent to synthesize answers based on retrieved chunks.
 - **Primitives:** Develop MCP primitives focused on RAG:
   - Core Tool: `askFabricDocs(query: string)` - Takes a natural language query, retrieves relevant documentation chunks using vector search, and returns them as context.
-  - *Potential Future Primitives: More specific tools leveraging metadata search (e.g., `getComponentAccessibility(componentName: string)`), or Resource/Prompt primitives if supported by clients.* 
+  - *Potential Future Primitives: More specific tools leveraging metadata search (e.g., `getComponentAccessibility(componentName: string)`), or Resource/Prompt primitives if supported by clients.*
 - **Data Source:** Local, RAG-optimized documentation files (primarily Markdown) located within the `_docs_fabric_ux` directory. These files will also serve as the source for a companion static documentation site.
-- **Indexing Engine:** Utilize a **hosted vector database** (e.g., Pinecone, Weaviate, Zilliz Cloud, Chroma Cloud) populated by an indexing script run via CI/CD.
-- **Embedding Model:** Use a suitable sentence transformer model (e.g., `@xenova/transformers` running locally during indexing/CI) for creating text embeddings.
+- **Indexing Engine:** Utilize a **hosted vector database** (Pinecone) populated by an indexing script run via CI/CD.
+- **Embedding Model:** Use a suitable sentence transformer model (`@xenova/transformers` running locally during indexing/CI) for creating text embeddings.
 - **Configuration:**
   - Primarily via environment variables (especially for API keys, DB URLs, etc.).
-  - Secrets managed securely (e.g., GitHub Secrets for CI/CD).
+  - Secrets managed securely (e.g., GitHub Secrets for CI/CD, Vercel Env Vars).
 - **Validation:** Implement input validation for tool arguments using `zod`.
 - **Error handling:** Maintain a consistent error handling strategy suitable for a hosted service.
 - **Logging:** Utilize structured logging (`pino`), potentially integrating with a logging service for the hosted server.
 - **Static Site:** A companion static documentation site built with Astro, sourced from `_docs_fabric_ux` and deployed to GitHub Pages.
-- **CI/CD:** Automate indexing, site deployment (GitHub Pages), and server deployment (Chosen Platform) using GitHub Actions.
+- **CI/CD:** Automate indexing, site deployment (GitHub Pages), and server deployment (Vercel) using GitHub Actions.
 - **Testing:** Develop tests for indexing, the `askFabricDocs` tool (against hosted DB), and potentially SSE transport.
 - **Linting/Formatting:** Maintain Biome integration.
 
 ### 2.2. Non-goals (Initial version)
 
-- Hosted deployment (server runs locally).
-- Real-time synchronization (indexing is manual/scripted).
-- Advanced authentication/authorization.
+- ~~Advanced authentication/authorization.~~ Custom API key authentication is implemented but temporarily disabled due to client limitations.
 - Specific cloud deployment templates.
 - Complex CI/CD pipeline definitions.
 - GUI management tools.
@@ -65,18 +63,22 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 - **AI vs User**: MCP tools are designed to be called by the AI assistant, not directly by users in chat. Users cannot invoke MCP tools using "@Tool" syntax in the chat interface.
 - **Tool Discovery**: The AI automatically discovers registered tools and can call them without user configuration.
 
+#### 2.3.3. Current SSE Header Issue (Client-Side)
+
+- **Cursor Header Support:** As of Apr 2025, testing indicates that the Cursor client does *not* send custom headers (e.g., `X-API-Key`) defined in the `headers` block of `mcp.json` when using the `sse` transport. This prevents server-side API key authentication via headers for SSE connections initiated by Cursor. This requires a server-side workaround (disabling auth check) and reliance on other mitigation strategies (e.g., rate limiting).
+
 ## 3. Decisions to be Made
 
 - **Vector Database:** Choose specific hosted vector database provider (e.g., Pinecone, Weaviate, Zilliz, Chroma Cloud, Supabase). Research free tiers, limits, TS clients, performance.
 - **MCP Server Hosting:** Choose specific hosting platform for the Node.js/SSE server (e.g., Cloudflare Workers, Vercel Functions, Netlify Functions, Render, Fly.io). Research free tiers, limits, Node.js support, environment variable management, ease of deployment.
-- **Server Authentication:** Decide if hosted MCP server requires a simple API key/token. (Strongly Recommended).
+- **Server Authentication:** Decide if hosted MCP server requires a simple API key/token. (Strongly Recommended, but currently disabled - see 2.3.3).
 - **Logging Service:** Evaluate need for and choose a centralized logging service (e.g., Logtail, Axiom, Datadog). Research options and free tiers.
 
 ## 4. Development Process Notes
 
 - **Branching Strategy:** Use feature branches for each milestone (e.g., `feat/M1-core-mvp`). Merge to `main` (or `develop`) after completion and code review.
 - **Code Reviews:** Each milestone's completion implies a code review before merging the feature branch.
-- **Secrets Policy:** Production secrets (API keys, tokens) must *only* reside in the hosting platform's secrets manager and GitHub Actions Secrets. `.env` is for local development overrides only. Document required vars in `.env.example`.
+- **Secrets Policy:** Production secrets (API keys, tokens) must *only* reside in the hosting platform's secrets manager (Vercel) and GitHub Actions Secrets. `.env` is for local development overrides only. Document required vars in `.env.example`.
 - **Logging:** Add ample, contextual logging during development using the structured logger (`pino`) to aid debugging and understanding.
 - **TSDoc:** Add TSDoc comments to exported functions, classes, types, and complex internal logic as code is written, not just at the end.
 
@@ -86,18 +88,18 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 
 | Milestone | Task ID       | Description                                                            | Status    | Notes                                                                                                              |
 | :-------- | :------------ | :--------------------------------------------------------------------- | :-------- | :----------------------------------------------------------------------------------------------------------------- |
-| **M1**    | **Core Hosted RAG MVP** |                                                                        |           | *Goal: Basic, functional hosted MCP server (SSE) querying manually indexed hosted DB. Requires code review before merge.* |
+| **M1**    | **Core Hosted RAG MVP** |                                                                        | Done      | *Goal: Basic, functional hosted MCP server (SSE) querying manually indexed hosted DB.*                           |
 |           | M1-TASK-00    | Verify `.gitignore` includes `.env`, `node_modules`, `dist/`, etc.     | Done      | Ensure no secrets or generated files are committed.                                                              |
 |           | M1-DECISION-01| **Chosen:** Provision **Pinecone** as hosted vector DB.                | Done      | Use existing account. Free tier suitable for initial phase.                                                      |
 |           | M1-DECISION-02| **Chosen:** Setup **Vercel** as server hosting platform.               | Done      | Leverage platform features for deployment, env vars.                                                             |
-|           | M1-DECISION-03| **Chosen:** Implement basic server auth via `X-API-Key` header.        | Done      | Server reads expected key from `MCP_API_KEY` env var. Client must send header.                                   |
+|           | M1-DECISION-03| **Chosen:** Implement basic server auth via `X-API-Key` header.        | Done      | Server reads `MCP_API_KEY` env var. **Auth check temporarily disabled in code** due to Cursor client not sending header with SSE transport (see Issue #TBD / 2.3.3). Re-enable when client supports it. |
 |           | M1-TASK-01    | Refactor `scripts/indexDocs.ts` for **Pinecone** client & auth         | Done      | Requires Pinecone API key/environment. Handle via env vars.                                                    |
-|           | M1-TASK-02    | Update essential config (`.env.example`, `src/config.ts`)            | Done      | Add `PINECONE_API_KEY`, `PINECONE_ENVIRONMENT`, `PINECONE_INDEX_NAME` (default: fabric-ux-system), `MCP_API_KEY`. |
-|           | M1-TASK-03    | **Manually run** `indexDocs.ts` to populate **Pinecone** index         | Done      | Requires M1-TASK-01 complete. Ensure index 'fabric-ux-system' exists (dim: 384, metric: cosine).               |
-|           | M1-TASK-04    | Refactor server (`index.ts`, tools) for **SSE**, **Pinecone**, & **Auth** | Done      | Check `X-API-Key` header against `MCP_API_KEY`. Resolved build issues: Used explicit tsc path in build script, reverted pino logger call to `pino.default()`, suppressed SDK import error (TS2307) via dynamic import + @ts-ignore. Build passes for src/, fails for tests/ (expected). |
-|           | M1-TASK-05    | **Manually deploy** server to **Vercel**                                | Done      | Build required direct execution of `node ./node_modules/typescript/lib/tsc.js` in Vercel build cmd override. Set Vercel Output Dir to `dist`. Deployment successful.                                   |
-|           | M1-TASK-06    | Basic E2E test: Connect MCP client (w/ header) to hosted endpoint    | To Do     | Validate core MVP functionality.                                                                                 |
-|           | M1-TASK-07    | Add M1 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include Pinecone/Vercel choices, auth details, setup, env vars, secrets policy, build workarounds.           |
+|           | M1-TASK-02    | Update essential config (`.env.example`, `src/config.ts`)            | Done      | Add `PINECONE_API_KEY`, `PINECONE_ENVIRONMENT`, `PINECONE_INDEX_NAME`, `MCP_API_KEY`. |
+|           | M1-TASK-03    | **Manually run** `indexDocs.ts` to populate **Pinecone** index         | Done      | Requires M1-TASK-01 complete. Index 'fabric-ux-system' populated.                                                |
+|           | M1-TASK-04    | Refactor server (`index.ts`, tools) for **SSE**, **Pinecone**, & **Auth** | Done      | Auth check commented out. Build issues resolved via deep SDK imports, tsconfig adjustments. SSE transport uses standard Node HTTP server integration. |
+|           | M1-TASK-05    | **Manually deploy** server to **Vercel**                                | Done      | Vercel build/deployment successful after resolving TS/env issues.                                                 |
+|           | M1-TASK-06    | Basic E2E test: Connect MCP client (w/ header) to hosted endpoint    | Done      | **Confirmed connection works with auth disabled.** Tool appears in Cursor. **401 occurs with auth enabled** due to client not sending header. |
+|           | M1-TASK-07    | Add M1 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include Pinecone/Vercel choices, auth details (incl. disabled status & reason), setup, env vars, build workarounds. |
 | **M2**    | **Automation Basics & Site Foundation** |                                                        |           | *Goal: Automate indexing/deployments (manual trigger), basic static site setup (GitHub Pages). Requires code review.* |
 |           | M2-DECISION-01| Decide final location for docs (`_docs_fabric_ux` vs `/site/...`)      | Decision  | Research Astro best practices. Affects M2-TASK-01, M2-TASK-03 path.                                           |
 |           | M2-TASK-01    | Set up Astro project, configure docs location, basic layout/pages      | To Do     | Depends on M2-DECISION-01.                                                                                       |
@@ -115,12 +117,13 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 |           | M3-TASK-05    | Update CI Actions for **automatic triggering** (optional)              | To Do     | E.g., trigger on docs/code changes.                                                                              |
 |           | M3-TASK-06    | Review M3 changes, perform more thorough cleanup                       | To Do     |                                                                                                                    |
 |           | M3-TASK-07    | Add M3 notes to `DEVELOPMENT_NOTES.md`                               | To Do     | Include health check details, robustness improvements, tool structure, logging integration.                        |
-| **M4**    | **Testing & Documentation** |                                                                        |           | *Goal: Comprehensive testing, final docs, final cleanup. Requires code review before merge.*                     |
+| **M4**    | **Mitigation, Testing & Documentation** |                                                        |           | *Goal: Mitigate open endpoint risk, comprehensive testing, final docs, final cleanup. Requires code review before merge.* |
+|           | M4-TASK-04    | Configure Platform-Level **Rate Limiting** on Vercel (IP-based)       | **High Priority** | **CRITICAL:** Prevent abuse due to disabled API key auth. Target: e.g., 60-120 req/min/ip.                     |
+|           | M4-TASK-0X    | Verify Pinecone API Key Permissions (Scoped)                         | To Do     | Ensure key in Vercel has minimum required permissions (query index only?).                                       |
 |           | M4-TASK-01    | Write/Update tests using **mocked DB client**                          | To Do     | Adapt paused `TEST-01`. Focus on mocking Vector DB client.                                                     |
-|           | M4-TASK-02    | Perform thorough E2E testing with MCP client (e.g., Cursor)        | To Do     | Use hosted SSE endpoint.                                                                                         |
-|           | M4-TASK-03    | Create platform config files (e.g., `vercel.json`)                     | To Do     | As needed for Vercel deployment.                                                                                 |
-|           | M4-TASK-04    | Configure Platform-Level **Rate Limiting** on Vercel (IP-based)       | To Do     | Prevent abuse (e.g., 60-120 req/min/ip).                                                                         |
-|           | M4-TASK-05    | Update `README.md`, `mcp-server.plan.md` status                        | To Do     | Incorporate details from `DEVELOPMENT_NOTES.md`. Reflect hosted setup, SSE, auth, etc.                       |
+|           | M4-TASK-02    | Perform thorough E2E testing with MCP client (e.g., Cursor)        | To Do     | Use hosted SSE endpoint (auth disabled).                                                                         |
+|           | M4-TASK-03    | Create platform config files (e.g., `vercel.json`)                     | To Do     | As needed for Vercel deployment (may include rate limit config).                                                |
+|           | M4-TASK-05    | Update `README.md`, `mcp-server.plan.md` status                        | To Do     | Incorporate details from `DEVELOPMENT_NOTES.md`. Reflect hosted setup, SSE, disabled auth, rate limiting, etc. |
 |           | M4-TASK-06    | Update `CHANGELOG.md`                                                  | To Do     | Document changes since v1.0.0.                                                                                 |
 |           | M4-TASK-07    | Final review and cleanup pass across the project                       | To Do     | Includes dependency review (`npm audit`, consider `npm update`).                                                  |
 
@@ -133,6 +136,7 @@ Developers using AI clients with MCP support (e.g., Cursor) who are building or 
 
 ## 6. Future considerations
 
+- **Re-enable API Key Auth:** Monitor Cursor updates/releases for SSE header support. Re-enable the `X-API-Key` check in `index.ts` as soon as feasible.
 - **Advanced RAG Enhancements:** Improve retrieval accuracy and relevance beyond the initial implementation.
   - *Chunking Strategy:* Explore semantic chunking, overlapping chunks, or context-aware splitting.
   - *Metadata Filtering:* Extract richer metadata during indexing and implement pre/post-search filtering.
