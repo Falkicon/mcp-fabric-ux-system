@@ -182,8 +182,7 @@ async function startServer() {
         log.info({ directKeyPreview, directKeyLength }, 'MCP_API_KEY value read directly inside handler');
         console.error(`[INDEX.TS] MCP_API_KEY direct read: ${directKeyPreview} (Length: ${directKeyLength})`);
 
-        // ******** TEMPORARILY COMMENT OUT check due to Cursor client likely not sending SSE headers ********
-        /*
+        // ******** RE-ENABLE API Key Check for VS Code Compatibility ********
         // Perform check using the directly read key
         if (!apiKeyFromEnvDirectly) {
             log.warn('DIRECT READ: MCP_API_KEY check failed (!apiKeyFromEnvDirectly is true). Cannot authenticate.');
@@ -211,31 +210,37 @@ async function startServer() {
         }
         log.debug('API Key validated successfully (Direct Read).');
         console.error('[INDEX.TS] API Key validated successfully (Direct Read).');
-        */
-       // Indicate that check is skipped
-       log.warn('SKIPPING API KEY CHECK (Workaround for Cursor SSE header issue)!');
-       console.error('[INDEX.TS] SKIPPING API KEY CHECK (Workaround for Cursor SSE header issue)!');
 
         // --- Handle MCP connection requests at root path --- 
         if (req.url === '/' && req.method === 'GET') {
             console.error('[INDEX.TS] Root path request. Handing off to MCP SSE Transport...');
             log.info('MCP connection request received. Initializing SSE transport for this request...');
             try {
-                // Initialize SSEServerTransport passing the path string '/' as the first argument.
-                // The req/res might be handled by server.connect or implicitly.
-                 const transport = new SSEServerTransport('/', res);
-                 // Connect the main server instance to this request-specific transport
-                 await server.connect(transport);
-                 log.info('SSEServerTransport connected for this request.');
-                 console.error('[INDEX.TS] SSEServerTransport connected.');
-                 // Transport handles closing the response when done
+                // Initialize SSEServerTransport with request and response objects
+                // Vercel serverless environment compatible approach
+                const transport = new SSEServerTransport({
+                    request: req,
+                    response: res,
+                    // Add Vercel-specific headers if needed
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Connection': 'keep-alive',
+                        'X-Accel-Buffering': 'no' // Prevents Vercel from buffering the response
+                    }
+                });
+                 
+                // Connect the main server instance to this request-specific transport
+                await server.connect(transport);
+                log.info('SSEServerTransport connected for this request.');
+                console.error('[INDEX.TS] SSEServerTransport connected.');
+                // Transport handles closing the response when done
             } catch (transportError) {
-                 console.error('[INDEX.TS] Error initializing or connecting MCP SSE transport:', transportError);
-                 log.error({ error: transportError }, 'Error initializing or connecting MCP SSE transport');
-                 if (!res.headersSent) {
+                console.error('[INDEX.TS] Error initializing or connecting MCP SSE transport:', transportError);
+                log.error({ error: transportError }, 'Error initializing or connecting MCP SSE transport');
+                if (!res.headersSent) {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ error: 'Internal Server Error during transport setup' }));
-                 }
+                }
             }
         } else {
              console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);

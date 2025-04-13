@@ -39,15 +39,12 @@ const embeddingModelName = process.env.EMBEDDING_MODEL_NAME || 'Xenova/all-MiniL
 
 // Pinecone Configuration
 const pineconeApiKey = process.env.PINECONE_API_KEY;
-const pineconeEnvironment = process.env.PINECONE_ENVIRONMENT;
+// Default Pinecone environment to "us-east-1" if not specified
+const pineconeEnvironment = process.env.PINECONE_ENVIRONMENT || 'us-east-1';
 const pineconeIndexName = process.env.PINECONE_INDEX_NAME || 'fabric-ux-system'; // Default index name
 
 // --- MCP Server Auth Configuration ---
 const mcpApiKey = process.env.MCP_API_KEY;
-
-// Deprecated ChromaDB config
-// const chromaServerUrl = process.env.CHROMA_SERVER_URL || 'http://127.0.0.1:8000';
-// const chromaCollectionName = process.env.CHROMA_COLLECTION_NAME || 'fabric_ux_docs';
 
 // Validation for required environment variables
 if (!pineconeApiKey) {
@@ -55,10 +52,12 @@ if (!pineconeApiKey) {
     // Consider throwing an error in production environments or if essential
     // throw new Error('Missing required environment variable: PINECONE_API_KEY');
 }
-if (!pineconeEnvironment) {
-    console.warn('Missing required environment variable: PINECONE_ENVIRONMENT');
-    // Consider throwing an error
-}
+
+// Log the Pinecone configuration being used
+console.error(`[CONFIG] Using Pinecone environment: ${pineconeEnvironment}`);
+console.error(`[CONFIG] Using Pinecone index: ${pineconeIndexName}`);
+console.error(`[CONFIG] Pinecone API key provided: ${pineconeApiKey ? 'Yes' : 'No'}`);
+
 if (!mcpApiKey) {
     console.warn('Missing required environment variable: MCP_API_KEY. Server auth will be disabled.');
     // Allow proceeding without auth key for flexibility, but warn loudly.

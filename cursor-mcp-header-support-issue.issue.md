@@ -1,18 +1,20 @@
-# Bug Report: Custom Headers in `mcp.json` Not Sent for SSE Transport
+# Bug Report: Cursor SSE Transport Issues (Headers Not Sent & Incorrect POST Requests)
 
 **Description:**
 
-When configuring an MCP server in `mcp.json` to use the `sse` transport, custom headers defined in the `headers` block (specifically `X-API-Key` for authentication in this case) do not appear to be sent with the initial HTTP GET request that establishes the SSE connection.
+When configuring an MCP server in `mcp.json` to use the `sse` transport, two critical issues prevent proper operation:
 
-This prevents server-side authentication schemes that rely on checking headers for SSE connections initiated by Cursor.
+1.  **Headers Not Sent:** Custom headers defined in the `headers` block (e.g., `X-API-Key`) are not sent with the initial HTTP GET request, preventing header-based authentication.
+2.  **Incorrect POST Requests:** After the initial SSE connection is successfully established via GET, Cursor attempts to send subsequent MCP messages (like `mcp/listOfferings`) via **new HTTP POST requests** to the server endpoint, instead of sending JSON-RPC messages over the established SSE connection. This results in HTTP 404 errors from servers correctly configured for SSE.
+
+These issues make the `sse` transport unusable for authenticated servers and for any actual tool communication beyond the initial handshake.
 
 **Steps to Reproduce:**
 
-1.  **Set up an MCP Server with SSE Transport:** Create a simple Node.js MCP server using `@modelcontextprotocol/sdk` and `SSEServerTransport`. Configure it to listen on a specific path (e.g., `/`) for GET requests to establish the SSE connection.
-2.  **Implement Header Check:** In the server's HTTP request handler, implement logic to check for a specific incoming header (e.g., `x-api-key` or `X-API-Key`). Add detailed logging to show the value of the header received.
-3.  **Implement API Key Env Var:** Configure the server to expect a corresponding API key from an environment variable (e.g., `MCP_API_KEY`). Log the value loaded from the environment variable within the request handler.
-4.  **Deploy Server:** Deploy the server to a reachable endpoint (e.g., Vercel).
-5.  **Configure `mcp.json`:** In Cursor's `mcp.json`, configure the server using `"transport": "sse"`, the correct `"url"`, and add the required header to the `"headers"` block:
+1.  **Set up an MCP Server with SSE Transport:** Create a Node.js MCP server using `@modelcontextprotocol/sdk` (`SSEServerTransport`, `McpServer`). Configure it using `http.createServer` to listen for `GET /` requests to establish the SSE connection. Add detailed logging for incoming requests and headers.
+2.  **(Optional) Implement Header Check:** Implement logic to check for `X-API-Key` and log the received value (it will be `undefined`). Temporarily disable the actual authentication failure to proceed.
+3.  **Deploy Server:** Deploy to a reachable endpoint (e.g., Vercel).
+4.  **Configure `mcp.json`:** Configure the server with `"transport": "sse"`, the correct `"url"`, and optionally the `"headers"` block.
     ```json
     {
       "mcpServers": {
@@ -20,7 +22,7 @@ This prevents server-side authentication schemes that rely on checking headers f
           "displayName": "My SSE Server",
           "url": "https://your-deployed-server.com/",
           "transport": "sse",
-          "headers": {
+          "headers": { // These headers are NOT sent
             "X-API-Key": "YOUR_SECRET_API_KEY"
           },
           "enabled": true
@@ -28,58 +30,69 @@ This prevents server-side authentication schemes that rely on checking headers f
       }
     }
     ```
-6.  **Attempt Connection:** Start/Restart Cursor to load the configuration and attempt to connect to the server.
-7.  **Observe Server Logs:** Check the runtime logs of the deployed MCP server.
+5.  **Attempt Connection:** Start/Restart Cursor.
+6.  **Observe Server Logs:** Check the runtime logs of the deployed MCP server.
+7.  **Observe Cursor MCP Logs:** Check Cursor's MCP output channel.
 
 **Expected Behavior:**
 
-The server logs should show that:
-1.  It successfully loaded its own API key from the environment variable (`MCP_API_KEY`).
-2.  It received the `X-API-Key` header from the Cursor client with the value specified in `mcp.json`.
-3.  The authentication check comparing the received header value and the environment variable value passes.
-4.  The SSE connection is successfully established.
+1.  Cursor sends the initial `GET /` request *with* the `X-API-Key` header.
+2.  Server validates the header (if auth enabled).
+3.  SSE connection is established.
+4.  Cursor sends subsequent MCP messages (JSON-RPC) *over the established SSE connection*.
+5.  Server receives and processes these messages via the transport.
+6.  Tools become available in Cursor.
 
 **Actual Behavior:**
 
-The server logs show that:
-1.  It successfully loads its own API key from the environment variable (`MCP_API_KEY`).
-2.  The value received for the `X-API-Key` header (checking both `req.headers['x-api-key']` and `req.headers['X-API-Key']`) is `undefined`.
-3.  The server-side authentication check fails because the header is missing.
-4.  The server returns a 401 Unauthorized error, and the SSE connection fails.
+1.  Cursor sends the initial `GET /` request **without** the `X-API-Key` header. Server logs show `Received Type: undefined` for the header.
+2.  If server auth is bypassed, the SSE connection *is* established initially. Server logs show `SSEServerTransport connected for this request.`.
+3.  Cursor **immediately** attempts to send a new **HTTP POST** request to the server endpoint (`/`).
+4.  Server responds with **HTTP 404 Not Found** to the POST request, as it's only expecting the initial GET for SSE setup.
+5.  Cursor MCP logs show `Error POSTing to endpoint (HTTP 404): Not Found`.
+6.  Cursor MCP logs show `Client closed`.
+7.  Cursor UI shows `No tools available` or `Failed to create client`.
 
-**Example Server Log Snippet (from our testing):**
+**Example Server Log Snippet (Header Issue):**
 
 ```
-// Log showing server loaded its key
-[INDEX.TS] MCP_API_KEY direct read: Rk&...!51 (Length: 58)
-
-// Log showing header check details
 [KEY CHECK] Path: /, Expected Length: 58, Received Type: undefined, Received Length: -1
+```
 
-// Log showing auth failure
-[INDEX.TS] Unauthorized attempt (Direct Read): Invalid or missing X-API-Key
+**Example Cursor MCP Log Snippet (POST Issue):**
+```
+[info] sted: Creating SSE transport
+[error] sted: Client error for command Error POSTing to endpoint (HTTP 404): Not Found
+[error] sted: Error in MCP: Error POSTing to endpoint (HTTP 404): Not Found
+[info] sted: Client closed for command
+[error] sted: Error in MCP: Client closed
 ```
 
 **Troubleshooting Done:**
 
-*   Confirmed the server correctly reads its *own* API key from environment variables (`process.env.MCP_API_KEY`) within the request handler.
-*   Confirmed the `mcp.json` configuration syntax for `headers` is correct.
-*   Confirmed the API key values in `mcp.json` and the server environment variable match exactly (no whitespace issues).
-*   Tested checking for both lowercase `x-api-key` and original case `X-API-Key` headers on the server; both were undefined.
-*   Confirmed the server works correctly if the server-side authentication check is bypassed.
-*   Briefly reviewed Cursor forum/GitHub issues; found reports of general SSE instability but nothing specifically confirming/denying header support for SSE.
+*   Confirmed server correctly reads its own env vars.
+*   Confirmed `mcp.json` syntax.
+*   Confirmed exact match of API keys.
+*   Tested case-insensitivity for headers.
+*   Isolated header issue via detailed logging.
+*   Isolated POST issue via server and client logs after bypassing auth.
+*   Reviewed related forum/GitHub posts, indicating general SSE instability/bugs have been reported previously.
 
 **Conclusion:**
 
-This behavior strongly suggests that the Cursor client implementation for `sse` transport currently does not support or correctly send custom headers defined in the `mcp.json` file. This prevents standard header-based authentication methods for hosted SSE MCP servers.
+The Cursor client implementation for `sse` transport appears to have (at least) two bugs:
+1.  It does not send custom headers defined in `mcp.json`.
+2.  It incorrectly uses HTTP POST for subsequent communication instead of the established SSE channel.
+
+This makes the SSE transport currently unsuitable for authenticated servers or actual tool usage.
 
 **Environment:**
 
 *   Cursor Version: [Please fill in your Cursor Version]
 *   OS: Windows 11 (User's OS)
-*   MCP Server Runtime: Node.js (e.g., v22 on Vercel)
+*   MCP Server Runtime: Node.js (on Vercel)
 *   `@modelcontextprotocol/sdk` Version: ^1.9.0
 
 **Request:**
 
-Please investigate whether sending custom headers with SSE transport is intended to be supported and fix the implementation if it's a bug. If it's not currently supported, please consider adding this capability, as it's crucial for securing hosted MCP servers.
+Please investigate and fix these issues with the SSE transport implementation. Header support is needed for security, and using the SSE channel correctly after connection is fundamental to the transport's operation.
