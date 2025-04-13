@@ -92,6 +92,11 @@ export function getDiagnostics() {
             platform: process.platform,
             nodeVersion: process.version,
             memory: process.memoryUsage()
+        },
+        // Additional deployment information
+        deployment: {
+            vercelEnvironment: process.env.VERCEL_ENV || 'unknown',
+            region: process.env.VERCEL_REGION || 'unknown'
         }
     };
 }

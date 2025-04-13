@@ -249,35 +249,72 @@ async function startServer() {
             }
         } 
         // --- Diagnostics endpoint for troubleshooting ---
-        else if (req.url?.startsWith('/_diagnostics') || req.url?.includes('_diag=')) {
+        // Using explicit string checks for the URL to ensure better matching
+        else if (
+            req.url === '/_diagnostics' || 
+            req.url === '/diagnostics' || 
+            req.url?.includes('_diag=') || 
+            req.url?.includes('?diag')
+        ) {
             console.error('[INDEX.TS] Diagnostics endpoint accessed');
             log.info('Diagnostics endpoint accessed');
             
-            // Import the diagnostics function from config.js
-            import { getDiagnostics } from './config.js';
+            // Import the diagnostics function - no need for dynamic import
+            // We already imported config.ts at the top level, so just use the direct function
+            const { getDiagnostics } = await import('./config.js');
             
-            // Gather diagnostic information including the environment variables
-            const diagnostics = {
-                serverStatus: {
-                    pineconeInitialized: pinecone !== null,
-                    indexHandleObtained: pineconeIndex !== null,
-                    embedderLoaded: embedder !== null,
-                    serverReady: pinecone !== null && pineconeIndex !== null && embedder !== null
-                },
-                config: getDiagnostics(),
-                rawEnvironmentVariables: {
-                    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT || '[not set]',
-                    PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME || '[not set]',
-                    PINECONE_API_KEY: process.env.PINECONE_API_KEY ? '[present]' : '[not set]',
-                    MCP_API_KEY: process.env.MCP_API_KEY ? '[present]' : '[not set]'
-                },
-                timestamp: new Date().toISOString(),
-                uptime: process.uptime()
-            };
-            
-            // Send the diagnostics info back
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(diagnostics, null, 2));
+            try {
+                // Gather diagnostic information including the environment variables
+                const diagnostics = {
+                    serverStatus: {
+                        pineconeInitialized: pinecone !== null,
+                        indexHandleObtained: pineconeIndex !== null,
+                        embedderLoaded: embedder !== null,
+                        serverReady: pinecone !== null && pineconeIndex !== null && embedder !== null
+                    },
+                    config: getDiagnostics ? getDiagnostics() : { 
+                        message: "getDiagnostics function not available",
+                        environment: {
+                            pineconeEnvironment,
+                            pineconeIndexName,
+                            pineconeApiKeyProvided: !!pineconeApiKey,
+                            mcpApiKeyProvided: !!mcpApiKey,
+                            embeddingModel: embeddingModelName,
+                            nodeEnv: process.env.NODE_ENV || 'development',
+                        }
+                    },
+                    rawEnvironmentVariables: {
+                        PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT || '[not set]',
+                        PINECONE_INDEX_NAME: process.env.PINECONE_INDEX_NAME || '[not set]',
+                        PINECONE_API_KEY: process.env.PINECONE_API_KEY ? '[present]' : '[not set]',
+                        MCP_API_KEY: process.env.MCP_API_KEY ? '[present]' : '[not set]'
+                    },
+                    timestamp: new Date().toISOString(),
+                    uptime: process.uptime(),
+                    requestInfo: {
+                        url: req.url,
+                        method: req.method,
+                        headers: req.headers
+                    }
+                };
+                
+                // Send the diagnostics info back with CORS headers
+                res.writeHead(200, { 
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate'
+                });
+                res.end(JSON.stringify(diagnostics, null, 2));
+                console.error('[INDEX.TS] Diagnostics successfully sent');
+            } catch (diagError) {
+                console.error('[INDEX.TS] Error generating diagnostics:', diagError);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ 
+                    error: 'Error generating diagnostics', 
+                    message: diagError instanceof Error ? diagError.message : String(diagError),
+                    stack: diagError instanceof Error ? diagError.stack : undefined
+                }, null, 2));
+            }
         } 
         else {
             console.error(`[INDEX.TS] Path ${req.url} not handled. Sending 404.`);
