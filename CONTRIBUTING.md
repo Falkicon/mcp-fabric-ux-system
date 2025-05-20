@@ -54,4 +54,4 @@ When extending the server with new capabilities, remember to:
 - Follow the MCP protocol specification
 - Ensure proper JSON-RPC formatting for all messages
 - Write logs to stderr when in stdio mode
-- Be mindful of tool naming conventions and prefixing 
+- Be mindful of tool naming conventions and prefixing

@@ -8,12 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+
 - Implement Hosted Server & Connector (SSE) (`DEPLOY-01`)
 - Add Unit/Integration Tests for Indexing (`TEST-01` - Currently Paused)
 
-## [1.0.0] - 2025-04-10 
+## [1.0.0] - 2025-04-10
 
 ### Added
+
 - Initial project setup with TypeScript and MCP SDK (`SETUP-01`).
 - RAG architecture definition and documentation standards (`DATA-REBUILD-DEFINE`, `DATA-REBUILD-GUIDE`).
 - Synthesized documentation content in `_docs_fabric_ux` (`DATA-REBUILD-EXECUTE`).
@@ -26,8 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial `mcp-server.plan.md` (`DOCS-02`).
 
 ### Changed
+
 - Refactored `src/index.ts` and tool handler for improved testability (`REFACTOR-02`).
 
 ### Fixed
+
 - Ensured required frontmatter exists in component documentation (`DATA-UPDATE-FRONTMATTER`).
 - Validated RAG pipeline through indexing script runs and MCP Inspector tests (`TEST-03`, `TEST-04`).
